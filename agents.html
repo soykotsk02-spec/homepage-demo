@@ -4,9 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="我的私有 Agent 工作台。查看科技简报，连接本地资料，跟进真实运行进度。">
+  <meta name="description" content="体验科技简报 Agent：填写自己的邮箱，接收一封只包含公开科技新闻的简报，并查看真实运行进度。">
   <meta name="theme-color" content="#f7f6f2">
-  <title>我的 Agent · 个人工作台</title>
+  <title>科技简报 Agent · 公开体验与个人工作台</title>
   <link rel="stylesheet" href="/agents.css">
   <script src="/agents.js" defer></script>
 </head>
@@ -20,25 +20,53 @@
 
     <main id="main">
       <div class="page-heading">
-        <div><p class="eyebrow">A LITTLE HELP, EVERY DAY</p><h1>我的 Agent<span class="heading-dot">.</span></h1><p class="page-intro">从今天的新闻，走到自己的下一步。</p></div>
-        <span class="private-label"><span aria-hidden="true">◈</span> 私有工作台</span>
+        <div><p class="eyebrow">A LITTLE HELP, EVERY DAY</p><h1>科技简报 Agent<span class="heading-dot">.</span></h1><p class="page-intro">填入自己的邮箱，让 Agent 为你整理一份公开科技新闻。</p></div>
+        <a class="private-label owner-link" href="#owner-workspace"><span aria-hidden="true">◈</span> 站主工作区 ↓</a>
       </div>
 
+      <section id="public-agent" class="public-agent panel" aria-labelledby="public-heading">
+        <div class="public-copy">
+          <p class="eyebrow">无需登录 · 公开体验</p>
+          <h2 id="public-heading">把今天的科技新闻，<br>交给 Agent 整理。</h2>
+          <p class="public-description">优先采集近 3 天的国内外科技新闻，目标每封 10–15 条，整理后发到你自己的邮箱；数量不足时会如实说明。提交后，可查看实际运行进度。</p>
+          <ol class="public-workflow" aria-label="公开简报的工作流程"><li><span>01</span>采集公开新闻</li><li><span>02</span>整理科技简报</li><li><span>03</span>发送到你的邮箱</li></ol>
+          <p id="public-scope" class="public-scope">只发一封公开新闻简报，不含站主本地资料。不会订阅每日邮件。</p>
+        </div>
+        <div class="public-form-card">
+          <form id="public-form">
+            <label for="public-email">你的接收邮箱</label>
+            <input id="public-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" required placeholder="you@example.com" aria-describedby="public-scope public-feedback-detail">
+            <label class="public-consent" for="public-consent"><input id="public-consent" type="checkbox" required><span>这是我自己的邮箱，我同意接收这一封公开新闻简报。</span></label>
+            <button id="public-submit" class="button primary full-width" type="submit"><span class="button-spinner" aria-hidden="true"></span><span data-button-label>发送公开简报到我的邮箱</span></button>
+          </form>
+          <div id="public-feedback" class="public-feedback" role="status" aria-live="polite" data-tone="info">
+            <h3 id="public-feedback-title">填写邮箱，即可体验</h3>
+            <p id="public-feedback-detail">任务由站主的电脑执行，电脑在线时才能接收。以实际运行结果为准。</p>
+            <ol id="public-progress" class="public-progress" aria-label="本次公开简报进度" hidden><li data-public-step="collect">采集新闻</li><li data-public-step="render">整理简报</li><li data-public-step="send">发送邮件</li></ol>
+            <p id="public-updated" class="public-updated" hidden></p>
+          </div>
+          <button id="public-check" class="button secondary full-width" type="button" hidden><span class="button-spinner" aria-hidden="true"></span><span data-button-label>检查本次请求状态</span></button>
+          <p class="public-footnote">邮箱仅用于本次投递；页面不会将邮箱保存到浏览器存储。发送结果未确认时，请先检查状态，避免重复提交。</p>
+        </div>
+      </section>
+
+      <div id="owner-workspace" class="owner-heading"><div><p class="section-kicker">OWNER WORKSPACE</p><h2>站主私有工作区</h2></div><p>以下区域需站主密码，可查看个人资料、运行记录与每日定时计划。</p></div>
       <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
 
       <section id="session-panel" class="session-layout" aria-label="工作台登录">
         <div class="session-card panel">
-          <div class="section-kicker">WELCOME BACK</div>
-          <h2>继续你的探索</h2>
-          <p class="muted">登录后，查看真实简报与运行记录。个人资料和邮件内容仅在登录后读取。</p>
+          <div id="session-badge" class="session-badge" data-state="checking">正在检查连接</div>
+          <h2 id="session-heading">连接你的 Agent</h2>
+          <p class="muted">站主登录后，查看包含自己本地资料的简报与运行记录。访客体验请使用上方公开简报表单。</p>
           <div id="session-state" class="session-state" role="status">正在检查登录状态…</div>
           <form id="login-form" hidden>
             <label for="password">工作台密码</label>
             <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="输入工作台密码" aria-describedby="login-error">
             <p id="login-error" class="form-error" role="alert" hidden></p>
-            <button id="login-button" class="button primary full-width" type="submit">进入工作台 <span aria-hidden="true">↗</span></button>
+            <button id="login-button" class="button primary full-width" type="submit"><span class="button-spinner" aria-hidden="true"></span><span data-button-label>进入工作台</span></button>
           </form>
-          <button id="retry-button" class="button secondary" type="button" hidden>重新检查连接</button>
+          <button id="retry-button" class="button primary full-width" type="button" aria-describedby="session-state session-checked" hidden><span class="button-spinner" aria-hidden="true"></span><span data-button-label>重新检查连接</span></button>
+          <p id="session-checked" class="check-time" aria-live="polite"></p>
           <p class="fine-print">密码不会保存在此页面。退出登录后，页面将清除已显示的私人内容。</p>
         </div>
         <aside class="session-aside">
@@ -65,13 +93,14 @@
             <p id="worker-description" class="muted">网页负责提交任务，执行电脑负责读取资料、分析和发信。</p>
             <div class="device-meta"><span>最近连接</span><time id="worker-last-seen">暂无记录</time></div>
             <div class="device-meta"><span>页面更新</span><time id="updated-time">尚未更新</time></div>
-            <button id="refresh-button" class="text-button refresh-button" type="button">刷新状态 <span aria-hidden="true">↻</span></button>
+            <button id="refresh-button" class="text-button refresh-button" type="button"><span class="button-spinner" aria-hidden="true"></span><span data-button-label>刷新状态 ↻</span></button>
           </aside>
         </section>
 
         <section class="control-panel panel" aria-labelledby="start-heading">
-          <div><h2 id="start-heading">开始一次新的探索</h2><p id="action-help" class="muted">预览只生成简报；运行并发送会实际发邮件到已配置的邮箱。</p><p id="availability-note" class="availability-note">正在同步执行状态。</p></div>
-          <div class="actions"><button id="preview-button" class="button secondary" type="button" disabled>生成预览<span class="button-caption">不发邮件</span></button><button id="send-button" class="button primary" type="button" disabled>运行并发送 <span aria-hidden="true">↗</span><span class="button-caption">生成简报并真实发信</span></button></div>
+          <div class="control-copy"><h2 id="start-heading">运行一次 Agent</h2><p id="action-help" class="muted">预览只生成简报；启动并发送会发到已配置的邮箱。</p><p class="schedule-help">每日定时任务由电脑执行，下面的按钮启动单次任务。</p><p id="availability-note" class="availability-note">正在同步执行状态。</p></div>
+          <div class="actions"><button id="preview-button" class="button secondary" type="button" aria-describedby="availability-note action-feedback" disabled><span class="button-spinner" aria-hidden="true"></span><span data-button-label>生成预览</span><span class="button-caption">只看结果 · 不发邮件</span></button><button id="send-button" class="button primary" type="button" aria-describedby="availability-note action-feedback" disabled><span class="button-spinner" aria-hidden="true"></span><span data-button-label>启动并发送</span><span class="button-caption">生成简报并发到邮箱</span></button></div>
+          <p id="action-feedback" class="action-feedback" hidden></p>
         </section>
 
         <section class="workflow" aria-label="三个工作模块">

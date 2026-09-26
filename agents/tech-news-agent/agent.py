@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import contextlib
+import copy
 from datetime import datetime, timezone, timedelta
 from email.utils import make_msgid
 import hashlib
@@ -73,13 +74,16 @@ def log(run_dir: Path, phase: str, message: str):
         stream.write(json.dumps(event, ensure_ascii=False) + "\n")
 
 
-def render_report(analysis: dict, recipient: str) -> tuple[str, str]:
+def render_report(analysis: dict, recipient: str, *, public_only=False) -> tuple[str, str]:
     def e(value):
         return html.escape(str(value), quote=True)
 
-    if not analysis.get("items") or len(analysis["items"]) > 8:
-        raise ValueError("报告须包含 1–8 条新闻。")
-    connections = analysis.get("localConnections")
+    if not analysis.get("items") or len(analysis["items"]) > 15:
+        raise ValueError("报告须包含 1–15 条新闻；新简报在来源充足时为 10–15 条。")
+    if public_only:
+        from public_news import validate_public_report
+        validate_public_report(analysis)
+    connections = [] if public_only else analysis.get("localConnections")
     if not isinstance(connections, list):
         raise ValueError("报告必须包含本次实际本地资料的关联分析字段。")
     rows, plain = [], [analysis["title"], analysis["generatedAt"], analysis["overview"]]
@@ -87,18 +91,22 @@ def render_report(analysis: dict, recipient: str) -> tuple[str, str]:
         url = urlsplit(item["url"])
         if url.scheme != "https" or not url.hostname or url.username or url.password:
             raise ValueError("原文链接必须是无凭据的 HTTPS 地址。")
-        freshness = "最近48小时" if item["freshness"] == "recent" else "延伸阅读 / 非最近48小时"
+        within_window = item["freshness"] == "recent" or (isinstance(item.get("ageHours"), (int, float)) and 0 <= item["ageHours"] <= 72)
+        freshness = "近三天 / 72小时内" if within_window else "延伸阅读 / 非近三天"
+        region = {"domestic": "国内", "international": "国际"}.get(item.get("region"), "")
+        metadata = f"{item['source']} · {item['publishedAt']} · {region + ' · ' if region else ''}{freshness}"
         rows.append(f'''<tr><td style="padding:22px 26px;border-bottom:1px solid #e3eae3">
-<p style="font-size:12px;color:#587163">{e(item['source'])} · {e(item['publishedAt'])} · {freshness}</p>
+<p style="font-size:12px;color:#587163">{e(metadata)}</p>
 <h2 style="font-size:20px;line-height:1.5;color:#214432">{e(item['title'])}</h2>
 <p style="line-height:1.8">{e(item['summary'])}</p>
 <p style="line-height:1.8;color:#58665d"><b>为什么值得看：</b>{e(item['whyItMatters'])}</p>
 <a style="color:#226641" href="{e(item['url'])}">阅读原文 ↗</a></td></tr>''')
-        plain.extend([item["title"], f"{item['source']} | {item['publishedAt']} | {freshness}",
+        plain.extend([item["title"], metadata,
                       item["summary"], item["whyItMatters"], item["url"], ""])
     local_rows = []
-    plain.append("结合你的本地资料")
-    if not connections:
+    if not public_only:
+        plain.append("结合你的本地资料")
+    if not public_only and not connections:
         local_rows.append('<p style="line-height:1.8">本次没有找到足够可靠的新闻与资料关联，具体范围与原因见下方说明。</p>')
         plain.append("本次没有找到足够可靠的新闻与资料关联，具体范围与原因见下方说明。")
     for connection in connections:
@@ -113,7 +121,10 @@ def render_report(analysis: dict, recipient: str) -> tuple[str, str]:
                       "原句：“" + connection["quote"] + "”",
                       "与这条新闻的联系：" + connection["relationship"],
                       "可以接着做：" + connection["nextStep"], ""])
-    plain.extend(["资料范围与限制：" + analysis["localContext"], ""])
+    local_section = ""
+    if not public_only:
+        plain.extend(["资料范围与限制：" + analysis["localContext"], ""])
+        local_section = f'''<tr><td style="padding:26px;background:#eaf2e6;border-top:3px solid #315f49"><h2 style="margin:0;font-size:23px;color:#214432">结合你的本地资料</h2>{''.join(local_rows)}<p style="font-size:13px;line-height:1.8;color:#5b6c61"><b>资料范围与限制：</b>{e(analysis['localContext'])}</p></td></tr>'''
     learning = "".join(f"<li>{e(x)}</li>" for x in analysis["learningSuggestions"])
     plain.extend(["今天动手做一件事", *analysis["learningSuggestions"],
                   analysis["sourceNote"], "运行编号：" + analysis["runId"]])
@@ -123,7 +134,7 @@ def render_report(analysis: dict, recipient: str) -> tuple[str, str]:
 <tr><td style="padding:28px 26px;background:#234b37;color:#fff"><p style="font-size:12px;letter-spacing:2px">DAILY TECH BRIEF</p><h1 style="font-size:27px;line-height:1.4">{e(analysis['title'])}</h1><p style="font-size:13px">{e(analysis['generatedAt'])} · 独立 agent 自动生成</p></td></tr>
 <tr><td style="padding:24px 26px;line-height:1.8">{e(analysis['overview'])}</td></tr>
 {''.join(rows)}
-<tr><td style="padding:26px;background:#eaf2e6;border-top:3px solid #315f49"><h2 style="margin:0;font-size:23px;color:#214432">结合你的本地资料</h2>{''.join(local_rows)}<p style="font-size:13px;line-height:1.8;color:#5b6c61"><b>资料范围与限制：</b>{e(analysis['localContext'])}</p></td></tr>
+{local_section}
 <tr><td style="padding:24px 26px;background:#f2f7ef"><h2 style="font-size:20px">今天动手做一件事</h2><ul style="padding-left:22px;line-height:1.8">{learning}</ul></td></tr>
 <tr><td style="padding:22px 26px;font-size:12px;color:#657266;line-height:1.8">{e(analysis['sourceNote'])}<br>运行编号：{e(analysis['runId'])}<br>收件人：{e(recipient)}</td></tr></table></body></html>'''
     return body, "\n".join(plain)
@@ -139,10 +150,22 @@ def run_pipeline(args, config: dict) -> int:
     from analyzer import analyze
     from gmail_delivery import GmailMailer, MailNotSent, MailOutcomeUnknown
 
+    public_only = getattr(args, "public_only", False)
+    override = getattr(args, "recipient", "")
+    if override and not public_only:
+        raise ValueError("收件人覆盖仅适用于公开新闻模式。")
+    if public_only:
+        from public_news import normalize_recipient
+        if not override or not args.demo_id:
+            raise ValueError("公开新闻模式须提供收件邮箱和唯一任务编号。")
+        config = copy.deepcopy(config)
+        config["mail"]["recipient"] = normalize_recipient(override)
     data_dir = ROOT / "data"
     date_bj = datetime.now(BEIJING).strftime("%Y-%m-%d")
     recipient = config["mail"]["recipient"]
     key = f"demo:{args.demo_id}:{recipient}" if args.demo_id else f"daily:{date_bj}:{recipient}"
+    if public_only:
+        key = "public:" + key
     state_path = find_state(data_dir, key)
     with exclusive_lock(data_dir / "agent.lock"):
         delivery = read_json(state_path) if args.send and state_path.exists() else None
@@ -175,6 +198,8 @@ def run_pipeline(args, config: dict) -> int:
             if args.send:
                 subject = (f"独立Agent演示 | {date_bj} | {args.demo_id}" if args.demo_id
                            else f"每日科技简报 | {date_bj}")
+                if public_only:
+                    subject = f"公开科技简报 | {date_bj} | {args.demo_id}"
                 delivery = {"key": key, "status": "prepared", "runId": run_id,
                             "subject": subject, "recipient": recipient,
                             "messageId": make_msgid(domain="tech-news-agent.local"),
@@ -186,6 +211,8 @@ def run_pipeline(args, config: dict) -> int:
             "runId": run_id, "startedAtUtc": utc_now(), "pid": os.getpid(),
             "requestedTrigger": args.trigger, "mode": "send" if args.send else "preview",
             "demoId": args.demo_id, "sent": False, "recipientConfirmed": False}
+        if public_only:
+            status.update(publicOnly=True, audience="public", mode="public-send" if args.send else "public-preview")
         status["attemptStartedAtUtc"] = utc_now()
         write_json(status_path, status)
         log(run_dir, "start", f"独立 agent 已启动；运行编号 {run_id}。")
@@ -197,47 +224,60 @@ def run_pipeline(args, config: dict) -> int:
                 news = cached
                 log(run_dir, "collect", "恢复同一运行的已保存输入，保留原始抓取时间。")
             else:
-                log(run_dir, "collect", "正在联网抓取 BBC、Hugging Face 和 OpenAI 的公开科技信息。")
+                log(run_dir, "collect", "正在联网抓取国内外公开科技来源，优先采集近三天的新闻。")
                 news = collect(run_dir)
             if not news.get("items"):
                 raise RuntimeError("本次没有可用新闻，停止分析和发送。")
             status["collectedAtUtc"] = news["generatedAtUtc"]
             write_json(status_path, status)
-            analysis_path = run_dir / "analysis.json"
+            analysis_path = run_dir / ("public-analysis.json" if public_only else "analysis.json")
             if analysis_path.exists():
                 analysis = read_json(analysis_path)
+                if public_only:
+                    from public_news import validate_public_report
+                    validate_public_report(analysis)
                 log(run_dir, "analyze", "恢复同一运行已经生成的分析。")
             else:
-                from local_library import collect_local_context
+                if public_only:
+                    status["localReadStatus"] = "not_used_public_news"
+                    write_json(status_path, status)
+                    log(run_dir, "analyze", "正在仅根据本次公开新闻，由独立模型生成访客简报。")
+                else:
+                    from local_library import collect_local_context
 
-                profile = read_json(ROOT / "profile-context.json")
-                status["localReadStatus"] = "reading"
-                write_json(status_path, status)
-                log(run_dir, "local-read", "正在重新读取允许使用的本地资料正文。")
-                local_context = collect_local_context(ROOT / "local-sources.json", run_dir, news)
-                if (not isinstance(local_context, dict) or not local_context.get("assets")
-                        or not local_context.get("chunks")):
-                    raise ValueError("本次未读取到可用本地资料，停止分析，不能用背景概括代替正文。")
-                profile["localLibrary"] = local_context
-                status.update(localReadStatus="completed", localReadAtUtc=utc_now(),
-                              localSourceCount=len(local_context["assets"]),
-                              localChunkCount=len(local_context["chunks"]))
-                write_json(status_path, status)
-                log(run_dir, "local-read", f"实际读取 {len(local_context['assets'])} 份本地资料、"
-                    f"{len(local_context['chunks'])} 个正文段落，已提供给本次分析。")
-                log(run_dir, "analyze", "正在结合新闻与实际本地资料，由独立模型生成中文简报。")
+                    profile = read_json(ROOT / "profile-context.json")
+                    status["localReadStatus"] = "reading"
+                    write_json(status_path, status)
+                    log(run_dir, "local-read", "正在重新读取允许使用的本地资料正文。")
+                    local_context = collect_local_context(ROOT / "local-sources.json", run_dir, news)
+                    if (not isinstance(local_context, dict) or not local_context.get("assets")
+                            or not local_context.get("chunks")):
+                        raise ValueError("本次未读取到可用本地资料，停止分析，不能用背景概括代替正文。")
+                    profile["localLibrary"] = local_context
+                    status.update(localReadStatus="completed", localReadAtUtc=utc_now(),
+                                  localSourceCount=len(local_context["assets"]),
+                                  localChunkCount=len(local_context["chunks"]))
+                    write_json(status_path, status)
+                    log(run_dir, "local-read", f"实际读取 {len(local_context['assets'])} 份本地资料、"
+                        f"{len(local_context['chunks'])} 个正文段落，已提供给本次分析。")
+                    log(run_dir, "analyze", "正在结合新闻与实际本地资料，由独立模型生成中文简报。")
                 attempts_dir = run_dir / "analysis-attempts"
                 attempts_dir.mkdir(exist_ok=True)
                 attempt_dir = attempts_dir / f"{len(list(attempts_dir.iterdir())) + 1:03d}"
                 attempt_dir.mkdir(exist_ok=False)
-                analysis = analyze(news, profile, attempt_dir, config["codexExecutable"])
+                if public_only:
+                    from public_news import analyze_public
+                    analysis = analyze_public(news, attempt_dir, config["codexExecutable"])
+                else:
+                    analysis = analyze(news, profile, attempt_dir, config["codexExecutable"])
                 write_json(analysis_path, analysis)
             status["analyzedAtUtc"] = utc_now()
             log(run_dir, "render", "正在排版邮件，核对来源链接与发布时间。")
-            body, plain = render_report(analysis, recipient)
+            body, plain = render_report(analysis, recipient, public_only=public_only)
             (run_dir / "report.html").write_text(body, encoding="utf-8")
             (run_dir / "report.txt").write_text(plain, encoding="utf-8")
-            (ROOT / "最新简报.html").write_text(body, encoding="utf-8")
+            if not public_only:
+                (ROOT / "最新简报.html").write_text(body, encoding="utf-8")
             status["renderedAtUtc"] = utc_now()
             status["status"] = "preview_ready"
             write_json(status_path, status)
@@ -285,9 +325,22 @@ def main(argv=None):
     run = commands.add_parser("run", help="抓取、分析、排版；--send 才真正发信")
     run.add_argument("--send", action="store_true")
     run.add_argument("--demo-id", default="")
+    run.add_argument("--public-only", action="store_true", help="仅使用本次公开新闻，不读取个人资料")
+    run.add_argument("--recipient", default="", help="公开新闻模式的唯一收件邮箱")
     run.add_argument("--trigger", choices=["manual", "windows_task"], default="manual")
     commands.add_parser("check", help="检查模型程序、地图和邮件配置，不发信")
     args = parser.parse_args(argv)
+    if args.command == "run":
+        if args.recipient and not args.public_only:
+            parser.error("--recipient 仅适用于 --public-only；原有私人收件配置不能被覆盖。")
+        if args.public_only:
+            from public_news import normalize_recipient
+            try:
+                args.recipient = normalize_recipient(args.recipient)
+            except ValueError:
+                parser.error("公开新闻模式需要一个有效的纯文本收件邮箱。")
+            if not args.demo_id:
+                parser.error("公开新闻模式需要 --demo-id，避免与每日私人简报混用。")
     config = read_json(ROOT / "config.json")
     if args.command == "check":
         from gmail_delivery import GmailMailer

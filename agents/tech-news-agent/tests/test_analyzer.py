@@ -43,7 +43,7 @@ def model_result(item_id="article-001"):
         "overview": "本次科技新闻概览。",
         "items": [{"itemId": item_id, "title": "中文新闻标题",
                    "summary": "这是一条依据来源摘要整理的中文科技新闻，内容仅用于验证摘要字段的边界和数据映射，不添加未经来源支持的事实，也不声称已经阅读过完整文章。",
-                   "whyItMatters": "可作为一次数据分析练习的选题。"}],
+                   "whyItMatters": "可作为一次数据分析练习的选题。", "region": "international"}],
         "learningSuggestions": ["花二十分钟整理新闻观察表，记录日期、来源和待验证问题。"],
         "localConnections": [{"itemId": "article-001", "chunkId": "study:p7",
                               "quote": "平台参与者的数量与质量会影响网络效应", "relationship": "这是可供对照的研究观点，新闻并未证明因果关系。",
@@ -74,8 +74,8 @@ class NormalizeTests(unittest.TestCase):
         with self.assertRaises(analyzer.AnalysisError):
             self.normalize(model_result("publisher-feed"))
 
-    def test_duplicate_ids_and_more_than_eight_rejected(self):
-        for count in (2, 9):
+    def test_duplicate_ids_and_more_than_fifteen_rejected(self):
+        for count in (2, 16):
             raw = model_result()
             raw["items"] *= count
             with self.assertRaises(analyzer.AnalysisError):
@@ -114,8 +114,8 @@ class NormalizeTests(unittest.TestCase):
                 self.normalize(raw)
 
     def test_dates_are_derived_from_capture_clock(self):
-        for published, expected in (("2026-09-24T14:00:00Z", "recent"),
-                                    ("2026-09-24T13:59:59Z", "stale"),
+        for published, expected in (("2026-09-23T14:00:00Z", "recent"),
+                                    ("2026-09-23T13:59:59Z", "stale"),
                                     (None, "undated")):
             news = batch()
             news["items"][0]["publishedAtUtc"] = published
@@ -147,6 +147,41 @@ class NormalizeTests(unittest.TestCase):
             raw["localConnections"][0][field] = value
             with self.subTest(field=field), self.assertRaises(analyzer.AnalysisError):
                 self.normalize(raw)
+
+    def test_ten_to_fifteen_with_domestic_and_international_coverage(self):
+        news = batch()
+        raw = model_result()
+        raw.update(localConnections=[], localRelevanceNote="本次资料没有直接关联。")
+        news["items"] = []
+        raw["items"] = []
+        for number in range(15):
+            item_id = f"article-{number}"
+            news["items"].append({**batch()["items"][0], "id": item_id, "url": f"https://example.org/story-{number}",
+                                  "regionHint": "domestic" if number % 2 else "international"})
+            raw["items"].append({**model_result(item_id)["items"][0], "region": "domestic" if number % 2 else "international"})
+        output = self.normalize(raw, news)
+        self.assertEqual(len(output["items"]), 15)
+        self.assertEqual({item["region"] for item in output["items"]}, {"domestic", "international"})
+        self.assertIn("本期 15 条", output["sourceNote"])
+        for size in (10, 12):
+            valid = {**raw, "items": raw["items"][:size]}
+            self.assertEqual(len(self.normalize(valid, news)["items"]), size)
+        for size in (1, 8, 9):
+            with self.subTest(size=size), self.assertRaises(analyzer.AnalysisError):
+                self.normalize({**raw, "items": raw["items"][:size]}, news)
+        wrong = copy.deepcopy(raw)
+        for item in wrong["items"]:
+            item["region"] = "international"
+        with self.assertRaises(analyzer.AnalysisError):
+            self.normalize(wrong, news)
+
+    def test_small_input_discloses_shortage_and_region_does_not_follow_source_language(self):
+        raw = model_result()
+        news = batch()
+        news["items"][0].update(sourceName="中文科技媒体", regionHint="domestic")
+        output = self.normalize(raw, news)
+        self.assertEqual(output["items"][0]["region"], "international")
+        self.assertIn("不足", output["sourceNote"])
 
     def test_no_relevant_match_can_be_reported_without_fabricating_citations(self):
         raw = model_result()

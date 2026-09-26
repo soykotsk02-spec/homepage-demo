@@ -4,7 +4,7 @@ import json
 import sys
 import tempfile
 import unittest
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import patch
 
@@ -71,7 +71,7 @@ class ParseTests(unittest.TestCase):
         self.assertEqual(news[0]["url"], "https://example.org/a")
         self.assertEqual(news[0]["publishedAtUtc"], "2026-09-26T10:00:00Z")
         self.assertEqual(news[0]["freshness"], "fresh")
-        self.assertTrue(news[1]["isOutdated"])
+        self.assertFalse(news[1]["isOutdated"])
         for key in ("futureDatedExcludedCount", "olderThanLookbackExcludedCount", "undatedExcludedCount", "duplicateExcludedCount"):
             self.assertEqual(counts[key], 1, key)
 
@@ -94,11 +94,30 @@ class ParseTests(unittest.TestCase):
                     collector._parse_feed(fixture, SOURCE, NOW, "2026-09-26T12:00:00Z")
 
     def test_cap_and_excerpt_limit(self):
-        fixture = rss("".join(item(f"Story {n}", f"https://example.org/{n}", f"Sat, 26 Sep 2026 {n:02}:00:00 GMT", "x" * 2000) for n in range(12)))
+        fixture = rss("".join(item(f"Story {n}", f"https://example.org/{n}", collector._iso(NOW - timedelta(minutes=n)), "x" * 2000) for n in range(25)))
         news, _ = collector._parse_feed(fixture, SOURCE, NOW, "2026-09-26T12:00:00Z")
-        self.assertEqual(len(news), 8)
-        self.assertEqual(news[0]["title"], "Story 11")
+        self.assertEqual(len(news), 20)
+        self.assertEqual(news[0]["title"], "Story 0")
         self.assertEqual(len(news[0]["summary"]), 600)
+
+    def test_exact_72_hour_boundary_is_fresh_but_one_second_older_is_excluded(self):
+        fixture = rss(
+            item("Just inside", "https://example.org/inside", "2026-09-23T12:00:01Z")
+            + item("At cutoff", "https://example.org/cutoff", "2026-09-23T12:00:00Z")
+            + item("Too old by a second", "https://example.org/old", "2026-09-23T11:59:59Z")
+        )
+        news, counts = collector._parse_feed(fixture, SOURCE, NOW, collector._iso(NOW))
+        self.assertEqual([entry["title"] for entry in news], ["Just inside", "At cutoff"])
+        self.assertTrue(all(entry["freshness"] == "fresh" and not entry["isOutdated"] for entry in news))
+        self.assertEqual(news[-1]["ageHours"], 72)
+        self.assertEqual(counts["olderThanLookbackExcludedCount"], 1)
+
+    def test_region_hint_is_publisher_metadata_not_event_classification(self):
+        source = collector.Source("local-publisher", "Domestic publisher", "https://example.org/rss", "domestic")
+        fixture = rss(item("US company releases an AI model", "https://example.org/us-event", "2026-09-26T10:00:00Z"))
+        news, _ = collector._parse_feed(fixture, source, NOW, collector._iso(NOW))
+        self.assertEqual(news[0]["regionHint"], "domestic")
+        self.assertNotIn("region", news[0])
 
 
 class DownloadLimitTests(unittest.TestCase):
@@ -119,16 +138,16 @@ class DownloadLimitTests(unittest.TestCase):
 
 
 class CollectionTests(unittest.TestCase):
-    def test_three_fresh_requests_cross_source_dedup_and_audit_files(self):
+    def test_every_source_is_fetched_cross_source_dedup_and_audit_files(self):
         fixture = rss(item("Shared story", "https://example.org/shared", "Sat, 26 Sep 2026 10:00:00 GMT"))
         with tempfile.TemporaryDirectory() as directory, patch.object(collector, "_download", return_value=(fixture, 200, SOURCE.url)) as download:
             folder = Path(directory) / "sample-run"
             result = collector.collect(folder, now=NOW)
-            self.assertEqual(download.call_count, 3)
+            self.assertEqual(download.call_count, len(collector.SOURCES))
             self.assertEqual(result["runId"], "sample-run")
-            self.assertEqual(result["successfulSources"], 3)
+            self.assertEqual(result["successfulSources"], len(collector.SOURCES))
             self.assertEqual(result["itemCount"], 1)
-            self.assertEqual(len(list((folder / "raw").glob("*.xml"))), 3)
+            self.assertEqual(len(list((folder / "raw").glob("*.xml"))), len(collector.SOURCES))
             saved = json.loads((folder / "news.json").read_text(encoding="utf-8"))
             self.assertEqual(saved, result)
             self.assertTrue((folder / "source-status.json").exists())
@@ -141,10 +160,10 @@ class CollectionTests(unittest.TestCase):
             with self.assertRaises(collector.CollectionError) as caught:
                 collector.collect(folder, now=NOW)
             result = json.loads((folder / "news.json").read_text(encoding="utf-8"))
-            self.assertEqual(download.call_count, 3)
+            self.assertEqual(download.call_count, len(collector.SOURCES))
             self.assertEqual(result["status"], "failed")
             self.assertEqual(result["items"], [])
-            self.assertEqual(result["failedSources"], 3)
+            self.assertEqual(result["failedSources"], len(collector.SOURCES))
             self.assertEqual(caught.exception.result, result)
             self.assertTrue(all(status["status"] == "error" for status in result["sourceStatus"]))
 
@@ -160,6 +179,32 @@ class CollectionTests(unittest.TestCase):
         self.assertTrue(result["partialFailure"])
         self.assertEqual(result["successfulSources"], 1)
         self.assertEqual(result["itemCount"], 1)
+
+    def test_fast_domestic_source_cannot_displace_slower_international_sources(self):
+        sources = (
+            collector.Source("fast-cn", "Fast domestic source", "https://fast.example/feed", "domestic"),
+            collector.Source("slow-us", "Slower US source", "https://us.example/feed", "international"),
+            collector.Source("slow-uk", "Slower UK source", "https://uk.example/feed", "international"),
+        )
+        fixtures = {}
+        for source_index, source in enumerate(sources):
+            fixtures[source.url] = rss("".join(
+                item(f"{source.id} story {n}", f"https://example.org/{source.id}/{n}", collector._iso(NOW - timedelta(hours=source_index * 20, minutes=n)))
+                for n in range(20)
+            ))
+        with tempfile.TemporaryDirectory() as directory, patch.object(collector, "SOURCES", sources), patch.object(collector, "TOTAL_LIMIT", 6), patch.object(collector, "_download", side_effect=lambda url: (fixtures[url], 200, url)):
+            result = collector.collect(Path(directory), now=NOW)
+        self.assertEqual(result["itemCount"], 6)
+        self.assertEqual({source.id: sum(entry["sourceId"] == source.id for entry in result["items"]) for source in sources}, {"fast-cn": 2, "slow-us": 2, "slow-uk": 2})
+        self.assertEqual([entry["publishedAtUtc"] for entry in result["items"]], sorted([entry["publishedAtUtc"] for entry in result["items"]], reverse=True))
+        self.assertTrue(all(status["retainedItemCount"] == 2 for status in result["sourceStatus"]))
+
+    def test_balanced_candidates_skip_duplicate_slots_and_do_not_invent_news(self):
+        fixture = rss("".join(item(f"Story {n}", f"https://example.org/{n}", collector._iso(NOW - timedelta(minutes=n))) for n in range(4)))
+        entries, _ = collector._parse_feed(fixture, SOURCE, NOW, collector._iso(NOW))
+        selected = collector._balanced_candidates([entries[:3], [entries[0], entries[3]]], 80)
+        self.assertEqual(len(selected), 4)
+        self.assertEqual(len({entry["url"] for entry in selected}), 4)
 
 
 if __name__ == "__main__":

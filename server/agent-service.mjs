@@ -7,6 +7,7 @@ const SESSION_SECONDS = 8 * 60 * 60;
 const COOKIE = '__Secure-agent_session';
 const REQUEST_TTL_MS = 24 * 60 * 60_000;
 const LOGIN_WINDOW_MS = 15 * 60_000;
+const PUBLIC_WINDOW_MS = 24 * 60 * 60_000;
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const IDENTIFIER = /^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$/;
 const PHASES = new Set(['collect', 'local-read', 'analyze', 'render', 'send']);
@@ -49,7 +50,7 @@ function containsPrivateLocationOrEmail(value) {
   return /[a-zA-Z]:[\\/]|\\\\[^\s\\]+\\|(?:^|[\s"'(<\u3400-\u9fff])\/[a-zA-Z_.~][^\s<>"']*/.test(withoutWebUrls);
 }
 function safeText(value, max, optional = false) {
-  if (optional && (value === undefined || value === null)) return '';
+  if (optional && (value === undefined || value === null || value === '')) return '';
   if (typeof value !== 'string' || !value.trim() || value.length > max || containsPrivateLocationOrEmail(value)) problem(400, 'invalid_report');
   // This is plain text, never trusted HTML. The client must use textContent.
   return value.trim();
@@ -61,12 +62,54 @@ function sourceUrl(value) {
   if (url.protocol !== 'https:' || url.username || url.password || !url.hostname) problem(400, 'invalid_report');
   return text;
 }
+function recipientEmail(value) {
+  if (typeof value !== 'string' || /[^\x20-\x7e]/.test(value)) problem(400, 'invalid_email');
+  const email = value.trim().toLowerCase();
+  if (email.length > 254) problem(400, 'invalid_email');
+  const parts = email.split('@');
+  if (parts.length !== 2) problem(400, 'invalid_email');
+  const [local, domain] = parts;
+  const labels = domain.split('.');
+  if (!local || local.length > 64 || !/^[a-z0-9._%+-]+$/.test(local) || local.startsWith('.') || local.endsWith('.') || local.includes('..')
+      || labels.length < 2 || labels.some(label => !/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label))
+      || !/^[a-z]{2,63}$/.test(labels.at(-1))) problem(400, 'invalid_email');
+  return email;
+}
+function publicJob(job) {
+  const result = Object.fromEntries(['id', 'mode', 'status', 'phase', 'createdAt', 'updatedAt'].map(key => [key, job[key]]));
+  result.error = job.error ? (job.error === 'queue_expired' ? 'queue_expired' : 'run_failed') : null;
+  if (typeof job.mailSent === 'boolean') result.mailSent = job.mailSent;
+  return result;
+}
+function dashboardJob(job) {
+  if (!job) return null;
+  const { recipient, ...safe } = job;
+  return safe;
+}
+function publicRequestJob(state, remembered) {
+  const job = state.activeJob?.id === remembered.jobId ? state.activeJob : state.history.find(item => item.id === remembered.jobId) ?? remembered.job;
+  return job?.mode === 'public-send' ? job : null;
+}
+function publicQuota(state, now, emailHash, ipHash) {
+  // Backwards-compatible with databases created before public delivery existed.
+  const accepted = (state.publicAccepted ?? []).filter(item => item.at > now - PUBLIC_WINDOW_MS);
+  state.publicAccepted = accepted;
+  for (const [code, matches, limit] of [
+    ['public_email_limit', accepted.filter(item => item.emailHash === emailHash), 1],
+    ['public_ip_limit', accepted.filter(item => item.ipHash === ipHash), 3],
+    ['public_daily_limit', accepted, 10],
+  ]) {
+    if (matches.length >= limit) return { error: code, retryAfterSeconds: Math.max(1, Math.ceil((matches[0].at + PUBLIC_WINDOW_MS - now) / 1000)) };
+  }
+  accepted.push({ at: now, emailHash, ipHash });
+  return null;
+}
 
 /** Rebuild only fields the private dashboard actually displays. Never persist
  * raw local-library chunks, file inventories, paths, mail addresses, or logs. */
 export function sanitizeReport(input) {
   const report = object(input, 'invalid_report');
-  if (!Array.isArray(report.items) || report.items.length < 1 || report.items.length > 8) problem(400, 'invalid_report');
+  if (!Array.isArray(report.items) || report.items.length < 1 || report.items.length > 15) problem(400, 'invalid_report');
   const seen = new Set();
   const items = report.items.map(raw => {
     object(raw, 'invalid_report');
@@ -77,10 +120,12 @@ export function sanitizeReport(input) {
     const freshness = raw.freshness === 'fresh' ? 'recent' : raw.freshness;
     if (!['recent', 'stale', 'undated'].includes(freshness)) problem(400, 'invalid_report');
     const source = safeText(raw.sourceName ?? raw.source, 200);
+    if (raw.region !== undefined && !['domestic', 'international'].includes(raw.region)) problem(400, 'invalid_report');
     return {
       itemId, title: safeText(raw.title, 300), source, sourceName: source,
       url: sourceUrl(raw.url), publishedAtUtc: date, publishedAt: date ?? '日期不明', freshness,
       summary: safeText(raw.summary, 2000), whyItMatters: safeText(raw.whyItMatters, 1500),
+      ...(raw.region === undefined ? {} : { region: raw.region }),
     };
   });
   const suggestions = report.learningSuggestions ?? [];
@@ -169,7 +214,16 @@ function initialState() {
   return { version: 1, worker: { lastSeenAt: null, phase: 'idle', activeJobId: null }, activeJob: null, history: [], latestReport: null, requests: {} };
 }
 function rememberHistory(state, job) {
-  state.history = [structuredClone(job), ...state.history.filter(old => old.id !== job.id)].slice(0, 20);
+  state.history = [structuredClone(dashboardJob(job)), ...state.history.filter(old => old.id !== job.id)].slice(0, 20);
+  if (job.mode === 'public-send') {
+    // Keep capability status for a day even if owner jobs displace visible history.
+    for (const [key, remembered] of Object.entries(state.requests)) {
+      if (key.startsWith('public:') && remembered.jobId === job.id) {
+        remembered.job = publicJob(job);
+        if (job.runId) remembered.runId = job.runId;
+      }
+    }
+  }
 }
 function expireQueue(state, now) {
   const job = state.activeJob;
@@ -179,13 +233,13 @@ function expireQueue(state, now) {
     if (state.worker.activeJobId === job.id) { state.worker.activeJobId = null; state.worker.phase = 'idle'; }
   }
   // Idempotency keys outlive the 20-entry visible history.
-  const entries = Object.entries(state.requests).filter(([, item]) => now - item.at < REQUEST_TTL_MS).sort((a, b) => b[1].at - a[1].at).slice(0, 200);
-  state.requests = Object.fromEntries(entries);
+  const entries = Object.entries(state.requests).filter(([, item]) => now - item.at < REQUEST_TTL_MS).sort((a, b) => b[1].at - a[1].at);
+  state.requests = Object.fromEntries([...entries.filter(([key]) => key.startsWith('public:')), ...entries.filter(([key]) => !key.startsWith('public:')).slice(0, 200)]);
 }
 function workerOnline(worker, now) { return worker.lastSeenAt !== null && now - Date.parse(worker.lastSeenAt) >= 0 && now - Date.parse(worker.lastSeenAt) <= ONLINE_MS; }
 function viewState(state, now) {
   return { worker: { ...state.worker, online: workerOnline(state.worker, now) },
-    activeJob: state.activeJob, history: state.history, latestReport: state.latestReport,
+    activeJob: dashboardJob(state.activeJob), history: state.history.map(dashboardJob), latestReport: state.latestReport,
     schedule: { time: '09:00', timezone: 'Asia/Shanghai', execution: 'local' } };
 }
 function touchWorker(state, now) { state.worker.lastSeenAt = new Date(now).toISOString(); }
@@ -253,14 +307,15 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
       const method = String(request.method ?? 'GET').toUpperCase();
       let action;
       try { action = new URL(request.url, config.origin).searchParams.get('action'); } catch { problem(400, 'invalid_request'); }
-      if (!['login', 'logout', 'status', 'start', 'poll', 'update', 'publish'].includes(action)) problem(404, 'not_found');
+      if (!['login', 'logout', 'status', 'start', 'public-start', 'public-status', 'poll', 'update', 'publish'].includes(action)) problem(404, 'not_found');
       if (method !== (action === 'status' ? 'GET' : 'POST')) return response(405, { error: 'method_not_allowed' }, { Allow: action === 'status' ? 'GET' : 'POST' });
       const ownerAction = ['login', 'logout', 'status', 'start'].includes(action);
-      if (ownerAction && method === 'POST' && getHeader(request.headers, 'origin') !== config.origin) problem(403, 'origin_mismatch');
+      const publicAction = ['public-start', 'public-status'].includes(action);
+      if ((ownerAction || publicAction) && method === 'POST' && getHeader(request.headers, 'origin') !== config.origin) problem(403, 'origin_mismatch');
       // A cross-site GET is also rejected when it carries an explicit Origin.
       if (ownerAction && getHeader(request.headers, 'origin') && getHeader(request.headers, 'origin') !== config.origin) problem(403, 'origin_mismatch');
       if (ownerAction && !['login'].includes(action) && !validSession(getHeader(request.headers, 'cookie'), config, currentTime)) problem(401, 'unauthorized');
-      if (!ownerAction) {
+      if (!ownerAction && !publicAction) {
         const authorization = getHeader(request.headers, 'authorization');
         if (!authorization.startsWith('Bearer ') || !equalSecret(authorization.slice(7), config.workerToken)) problem(401, 'unauthorized');
       }
@@ -289,6 +344,36 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
       if (action === 'status') {
         return response(200, await backingStore.transact(state => { expireQueue(state, currentTime); return viewState(state, currentTime); }));
       }
+      if (publicAction) {
+        onlyKeys(body, action === 'public-start' ? ['requestId', 'email'] : ['requestId']);
+        if (typeof body.requestId !== 'string' || !UUID.test(body.requestId)) problem(400, 'invalid_request');
+        const requestKey = `public:${body.requestId.toLowerCase()}`;
+        const email = action === 'public-start' ? recipientEmail(body.email) : null;
+        const emailHash = email && createHmac('sha256', config.sessionSecret).update(`public-email:${email}`).digest('hex');
+        const ipHash = createHmac('sha256', config.sessionSecret).update(`public-ip:${String(request.ip || 'unknown')}`).digest('hex');
+        const jobId = action === 'public-start' ? makeId() : null;
+        const outcome = await backingStore.transact(state => {
+          expireQueue(state, currentTime);
+          const remembered = state.requests[requestKey];
+          if (remembered) {
+            if (remembered.mode !== 'public-send' || (email && remembered.emailHash !== emailHash)) return { status: 409, body: { error: 'request_conflict' } };
+            const job = publicRequestJob(state, remembered);
+            return job ? { status: action === 'public-start' ? 202 : 200, body: { job: publicJob(job) } }
+              : { status: action === 'public-start' ? 409 : 404, body: { error: action === 'public-start' ? 'request_already_used' : 'not_found' } };
+          }
+          if (action === 'public-status') return { status: 404, body: { error: 'not_found' } };
+          if (state.activeJob) return { status: 409, body: { error: 'job_active' } };
+          if (!workerOnline(state.worker, currentTime)) return { status: 409, body: { error: 'worker_offline' } };
+          const limited = publicQuota(state, currentTime, emailHash, ipHash);
+          if (limited) return { status: 429, body: limited };
+          const timestamp = new Date(currentTime).toISOString();
+          const job = { id: jobId, mode: 'public-send', recipient: email, status: 'queued', phase: 'queued', createdAt: timestamp, updatedAt: timestamp, error: null };
+          state.activeJob = job;
+          state.requests[requestKey] = { jobId, mode: 'public-send', emailHash, at: currentTime };
+          return { status: 202, body: { job: publicJob(job) } };
+        });
+        return response(outcome.status, outcome.body, outcome.status === 429 ? { 'Retry-After': String(outcome.body.retryAfterSeconds) } : {});
+      }
       if (action === 'start') {
         onlyKeys(body, ['requestId', 'mode']);
         if (typeof body.requestId !== 'string' || !UUID.test(body.requestId) || !['preview', 'send'].includes(body.mode)) problem(400, 'invalid_request');
@@ -300,9 +385,9 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
           if (remembered) {
             if (remembered.mode !== body.mode) return { status: 409, body: { error: 'request_conflict' } };
             const job = state.activeJob?.id === remembered.jobId ? state.activeJob : state.history.find(item => item.id === remembered.jobId);
-            return job ? { status: 202, body: { job } } : { status: 409, body: { error: 'request_already_used' } };
+            return job ? { status: 202, body: { job: dashboardJob(job) } } : { status: 409, body: { error: 'request_already_used' } };
           }
-          if (state.activeJob) return { status: 409, body: { error: 'job_active', job: state.activeJob } };
+          if (state.activeJob) return { status: 409, body: { error: 'job_active', job: dashboardJob(state.activeJob) } };
           if (!workerOnline(state.worker, currentTime)) return { status: 409, body: { error: 'worker_offline' } };
           const timestamp = new Date(currentTime).toISOString();
           const job = { id: jobId, mode: body.mode, status: 'queued', phase: 'queued', createdAt: timestamp, updatedAt: timestamp, error: null };
@@ -322,8 +407,8 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
           }
           const job = state.activeJob;
           state.worker.activeJobId = job?.id ?? null; state.worker.phase = job?.phase ?? 'idle';
-          // Deliberately only id/mode: the local worker owns its durable job ledger.
-          return { job: job ? { id: job.id, mode: job.mode } : null, pollSeconds: 30 };
+          // Only public delivery adds a validated recipient; never arbitrary prompts or paths.
+          return { job: job ? { id: job.id, mode: job.mode, ...(job.mode === 'public-send' ? { recipient: job.recipient } : {}) } : null, pollSeconds: 30 };
         });
         return response(200, result);
       }
@@ -336,6 +421,7 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
         if (Date.parse(completedAt) > currentTime + 5 * 60_000) problem(400, 'invalid_request');
         await backingStore.transact(state => {
           expireQueue(state, currentTime); touchWorker(state, currentTime);
+          if ([state.activeJob, ...state.history, ...Object.values(state.requests)].some(job => job?.mode === 'public-send' && (job.runId === runId || `web-${job.id ?? job.jobId}` === runId))) problem(409, 'public_report_publish_forbidden');
           saveReport(state, report, body.mailSent, completedAt);
           return null;
         });
@@ -353,20 +439,23 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
       const outcome = await backingStore.transact(state => {
         expireQueue(state, currentTime); touchWorker(state, currentTime);
         const job = state.activeJob;
+        const knownJob = job?.id === body.jobId ? job : state.history.find(item => item.id === body.jobId);
+        if (knownJob?.mode === 'public-send' && report && (report.localConnections.length || report.localContext || report.localRelevanceNote)) return { status: 409, body: { error: 'public_report_private_data' } };
         if (!job || job.id !== body.jobId) {
           const terminal = state.history.find(item => item.id === body.jobId);
           if (terminal && terminal.status === body.status && ['completed', 'failed'].includes(body.status)) return { status: 200, body: { ok: true } };
           return { status: 409, body: { error: 'job_mismatch' } };
         }
         if (job.status !== 'running') return { status: 409, body: { error: 'job_not_claimed' } };
-        if ((job.mode === 'preview' && (body.mailSent === true || body.phase === 'send')) || (body.status === 'completed' && job.mode === 'send' && body.mailSent !== true)) return { status: 409, body: { error: 'invalid_job_transition' } };
+        if ((job.mode === 'preview' && (body.mailSent === true || body.phase === 'send')) || (body.status === 'completed' && ['send', 'public-send'].includes(job.mode) && body.mailSent !== true)
+          || (job.mode === 'public-send' && body.phase === 'local-read')) return { status: 409, body: { error: 'invalid_job_transition' } };
         job.status = body.status; job.phase = body.phase; job.updatedAt = new Date(currentTime).toISOString();
         job.error = body.status === 'failed' ? body.error || 'run_failed' : null;
         if (runId || report) job.runId = runId || report.runId;
         if (body.mailSent !== undefined) job.mailSent = body.mailSent;
         state.worker.phase = job.phase; state.worker.activeJobId = job.id;
         if (body.status !== 'running') {
-          if (report) saveReport(state, report, Boolean(body.mailSent), job.updatedAt);
+          if (report && job.mode !== 'public-send') saveReport(state, report, Boolean(body.mailSent), job.updatedAt);
           rememberHistory(state, job); state.activeJob = null;
           state.worker.activeJobId = null;
         }

@@ -1,4 +1,4 @@
-"""Outbound-only HTTPS bridge. A server job can choose only preview or send."""
+"""Outbound-only HTTPS bridge for fixed private or public-only news jobs."""
 from __future__ import annotations
 
 import argparse
@@ -18,6 +18,7 @@ from urllib.request import Request, urlopen
 from uuid import UUID
 
 from agent import exclusive_lock
+from analyzer import AnalysisError
 
 ROOT = Path(__file__).resolve().parent
 JOB_TIMEOUT_SECONDS = 1800
@@ -77,10 +78,14 @@ def _json_write(path: Path, value):
 
 
 def validate_job(value):
-    if not isinstance(value, dict) or set(value) != {"id", "mode"}:
+    if not isinstance(value, dict):
+        raise WorkerError("invalid_job_fields")
+    public_only = value.get("mode") == "public-send"
+    expected = {"id", "mode", "recipient"} if public_only else {"id", "mode"}
+    if set(value) != expected:
         raise WorkerError("invalid_job_fields")
     identifier = value["id"]
-    if not isinstance(identifier, str) or value["mode"] not in ("preview", "send"):
+    if not isinstance(identifier, str) or value["mode"] not in ("preview", "send", "public-send"):
         raise WorkerError("invalid_job")
     try:
         parsed = UUID(identifier)
@@ -88,14 +93,23 @@ def validate_job(value):
         raise WorkerError("invalid_job_id") from None
     if str(parsed) != identifier.lower():
         raise WorkerError("invalid_job_id")
-    return {"id": str(parsed), "mode": value["mode"]}
+    job = {"id": str(parsed), "mode": value["mode"]}
+    if public_only:
+        from public_news import normalize_recipient
+        try:
+            job["recipient"] = normalize_recipient(value["recipient"])
+        except ValueError:
+            raise WorkerError("invalid_recipient") from None
+    return job
 
 
 def build_command(job, root=ROOT):
     job = validate_job(job)
     command = [sys.executable, str(Path(root) / "agent.py"), "run", "--demo-id", "web-" + job["id"]]
-    if job["mode"] == "send":
+    if job["mode"] in {"send", "public-send"}:
         command.append("--send")
+    if job["mode"] == "public-send":
+        command.extend(["--public-only", "--recipient", job["recipient"]])
     return command
 
 
@@ -129,11 +143,13 @@ def sanitize_report(analysis):
               for key in ("runId", "title", "generatedAt", "generatedAtUtc", "overview", "sourceNote", "localContext")}
     result["learningSuggestions"] = [_text(value, 2000) for value in analysis.get("learningSuggestions", [])[:3]] if isinstance(analysis.get("learningSuggestions"), list) else []
     result["items"] = []
-    for item in analysis.get("items", [])[:8] if isinstance(analysis.get("items"), list) else []:
+    for item in analysis.get("items", [])[:15] if isinstance(analysis.get("items"), list) else []:
         if not isinstance(item, dict):
             continue
         cleaned = {key: _text(item.get(key), 1800) for key in ("itemId", "title", "source", "publishedAt", "publishedAtUtc", "summary", "whyItMatters", "freshness")}
         cleaned["url"] = _public_url(item.get("url"))
+        if item.get("region") in {"domestic", "international"}:
+            cleaned["region"] = item["region"]
         result["items"].append(cleaned)
     result["localConnections"] = []
     for item in analysis.get("localConnections", [])[:3] if isinstance(analysis.get("localConnections"), list) else []:
@@ -334,13 +350,21 @@ class WebWorker:
         if folder is not None:
             record["runId"] = folder.name
         mail_sent = status.get("sent") is True and status.get("status") == "sent"
-        successful = returncode == 0 and (mail_sent if record["mode"] == "send" else status.get("status") == "preview_ready")
+        public_only = record["mode"] == "public-send"
+        successful = returncode == 0 and (mail_sent if record["mode"] in {"send", "public-send"} else status.get("status") == "preview_ready")
         if mail_sent:
             successful = True  # A saved receipt/status remains authoritative after a later exit error.
         if successful:
             try:
-                report = sanitize_report(_json_read(folder / "analysis.json"))
-            except (OSError, ValueError, WorkerError):
+                if public_only:
+                    from public_news import validate_public_report
+                    if status.get("publicOnly") is not True or status.get("mode") != "public-send":
+                        raise WorkerError("public_run_required")
+                    analysis = validate_public_report(_json_read(folder / "public-analysis.json"))
+                else:
+                    analysis = _json_read(folder / "analysis.json")
+                report = sanitize_report(analysis)
+            except (OSError, ValueError, WorkerError, AnalysisError):
                 record["status"] = "failed"
                 self._payload(record, "failed", "failed", error="report_unavailable", mail_sent=mail_sent)
             else:
@@ -348,7 +372,7 @@ class WebWorker:
                 self._payload(record, "completed", "complete", report=report, mail_sent=mail_sent)
         else:
             uncertain = interrupted or record.get("status") == "sending" or status.get("failureType") == "MailOutcomeUnknown" or (
-                record["mode"] == "send" and "send" in self._phases(folder) and status.get("failureType") != "MailNotSent"
+                record["mode"] in {"send", "public-send"} and "send" in self._phases(folder) and status.get("failureType") != "MailNotSent"
             )
             record["status"] = "uncertain" if uncertain else "failed"
             self._payload(record, "failed", "failed", error="delivery_unknown_check_local" if uncertain else "agent_failed", mail_sent=True if mail_sent else (None if uncertain else False))
@@ -430,6 +454,8 @@ class WebWorker:
 
     def publish_daily_reports(self):
         for folder, status in self._run_statuses():
+            if status.get("publicOnly") or status.get("audience") == "public" or status.get("mode") in {"public-send", "public-preview"}:
+                continue
             if status.get("demoId") or status.get("status") not in {"sent", "preview_ready"}:
                 continue
             if status.get("status") == "preview_ready" and status.get("mode") != "preview":
