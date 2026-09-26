@@ -59,13 +59,15 @@
     } catch { return null; }
   }
 
-  function notice(message, tone = "info") {
-    $("notice").textContent = message;
+  function notice(message, tone = "info", action = true) {
+    if ($("notice").textContent !== message) $("notice").textContent = message;
     $("notice").dataset.tone = tone;
     $("notice").hidden = !message;
-    $("action-feedback").textContent = message;
-    $("action-feedback").dataset.tone = tone;
-    $("action-feedback").hidden = !message || !state.authenticated;
+    if (action) {
+      if ($("action-feedback").textContent !== message) $("action-feedback").textContent = message;
+      $("action-feedback").dataset.tone = tone;
+      $("action-feedback").hidden = !message || !state.authenticated;
+    }
   }
 
   function buttonFeedback(id, label, busy = false, caption) {
@@ -78,8 +80,57 @@
   function checkingFeedback(busy) {
     $("refresh-button").disabled = busy;
     $("retry-button").disabled = busy;
-    buttonFeedback("refresh-button", busy ? "正在刷新…" : "刷新状态 ↻", busy);
+    buttonFeedback("refresh-button", busy ? "正在检查连接…" : "检查连接", busy);
     buttonFeedback("retry-button", busy ? "正在检查连接…" : "重新检查连接", busy);
+  }
+
+  function connectionFeedback(checking, message, tone = "info", announce = true) {
+    const checkedAt = new Intl.DateTimeFormat("zh-CN", {
+      timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false,
+    }).format(new Date());
+    for (const [panel, title, detail, time] of [
+      ["session-check-result", "session-check-title", "session-state", "session-checked"],
+      ["connection-check-result", "connection-check-title", "connection-check-detail", "connection-checked"],
+    ]) {
+      $(panel).hidden = false;
+      $(panel).dataset.tone = checking ? "checking" : tone;
+      $(panel).setAttribute("aria-live", announce ? "polite" : "off");
+      $(title).textContent = checking ? "正在检查连接…" : `检查完成 ${checkedAt}`;
+      $(detail).textContent = message;
+      $(time).textContent = checking ? "本次检查正在进行 · 北京时间" : `本次检查完成 ${checkedAt} · 北京时间`;
+    }
+  }
+
+  function connectionError(error) {
+    if (error.name === "AbortError") return "检查超时：15 秒内未收到完整响应。请检查网络后重试，电脑状态尚未确认。";
+    if (error.data?.error === "not_configured") return "网站服务已响应，但连接配置尚未完成。完成配置前无法启动电脑上的 Agent。";
+    if (["storage_unavailable", "storage_busy"].includes(error.data?.error)) return "网站服务已响应，但任务存储暂时不可用。电脑状态尚未确认，请稍后重新检查。";
+    if (error.status === 403) return "请求来源未通过验证。请从正式网站打开工作台后重新检查。";
+    if (error.status) return `网站服务返回异常（${error.status}）。电脑状态尚未确认，请稍后重新检查。`;
+    return "未能连接网站服务。请检查网络后重试；当前无法确认电脑是否在线。";
+  }
+
+  function runningFeedback() {
+    if (!state.authenticated) return;
+    if (state.starting) {
+      notice("正在提交启动请求…服务器尚未确认，请勿重复点击。");
+    } else if (state.pendingAccepted) {
+      notice("已排队 · 等待电脑接收。电脑通常在 30 秒内接收；当前尚未确认开始执行。");
+    } else if (isActive(state.activeJob)) {
+      const phase = phaseNames[state.activeJob.phase] || "等待电脑返回下一条进度";
+      if (!state.healthy || state.worker?.online !== true) {
+        notice(`连接待确认 · 上次进度：${phase}。任务可能仍在电脑执行，请勿重复启动。`, "warning");
+      } else if (["queued", "pending"].includes(state.activeJob.status)) {
+        notice("已排队 · 等待电脑接收。任务已经保存，尚未确认开始执行。");
+      } else {
+        const detail = state.activeJob.phase === "send" ? "正在等待真实发送回执，此时尚未确认邮件发出。"
+          : state.activeJob.mode === "preview" ? "电脑正在生成预览，本次不会发送邮件。"
+            : "电脑会继续完成本次简报；下方进度以实际回传为准。";
+        notice(`Agent 正在运行 · ${phase}。${detail}`);
+      }
+    } else if (state.retryRequest) {
+      notice("提交结果待确认 · 原请求编号已保留。请先检查连接；再次核对同一请求不会创建重复任务。", "warning");
+    }
   }
 
   function stopPolling() {
@@ -128,12 +179,12 @@
     $("session-panel").hidden = false;
     $("logout-button").hidden = true;
     $("login-form").hidden = kind !== "login";
-    $("session-state").hidden = kind === "login";
-    $("session-state").textContent = message;
+    $("session-state").hidden = false;
+    $("session-state").textContent = message || (kind === "login" ? "网站服务可访问。请登录后检查执行电脑的连接状态。" : "正在连接网站服务…");
     $("session-heading").textContent = heading || (kind === "login" ? "登录 Agent 工作台" : kind === "checking" ? "正在连接 Agent" : "暂时无法连接");
     $("session-badge").textContent = kind === "login" ? "请先登录" : kind === "checking" ? "正在检查连接" : "尚未连接";
     $("session-badge").dataset.state = kind;
-    $("retry-button").hidden = !["error", "checking"].includes(kind);
+    $("retry-button").hidden = false;
     $("password").value = "";
     $("login-error").textContent = "";
     $("login-error").hidden = true;
@@ -198,6 +249,7 @@
       } else if (!online) caption = "电脑连接后可使用";
       buttonFeedback(candidate === "preview" ? "preview-button" : "send-button", label, busy, caption);
     }
+    runningFeedback();
   }
 
   function renderWorker(worker) {
@@ -349,6 +401,9 @@
     } else if (state.activeJob) {
       state.pendingAccepted = false;
       state.retryRequest = null;
+      // Continue tracking an already running job after a reload or a busy response.
+      state.pendingJobId = state.pendingJobId || state.activeJob.id;
+      state.pendingMode = state.pendingMode || state.activeJob.mode;
     }
     $("session-panel").hidden = true;
     $("dashboard").hidden = false;
@@ -367,18 +422,23 @@
   async function refreshStatus(manual = false) {
     if (state.refreshing) return;
     state.refreshing = true;
+    stopPolling();
     checkingFeedback(true);
+    const announce = manual || !state.authenticated;
     if (manual && !state.authenticated) {
-      showSession("checking", "正在检查服务连接，请稍候。检查连接不会启动任务或发送邮件。");
-      notice("正在检查 Agent 的连接状态…");
+      showSession("checking", "正在连接网站服务；登录后可检查执行电脑。");
     }
+    if (announce) connectionFeedback(true, state.authenticated
+      ? "正在连接网站服务并读取电脑最近的连接消息。检查不会启动任务或发送邮件。"
+      : "正在连接网站服务。登录后才能检查电脑在线状态；本次不会启动任务或发送邮件。", "checking", true);
     const epoch = state.epoch;
     try {
       const { data } = await api("status");
       if (epoch !== state.epoch) return;
       applyStatus(data);
-      if (state.connectionIssue) notice("连接已恢复，当前显示最新同步的运行状态。");
-      else if (manual) notice(data.worker.online ? "检查完成：电脑已连接，已更新运行状态。" : "检查完成：电脑尚未连接，请在电脑上启动连接程序。", data.worker.online ? "success" : "warning");
+      connectionFeedback(false, data.worker.online
+        ? "网站服务已连接 · 电脑在线。已读取电脑的最新运行状态，可以提交任务或查看进度。"
+        : "网站服务已连接 · 电脑离线。近期没有收到电脑的连接消息，请保持电脑开机、联网并运行连接程序。", data.worker.online ? "success" : "warning", announce || state.connectionIssue);
       state.connectionIssue = false;
     } catch (error) {
       if (epoch !== state.epoch) return;
@@ -386,28 +446,34 @@
       if (error.status === 401) {
         const wasSignedIn = state.authenticated;
         showSession("login");
-        if (wasSignedIn) notice("登录已过期，请重新登录后查看私人内容。", "warning");
-        else notice("服务已连接，请登录后使用 Agent。", "success");
+        const message = wasSignedIn
+          ? "网站服务已响应 · 登录已过期。请重新登录后检查执行电脑，私人内容已清除。"
+          : "网站服务已响应 · 请先登录。登录后才能检查电脑在线状态，现在没有启动任务。";
+        connectionFeedback(false, message, wasSignedIn ? "warning" : "success", true);
+        notice(message, wasSignedIn ? "warning" : "success", false);
       } else if (error.status === 503 && (error.data?.error === "not_configured" || !state.authenticated)) {
         const unconfigured = error.data?.error === "not_configured";
-        showSession("error", unconfigured
-          ? "网页已就绪，私有连接配置还未完成。完成配置后，才能登录并启动电脑上的 Agent。"
-          : "Agent 服务暂时无法响应，请稍后重新检查。", unconfigured ? "等待完成连接配置" : "服务暂时不可用");
-        notice(unconfigured ? "检查完成：连接配置尚未完成，Agent 未启动。" : "检查完成：服务暂不可用，尚未确认连接。", "warning");
+        const message = connectionError(error);
+        showSession("error", message, unconfigured ? "等待完成连接配置" : "服务暂时不可用");
+        connectionFeedback(false, message, "warning", true);
+        notice(message, "warning", false);
       } else if (!state.authenticated) {
-        showSession("error", "暂时无法连接工作台服务，请稍后重试。尚未读取私人数据或启动任务。");
+        const message = connectionError(error);
+        showSession("error", message);
+        connectionFeedback(false, message, "error", true);
+        notice(message, "warning", false);
       } else {
         state.connectionIssue = true;
         $("worker-status").dataset.state = "unknown";
         $("worker-label").textContent = "状态待核实";
         $("worker-heading").textContent = "连接暂未确认";
-        notice("暂时无法更新状态，以下为上次同步的内容。启动按钮已暂停，页面会继续尝试连接。", "warning");
+        connectionFeedback(false, connectionError(error), "warning", true);
+        notice("暂时无法更新状态，以下为上次同步的内容。启动按钮已暂停，页面会继续尝试连接。", "warning", false);
         updateControls();
       }
     } finally {
       state.refreshing = false;
       checkingFeedback(false);
-      $("session-checked").textContent = `上次检查：${new Intl.DateTimeFormat("zh-CN", { timeZone: "Asia/Shanghai", hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false }).format(new Date())} · 北京时间`;
       schedulePolling();
     }
   }
@@ -425,7 +491,7 @@
     state.startingMode = mode;
     const epoch = state.epoch;
     updateControls();
-    notice("正在提交任务，请稍候…");
+    notice("正在提交启动请求…服务器尚未确认，请勿重复点击。");
     try {
       const response = await api("start", "POST", request);
       if (epoch !== state.epoch) return;
@@ -526,7 +592,7 @@
   if (!$("public-form")) return;
   const storageKey = "public-brief-request-id";
   const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  const publicState = { requestId: null, stage: "idle", submitting: false, checking: false, timer: null, failures: 0 };
+  const publicState = { requestId: null, stage: "idle", jobStatus: null, jobPhase: null, submitting: false, checking: false, timer: null, failures: 0 };
   const phases = {
     queued: ["已提交，等待电脑接收", "任务已记录。电脑接收后会自动开始，请保留此页面查看进度。", -1],
     starting: ["电脑已接收，正在启动", "正在启动公开新闻任务，本次不会读取站主本地资料。", -1],
@@ -555,9 +621,13 @@
     const canSubmit = ["idle", "rejected", "notfound"].includes(publicState.stage);
     $("public-submit").disabled = busy || !canSubmit;
     $("public-submit").setAttribute("aria-busy", String(publicState.submitting));
+    const activeLabel = publicState.jobStatus === "queued" || publicState.jobPhase === "queued"
+      ? "已排队 · 等待电脑接收"
+      : publicState.jobPhase === "starting" ? "正在启动 Agent"
+        : phases[publicState.jobPhase]?.[0] || "电脑已接收 · 等待进度";
     const labels = {
       idle: "发送公开简报到我的邮箱", rejected: "重试本次公开简报", notfound: "继续本次请求",
-      active: "Agent 正在运行", unknown: "请先核对本次请求", uncertain: "发送结果待核实",
+      active: activeLabel, unknown: "请先核对本次请求", uncertain: "发送结果待核实",
       completed: "本次公开简报已发送", failed: "本次任务未完成",
     };
     $("public-submit").querySelector("[data-button-label]").textContent = publicState.submitting ? "正在提交，请稍候…" : labels[publicState.stage] || "检查本次请求中…";
@@ -607,6 +677,8 @@
 
   function showJob(job) {
     publicState.failures = 0;
+    publicState.jobStatus = typeof job.status === "string" ? job.status : null;
+    publicState.jobPhase = typeof job.phase === "string" ? job.phase : null;
     if (job.updatedAt) {
       const updated = new Date(job.updatedAt);
       if (Number.isFinite(updated.getTime())) {
@@ -625,7 +697,7 @@
       feedback("本次任务未完成", job.error === "insufficient_news" ? "近三天的有效新闻不足 10 条，本次没有发送邮件。请稍后再来。" : job.error === "queue_expired" ? "电脑未能及时接收，本次任务已过期，没有开始执行。" : "电脑返回本次运行未完成。请先核对邮箱；页面不会自动再次提交，避免重复发信。", "error");
     } else if (["queued", "running"].includes(job.status)) {
       publicState.stage = "active";
-      const phase = phases[job.phase] || (job.status === "queued" ? phases.queued : ["Agent 正在执行", "任务已由电脑接收，等待下一条实际进度。", -1]);
+      const phase = job.status === "queued" ? phases.queued : phases[job.phase] || ["Agent 正在执行", "任务已由电脑接收，等待下一条实际进度。", -1];
       feedback(phase[0], phase[1], "info", phase[2]);
     } else {
       publicState.stage = "unknown";

@@ -11,7 +11,7 @@ if (path.dirname(output) !== root || path.basename(output) !== 'public') {
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
 // Only these reviewed frontend files are public. Runtime data never enters this folder.
-for (const name of ['index.html', 'agents.html', 'agents.js', 'agents.css']) {
+for (const name of ['index.html', 'agents.html', 'agents.js', 'agents.css', 'schedule-countdown.js']) {
   await copyFile(path.join(root, name), path.join(output, name));
 }
-console.log('Public website built from four explicit frontend files.');
+console.log('Public website built from five explicit frontend files.');
