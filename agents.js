@@ -13,6 +13,7 @@
   const errorLabels = {
     agent_busy: "电脑正在执行另一项任务，请稍后重试。",
     agent_failed: "电脑上的任务未完成，请查看本地运行记录。",
+    insufficient_news: "近三天的有效新闻不足 10 条，本次未发送邮件。请稍后再试。",
     agent_start_failed: "电脑未能启动程序，请检查连接程序。",
     report_unavailable: "任务结果暂时无法读取，需在电脑上检查。",
     queue_expired: "等待电脑接收超时，本次没有执行。",
@@ -621,7 +622,7 @@
       feedback("任务已结束，发信结果待核实", "尚未收到明确的发信成功确认。请先查看邮箱，再检查本次请求状态；页面不会自动再次发信。", "warning");
     } else if (job.status === "failed") {
       publicState.stage = "failed";
-      feedback("本次任务未完成", job.error === "queue_expired" ? "电脑未能及时接收，本次任务已过期，没有开始执行。" : "电脑返回本次运行未完成。请先核对邮箱；页面不会自动再次提交，避免重复发信。", "error");
+      feedback("本次任务未完成", job.error === "insufficient_news" ? "近三天的有效新闻不足 10 条，本次没有发送邮件。请稍后再来。" : job.error === "queue_expired" ? "电脑未能及时接收，本次任务已过期，没有开始执行。" : "电脑返回本次运行未完成。请先核对邮箱；页面不会自动再次提交，避免重复发信。", "error");
     } else if (["queued", "running"].includes(job.status)) {
       publicState.stage = "active";
       const phase = phases[job.phase] || (job.status === "queued" ? phases.queued : ["Agent 正在执行", "任务已由电脑接收，等待下一条实际进度。", -1]);

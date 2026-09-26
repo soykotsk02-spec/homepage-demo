@@ -375,7 +375,9 @@ class WebWorker:
                 record["mode"] in {"send", "public-send"} and "send" in self._phases(folder) and status.get("failureType") != "MailNotSent"
             )
             record["status"] = "uncertain" if uncertain else "failed"
-            self._payload(record, "failed", "failed", error="delivery_unknown_check_local" if uncertain else "agent_failed", mail_sent=True if mail_sent else (None if uncertain else False))
+            error_code = "delivery_unknown_check_local" if uncertain else (
+                "insufficient_news" if status.get("failureType") == "InsufficientNewsError" else "agent_failed")
+            self._payload(record, "failed", "failed", error=error_code, mail_sent=True if mail_sent else (None if uncertain else False))
         self._save()
         self._log(record["status"], record["id"])
         self._deliver_update(record)

@@ -52,6 +52,20 @@ def model_result(item_id="article-001"):
     }
 
 
+def full_batch():
+    news = batch()
+    news["items"] = [{**news["items"][0], "id": f"article-{index:03d}", "url": f"https://example.org/story-{index}"}
+                     for index in range(1, 11)]
+    return news
+
+
+def full_model_result():
+    raw = model_result()
+    raw["items"] = [{**model_result(f"article-{index:03d}")["items"][0],
+                     "region": "domestic" if index % 2 else "international"} for index in range(1, 11)]
+    return raw
+
+
 class NormalizeTests(unittest.TestCase):
     def normalize(self, raw=None, news=None):
         news = batch() if news is None else news
@@ -175,13 +189,12 @@ class NormalizeTests(unittest.TestCase):
         with self.assertRaises(analyzer.AnalysisError):
             self.normalize(wrong, news)
 
-    def test_small_input_discloses_shortage_and_region_does_not_follow_source_language(self):
+    def test_region_does_not_follow_source_language(self):
         raw = model_result()
         news = batch()
         news["items"][0].update(sourceName="中文科技媒体", regionHint="domestic")
         output = self.normalize(raw, news)
         self.assertEqual(output["items"][0]["region"], "international")
-        self.assertIn("不足", output["sourceNote"])
 
     def test_no_relevant_match_can_be_reported_without_fabricating_citations(self):
         raw = model_result()
@@ -215,16 +228,28 @@ class ProcessTests(unittest.TestCase):
                 self.assertIn(library()["chunks"][0]["text"], prompt)
                 self.assertEqual(cwd, run_dir.resolve())
                 Path(command[command.index("--output-last-message") + 1]).write_text(
-                    json.dumps(model_result()), encoding="utf-8")
+                    json.dumps(full_model_result()), encoding="utf-8")
 
             with patch.object(analyzer, "_run_cli", side_effect=fake_cli):
-                result = analyzer.analyze(batch(), profile(), run_dir, "codex.exe")
-            self.assertEqual(result["selectedItemIds"], ["article-001"])
+                result = analyzer.analyze(full_batch(), profile(), run_dir, "codex.exe")
+            self.assertEqual(result["selectedItemIds"], [f"article-{index:03d}" for index in range(1, 11)])
             for filename in ("analysis-prompt.txt", "analysis-schema.json", "model-output.json",
                              "analysis.json", "analysis-input-evidence.json"):
                 self.assertTrue((run_dir / filename).is_file())
             with self.assertRaises(analyzer.AnalysisError):
-                analyzer.analyze(batch(), profile(), run_dir, "codex.exe")
+                analyzer.analyze(full_batch(), profile(), run_dir, "codex.exe")
+
+    def test_insufficient_or_duplicate_news_stops_before_cli(self):
+        variants = [batch(), full_batch(), full_batch()]
+        variants[1]["items"] = variants[1]["items"][:9]
+        variants[2]["items"][-1]["url"] = variants[2]["items"][0]["url"]
+        for news in variants:
+            with self.subTest(count=len(news["items"])), tempfile.TemporaryDirectory() as folder, \
+                 patch.object(analyzer, "_run_cli") as cli:
+                with self.assertRaises(analyzer.InsufficientNewsError):
+                    analyzer.analyze(news, profile(), Path(folder), "codex.exe")
+                cli.assert_not_called()
+                self.assertFalse((Path(folder) / "analysis.json").exists())
 
     def test_generic_profile_cannot_substitute_for_document_content(self):
         with tempfile.TemporaryDirectory() as folder, patch.object(analyzer, "_run_cli") as cli:
@@ -236,13 +261,13 @@ class ProcessTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             with patch.object(analyzer, "_run_cli", side_effect=analyzer.AnalysisError("CLI failed")):
                 with self.assertRaises(analyzer.AnalysisError):
-                    analyzer.analyze(batch(), profile(), Path(folder), "codex.exe")
+                    analyzer.analyze(full_batch(), profile(), Path(folder), "codex.exe")
             self.assertFalse((Path(folder) / "analysis.json").exists())
 
     def test_missing_output_is_an_error(self):
         with tempfile.TemporaryDirectory() as folder, patch.object(analyzer, "_run_cli"):
             with self.assertRaises(analyzer.AnalysisError):
-                analyzer.analyze(batch(), profile(), Path(folder), "codex.exe")
+                analyzer.analyze(full_batch(), profile(), Path(folder), "codex.exe")
 
     def test_timeout_terminates_process_tree(self):
         process = Mock()

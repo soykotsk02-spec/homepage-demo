@@ -46,6 +46,20 @@ def report(run_id=RUN_ID):
     return output
 
 
+def full_batch():
+    news = batch()
+    news["items"] = [{**news["items"][0], "id": f"public-{index}", "url": f"https://example.com/news-{index}"}
+                     for index in range(10)]
+    return news
+
+
+def full_result():
+    raw = result()
+    raw["items"] = [{**raw["items"][0], "itemId": f"public-{index}",
+                     "region": "domestic" if index % 2 else "international"} for index in range(10)]
+    return raw
+
+
 class PublicInputTests(unittest.TestCase):
     def test_one_normalized_mailbox_only(self):
         self.assertEqual(public_news.normalize_recipient(" Reader+News@Example.COM "), "reader+news@example.com")
@@ -84,12 +98,12 @@ class PublicAnalysisTests(unittest.TestCase):
                 self.assertIn("Public RSS excerpt.", prompt)
                 self.assertNotIn("localLibrary", prompt)
                 self.assertNotIn("localProfileSummary", prompt)
-                Path(command[command.index("--output-last-message") + 1]).write_text(json.dumps(result()), encoding="utf-8")
+                Path(command[command.index("--output-last-message") + 1]).write_text(json.dumps(full_result()), encoding="utf-8")
             with patch.object(public_news, "_run_cli", side_effect=cli):
-                output = public_news.analyze_public(batch(), Path(folder), "fixture.exe")
+                output = public_news.analyze_public(full_batch(), Path(folder), "fixture.exe")
             self.assertEqual(output["audience"], "public")
             self.assertFalse(any(key.startswith("local") for key in output))
-            self.assertEqual(output["items"][0]["url"], batch()["items"][0]["url"])
+            self.assertEqual(output["items"][0]["url"], full_batch()["items"][0]["url"])
             evidence = json.loads((Path(folder) / "analysis-input-evidence.json").read_text(encoding="utf-8"))
             self.assertFalse(evidence["localFilesRead"])
             self.assertFalse(evidence["personalProfileUsed"])
@@ -100,16 +114,55 @@ class PublicAnalysisTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as folder:
             def cli(command, *args):
                 Path(command[command.index("--output-last-message") + 1]).write_text(
-                    json.dumps({**result(), "localConnections": [{"quote": "PRIVATE"}]}), encoding="utf-8")
+                    json.dumps({**full_result(), "localConnections": [{"quote": "PRIVATE"}]}), encoding="utf-8")
             with patch.object(public_news, "_run_cli", side_effect=cli), self.assertRaises(analyzer.AnalysisError):
-                public_news.analyze_public(batch(), Path(folder), "fixture.exe")
+                public_news.analyze_public(full_batch(), Path(folder), "fixture.exe")
         value = report()
         value["localContext"] = "PRIVATE"
         with self.assertRaises(analyzer.AnalysisError):
             agent.render_report(value, "reader@example.com", public_only=True)
 
+    def test_insufficient_public_input_stops_before_cli(self):
+        for count in (1, 9):
+            news = full_batch()
+            news["items"] = news["items"][:count]
+            with self.subTest(count=count), tempfile.TemporaryDirectory() as folder, \
+                 patch.object(public_news, "_run_cli") as cli:
+                with self.assertRaises(analyzer.InsufficientNewsError):
+                    public_news.analyze_public(news, Path(folder), "fixture.exe")
+                cli.assert_not_called()
+                self.assertFalse((Path(folder) / "analysis.json").exists())
+
 
 class PublicPipelineTests(unittest.TestCase):
+    def test_insufficient_news_private_and_public_never_spawn_model_or_send(self):
+        for public_only in (False, True):
+            with self.subTest(public_only=public_only), tempfile.TemporaryDirectory() as folder, \
+                 patch.object(agent, "ROOT", Path(folder)), \
+                 patch.object(collector, "collect", side_effect=lambda run: batch(run.name)), \
+                 patch.object(analyzer, "_run_cli") as private_cli, \
+                 patch.object(public_news, "_run_cli") as public_cli, \
+                 patch.object(local_library, "collect_local_context", return_value={
+                     "assets": [{"assetId": "test", "title": "测试资料"}],
+                     "chunks": [{"chunkId": "test:p1", "assetId": "test", "text": "测试资料正文。"}]}) as local, \
+                 patch.object(gmail_delivery, "GmailMailer") as mailer:
+                agent.write_json(Path(folder) / "profile-context.json", {})
+                args = argparse.Namespace(send=True, demo_id="web-" + JOB_ID, trigger="manual", public_only=public_only,
+                                          recipient="reader@example.com" if public_only else "")
+                config = {"mail": {"recipient": "owner@example.com"}, "codexExecutable": "fixture.exe"}
+                self.assertEqual(agent.run_pipeline(args, config), 1)
+                private_cli.assert_not_called()
+                public_cli.assert_not_called()
+                mailer.return_value.send.assert_not_called()
+                if public_only:
+                    local.assert_not_called()
+                run = next((Path(folder) / "data/runs").iterdir())
+                status = agent.read_json(run / "status.json")
+                self.assertEqual(status["status"], "failed")
+                self.assertEqual(status["failureType"], "InsufficientNewsError")
+                self.assertFalse(status["sent"])
+                self.assertFalse((run / "report.html").exists())
+
     def test_public_job_does_not_read_local_data_override_config_or_replace_private_latest(self):
         config = {"mail": {"recipient": "owner@example.com", "username": "sender@example.com"}, "codexExecutable": "fixture.exe"}
         original = copy.deepcopy(config)
@@ -174,6 +227,24 @@ class PublicPipelineTests(unittest.TestCase):
                 self.assertNotIn("PRIVATE", json.dumps(job["updatePayload"]))
                 worker.publish_daily_reports()
             self.assertEqual([call.args[0] for call in api.call_args_list], ["update"])
+
+    def test_worker_reports_insufficient_news_and_keeps_uncertainty_priority(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            config = root / "worker.json"
+            config.write_text(json.dumps({**web_worker.EXAMPLE_CONFIG, "workerToken": "fixture-only-worker-token-with-enough-length"}), encoding="utf-8")
+            worker = web_worker.WebWorker(config, root)
+            status = {"status": "failed", "sent": False, "failureType": "InsufficientNewsError"}
+            with patch.object(worker, "_post", return_value={}):
+                for mode in ("send", "public-send"):
+                    job = {"id": JOB_ID, "mode": mode}
+                    worker._finish(job, 1, None, status)
+                    self.assertEqual(job["updatePayload"]["error"], "insufficient_news")
+                    self.assertFalse(job["updatePayload"]["mailSent"])
+                job = {"id": JOB_ID, "mode": "public-send", "status": "sending"}
+                worker._finish(job, 1, None, status)
+                self.assertEqual(job["updatePayload"]["error"], "delivery_unknown_check_local")
+                self.assertNotIn("mailSent", job["updatePayload"])
 
 
 if __name__ == "__main__":
