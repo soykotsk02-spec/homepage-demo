@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="description" content="我的私有 Agent 工作台。查看科技简报，连接本地资料，跟进真实运行进度。">
+  <meta name="theme-color" content="#f7f6f2">
+  <title>我的 Agent · 个人工作台</title>
+  <link rel="stylesheet" href="/agents.css">
+  <script src="/agents.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到主要内容</a>
+  <div class="shell">
+    <header class="site-header">
+      <a class="brand" href="/"><span class="brand-mark" aria-hidden="true">✳</span>我的主页<span class="brand-divider" aria-hidden="true">/</span><span class="brand-sub">Agent</span></a>
+      <nav aria-label="页面导航"><a class="back-link" href="/">← 返回主页</a><button id="logout-button" class="text-button" type="button" hidden>退出登录</button></nav>
+    </header>
+
+    <main id="main">
+      <div class="page-heading">
+        <div><p class="eyebrow">A LITTLE HELP, EVERY DAY</p><h1>我的 Agent<span class="heading-dot">.</span></h1><p class="page-intro">从今天的新闻，走到自己的下一步。</p></div>
+        <span class="private-label"><span aria-hidden="true">◈</span> 私有工作台</span>
+      </div>
+
+      <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+      <section id="session-panel" class="session-layout" aria-label="工作台登录">
+        <div class="session-card panel">
+          <div class="section-kicker">WELCOME BACK</div>
+          <h2>继续你的探索</h2>
+          <p class="muted">登录后，查看真实简报与运行记录。个人资料和邮件内容仅在登录后读取。</p>
+          <div id="session-state" class="session-state" role="status">正在检查登录状态…</div>
+          <form id="login-form" hidden>
+            <label for="password">工作台密码</label>
+            <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="输入工作台密码" aria-describedby="login-error">
+            <p id="login-error" class="form-error" role="alert" hidden></p>
+            <button id="login-button" class="button primary full-width" type="submit">进入工作台 <span aria-hidden="true">↗</span></button>
+          </form>
+          <button id="retry-button" class="button secondary" type="button" hidden>重新检查连接</button>
+          <p class="fine-print">密码不会保存在此页面。退出登录后，页面将清除已显示的私人内容。</p>
+        </div>
+        <aside class="session-aside">
+          <div class="seed-art" aria-hidden="true"><svg viewBox="0 0 240 200"><circle cx="187" cy="43" r="18" fill="#d5ae71"/><path d="M47 151q36-12 73 8 37-20 73-8v23q-37-12-73 8-37-20-73-8z" fill="#faf9f1" stroke="#315f49" stroke-width="2"/><path d="M120 159v24m0-26c0-40-7-51 1-91" fill="none" stroke="#315f49" stroke-width="3"/><path d="M120 124c-34 0-48-28-40-46 31 0 43 22 40 46" fill="#7e9a70"/><path d="M121 106c0-35 30-50 49-41-3 29-27 44-49 41" fill="#315f49"/><path d="M121 76c-20-2-27-20-24-31 18 2 29 13 24 31" fill="#a7b68a"/></svg></div>
+          <p class="eyebrow">你的电脑执行 · 在这里看见</p>
+          <h2>让信息，慢慢长成见解。</h2>
+          <p>采集公开科技新闻，结合本地研究资料，再整理成一份有来源、有联系、有行动的简报。</p>
+          <div class="aside-note">启动任务时，请保持执行电脑开机、联网，并运行连接程序。</div>
+        </aside>
+      </section>
+
+      <div id="dashboard" hidden>
+        <section class="overview-grid" aria-label="Agent 概览">
+          <div class="agent-banner">
+            <div class="banner-top"><span class="banner-label">01 / 每日科技简报</span><span class="banner-symbol" aria-hidden="true">✳</span></div>
+            <h2>新闻有来处，<br>学习有下一步。</h2>
+            <p>从公开新闻与本地资料中，整理值得关注的联系。</p>
+            <div class="schedule-line"><span class="schedule-icon" aria-hidden="true">◷</span><span id="schedule-label">每日计划待同步</span><span class="schedule-location">电脑执行</span></div>
+          </div>
+          <aside class="connection-card panel">
+            <div class="section-kicker">执行设备</div>
+            <div id="worker-status" class="status-chip" data-state="unknown"><span class="status-dot" aria-hidden="true"></span><span id="worker-label">连接状态待同步</span></div>
+            <h3 id="worker-heading">等待电脑的消息</h3>
+            <p id="worker-description" class="muted">网页负责提交任务，执行电脑负责读取资料、分析和发信。</p>
+            <div class="device-meta"><span>最近连接</span><time id="worker-last-seen">暂无记录</time></div>
+            <div class="device-meta"><span>页面更新</span><time id="updated-time">尚未更新</time></div>
+            <button id="refresh-button" class="text-button refresh-button" type="button">刷新状态 <span aria-hidden="true">↻</span></button>
+          </aside>
+        </section>
+
+        <section class="control-panel panel" aria-labelledby="start-heading">
+          <div><h2 id="start-heading">开始一次新的探索</h2><p id="action-help" class="muted">预览只生成简报；运行并发送会实际发邮件到已配置的邮箱。</p><p id="availability-note" class="availability-note">正在同步执行状态。</p></div>
+          <div class="actions"><button id="preview-button" class="button secondary" type="button" disabled>生成预览<span class="button-caption">不发邮件</span></button><button id="send-button" class="button primary" type="button" disabled>运行并发送 <span aria-hidden="true">↗</span><span class="button-caption">生成简报并真实发信</span></button></div>
+        </section>
+
+        <section class="workflow" aria-label="三个工作模块">
+          <article><span class="module-number">01</span><div><h3>采集科技新闻</h3><p>公开来源 · 保留日期与原文链接</p></div></article>
+          <article><span class="module-number">02</span><div><h3>读取本地资料</h3><p>指定文档 · 追溯原句与段落</p></div></article>
+          <article><span class="module-number">03</span><div><h3>分析与发送</h3><p>形成联系 · 明确可以做的下一步</p></div></article>
+        </section>
+
+        <section class="progress-panel panel" aria-labelledby="progress-heading">
+          <div class="section-heading"><div><p class="section-kicker">LIVE PROGRESS</p><h2 id="progress-heading">运行进度</h2></div><span id="phase-label" class="phase-label" aria-live="polite">暂无正在运行的任务</span></div>
+          <ol id="progress-list" class="progress-list" aria-label="执行阶段">
+            <li data-step="collect"><span class="step-dot">1</span><span>采集新闻</span></li><li data-step="local"><span class="step-dot">2</span><span>读取资料</span></li><li data-step="analyze"><span class="step-dot">3</span><span>分析联系</span></li><li data-step="render"><span class="step-dot">4</span><span>生成简报</span></li><li data-step="send"><span class="step-dot">5</span><span>发送邮件</span></li>
+          </ol>
+          <p id="progress-detail" class="muted">开始任务后，这里会显示电脑返回的实际进度。</p>
+          <p id="job-error" class="inline-error" role="alert" hidden></p>
+        </section>
+
+        <section class="report-section" aria-labelledby="report-heading">
+          <div class="section-heading"><div><p class="section-kicker">YOUR LATEST BRIEF</p><h2 id="report-heading">最新简报</h2></div><time id="report-time" class="section-meta"></time></div>
+          <div id="report-empty" class="empty-state panel"><span class="empty-mark" aria-hidden="true">↗</span><h3>还没有同步的简报</h3><p>电脑完成任务并上传结果后，真实内容会出现在这里。</p></div>
+          <div id="report-content" hidden>
+            <div class="report-intro"><h3 id="report-title"></h3><p id="report-overview"></p></div>
+            <div id="news-list" class="news-list"></div>
+            <section class="local-panel" aria-labelledby="local-heading"><p class="section-kicker">FROM YOUR LIBRARY</p><h3 id="local-heading">结合你的本地资料</h3><div id="local-list"></div><p id="local-limitations" class="local-limitations"></p></section>
+            <section id="learning-panel" class="learning-panel" aria-labelledby="learning-heading"><span aria-hidden="true">✳</span><div><h3 id="learning-heading">今天，动手做一件小事</h3><ul id="learning-list"></ul></div></section>
+            <p id="source-note" class="source-note"></p>
+          </div>
+        </section>
+
+        <section class="history-section" aria-labelledby="history-heading">
+          <div class="section-heading"><div><p class="section-kicker">ONE STEP AT A TIME</p><h2 id="history-heading">运行记录</h2></div><span class="section-meta">最近 20 次</span></div>
+          <div id="history-empty" class="empty-history panel">暂无运行记录。每次真实提交的任务都会在这里留下进度与结果。</div>
+          <ol id="history-list" class="history-list" aria-label="历史任务"></ol>
+        </section>
+      </div>
+      <noscript><p class="notice">请启用浏览器 JavaScript，以便登录和查看真实运行状态。</p></noscript>
+    </main>
+    <footer class="site-footer"><span>用好奇心创造，用行动记录。</span><span>网页提交任务 · 电脑完成执行</span></footer>
+  </div>
+</body>
+</html>

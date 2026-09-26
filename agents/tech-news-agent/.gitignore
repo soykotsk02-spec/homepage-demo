@@ -1,0 +1,29 @@
+# Local configuration and credentials
+config.json
+local-sources.json
+web-worker-config.json
+.env
+.env.*
+*.local.json
+*consent*.json
+approval*.json
+*connection*.json
+mail-readiness.json
+schedule-*.json
+
+# Local documents, reports, receipts, and job state
+private-materials/
+data/
+*.docx
+*.pdf
+*.html
+*.log
+*.jsonl
+验收状态.json
+
+# Python runtime artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/

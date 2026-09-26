@@ -1,0 +1,11 @@
+{
+  "pythonExecutable": "REPLACE_WITH_PYTHON_EXECUTABLE",
+  "codexExecutable": "REPLACE_WITH_CODEX_EXECUTABLE",
+  "networkProxy": "",
+  "mail": {
+    "provider": "codex_gmail",
+    "username": "sender@example.com",
+    "recipient": "you@example.com",
+    "approvalMode": "never"
+  }
+}

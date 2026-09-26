@@ -1,0 +1,13 @@
+node_modules/
+public/
+.vercel/
+.env
+.env.*
+*.local.json
+web-worker-config.json
+data/
+__pycache__/
+agents/tech-news-agent/config.json
+agents/tech-news-agent/local-sources.json
+agents/tech-news-agent/approval-consent.json
+agents/tech-news-agent/mail-connection.json

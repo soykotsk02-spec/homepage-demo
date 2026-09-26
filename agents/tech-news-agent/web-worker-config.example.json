@@ -1,0 +1,6 @@
+{
+  "baseUrl": "https://homepage-demo1111.vercel.app/api/agent",
+  "workerId": "YOUR_WORKER_ID",
+  "workerToken": "REPLACE_WITH_RANDOM_WORKER_TOKEN",
+  "pollSeconds": 30
+}

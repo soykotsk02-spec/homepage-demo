@@ -1,0 +1,14 @@
+{
+  "sources": [
+    {
+      "id": "platform-study",
+      "title": "平台商业模式研究",
+      "path": "private-materials/platform-study.docx"
+    },
+    {
+      "id": "cloud-research",
+      "title": "云计算与 AI 研究",
+      "path": "private-materials/cloud-research.docx"
+    }
+  ]
+}
