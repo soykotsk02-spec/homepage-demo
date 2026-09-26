@@ -592,7 +592,7 @@
   if (!$("public-form")) return;
   const storageKey = "public-brief-request-id";
   const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-  const publicState = { requestId: null, stage: "idle", jobStatus: null, jobPhase: null, submitting: false, checking: false, timer: null, failures: 0 };
+  const publicState = { requestId: null, request: null, itemCount: null, stage: "idle", jobStatus: null, jobPhase: null, submitting: false, checking: false, timer: null, failures: 0 };
   const phases = {
     queued: ["已提交，等待电脑接收", "任务已记录。电脑接收后会自动开始，请保留此页面查看进度。", -1],
     starting: ["电脑已接收，正在启动", "正在启动公开新闻任务，本次不会读取站主本地资料。", -1],
@@ -619,6 +619,7 @@
   function controls() {
     const busy = publicState.submitting || publicState.checking;
     const canSubmit = ["idle", "rejected", "notfound"].includes(publicState.stage);
+    const canEdit = canSubmit && !publicState.request;
     $("public-submit").disabled = busy || !canSubmit;
     $("public-submit").setAttribute("aria-busy", String(publicState.submitting));
     const activeLabel = publicState.jobStatus === "queued" || publicState.jobPhase === "queued"
@@ -631,12 +632,29 @@
       completed: "本次公开简报已发送", failed: "本次任务未完成",
     };
     $("public-submit").querySelector("[data-button-label]").textContent = publicState.submitting ? "正在提交，请稍候…" : labels[publicState.stage] || "检查本次请求中…";
-    $("public-email").disabled = busy || !canSubmit;
+    for (const id of ["public-email", "public-item-count", "public-keywords"]) $(id).disabled = busy || !canEdit;
     $("public-consent").disabled = busy || !canSubmit;
     $("public-check").hidden = !publicState.requestId || !["active", "unknown", "uncertain", "notfound"].includes(publicState.stage);
     $("public-check").disabled = busy;
     $("public-check").setAttribute("aria-busy", String(publicState.checking));
     $("public-check").querySelector("[data-button-label]").textContent = publicState.checking ? "正在核对状态…" : "检查本次请求状态";
+    $("public-reset").hidden = !["completed", "failed"].includes(publicState.stage);
+    $("public-reset").disabled = busy || !["completed", "failed"].includes(publicState.stage);
+  }
+
+  function updatePreferences() {
+    const count = Number($("public-item-count").value);
+    $("public-item-count-output").textContent = `${count} 条`;
+    $("public-item-count").setAttribute("aria-valuetext", `${count} 条新闻`);
+    $("public-keyword-count").textContent = `${$("public-keywords").value.length} / 200`;
+  }
+
+  function newRequestId() {
+    if (!window.crypto || typeof window.crypto.randomUUID !== "function") {
+      feedback("浏览器暂不支持安全提交", "请使用新版浏览器打开本站，以生成可防止重复发信的请求编号。", "error");
+      return null;
+    }
+    return window.crypto.randomUUID();
   }
 
   function saveRequestId() {
@@ -679,6 +697,12 @@
     publicState.failures = 0;
     publicState.jobStatus = typeof job.status === "string" ? job.status : null;
     publicState.jobPhase = typeof job.phase === "string" ? job.phase : null;
+    if (Number.isInteger(job.itemCount) && job.itemCount >= 5 && job.itemCount <= 20) {
+      publicState.itemCount = job.itemCount;
+      $("public-item-count").value = String(job.itemCount);
+    }
+    if (typeof job.keywords === "string" && job.keywords.length <= 200) $("public-keywords").value = job.keywords;
+    updatePreferences();
     if (job.updatedAt) {
       const updated = new Date(job.updatedAt);
       if (Number.isFinite(updated.getTime())) {
@@ -688,13 +712,21 @@
     }
     if (job.status === "completed" && job.mailSent === true) {
       publicState.stage = "completed";
-      feedback("公开简报已发送", "电脑已确认邮件发送成功，请查看你的收件箱；如暂未看到，也可检查垃圾邮件。内容仅包含公开科技新闻。", "success", 2, true);
+      feedback("公开简报已发送", "电脑已确认发送成功，请查看收件箱或垃圾邮件。还想继续，可点击“再发一封”；同一邮箱滚动 24 小时最多 3 次，已发新闻会去重。", "success", 2, true);
     } else if (job.status === "completed" || job.status === "uncertain") {
       publicState.stage = "uncertain";
       feedback("任务已结束，发信结果待核实", "尚未收到明确的发信成功确认。请先查看邮箱，再检查本次请求状态；页面不会自动再次发信。", "warning");
     } else if (job.status === "failed") {
-      publicState.stage = "failed";
-      feedback("本次任务未完成", job.error === "insufficient_news" ? "近三天的有效新闻不足 10 条，本次没有发送邮件。请稍后再来。" : job.error === "queue_expired" ? "电脑未能及时接收，本次任务已过期，没有开始执行。" : "电脑返回本次运行未完成。请先核对邮箱；页面不会自动再次提交，避免重复发信。", "error");
+      const ambiguous = job.deliveryUncertain === true || job.mailSent !== false || ["delivery_unknown_check_local", "worker_interrupted_check_local"].includes(job.error);
+      publicState.stage = ambiguous ? "uncertain" : "failed";
+      if (ambiguous) {
+        feedback("任务未完成，发信结果待核实", "尚不能确认是否已发信，请先检查邮箱与本次状态。确认前不能另建请求，避免重复寄送。", "warning");
+      } else if (["insufficient_news", "no_matching_news"].includes(job.error)) {
+        const requested = publicState.itemCount === null ? "所选数量" : `${publicState.itemCount} 条`;
+        feedback("新闻不足，本次未发信", `去除已发新闻后，近 3 天内符合关键词、媒体来源和国内外覆盖要求的新闻不足 ${requested}。可点击“再发一封”，放宽关键词或调小数量；不会用旧新闻凑数。`, "warning");
+      } else {
+        feedback("本次任务未完成，未发信", job.error === "queue_expired" ? "电脑未能及时接收，本次没有执行。可稍后点击“再发一封”重试。" : "电脑已确认本次没有发送邮件。可稍后点击“再发一封”，重新选择数量与关键词后提交。", "error");
+      }
     } else if (["queued", "running"].includes(job.status)) {
       publicState.stage = "active";
       const phase = job.status === "queued" ? phases.queued : phases[job.phase] || ["Agent 正在执行", "任务已由电脑接收，等待下一条实际进度。", -1];
@@ -717,7 +749,7 @@
     } catch (error) {
       if (error.status === 404 && error.data?.error === "not_found") {
         publicState.stage = "notfound";
-        feedback("暂未查到本次任务", "任务可能尚未被接受，或记录已过期。可先检查邮箱；如需继续，请使用原邮箱提交，页面会保留同一个请求编号。", "warning");
+        feedback("暂未查到本次任务", "任务可能尚未被接受，或记录已过期。请先检查邮箱；如需继续，使用原邮箱、数量与关键词提交，页面会保留同一个请求编号。", "warning");
       } else {
         publicState.failures += 1;
         if (publicState.stage !== "uncertain") publicState.stage = "unknown";
@@ -737,21 +769,24 @@
     const rejected = {
       worker_offline: ["执行电脑暂未在线", "本次任务没有开始。请等站主电脑恢复连接后，再点击重试。"],
       job_active: ["Agent 正在忙", "电脑正在执行另一项任务，本次尚未开始。请稍后重试。"],
-      public_email_limit: ["这个邮箱暂时达到体验次数限制", `请${retryWait}再试。本次请求不会自动重发。`],
+      public_email_limit: ["这个邮箱已达到 24 小时内 3 次的限额", `同一邮箱按滚动 24 小时计算，最多 3 次。请${retryWait}再试；本次请求不会自动重发。`],
       public_ip_limit: ["当前网络请求较多", `请${retryWait}再试。本次请求不会自动重发。`],
       public_daily_limit: ["今天的公开体验额度已用完", `请${retryWait}再来体验。本次没有新增任务。`],
       public_rate_limited: ["公开体验请求较多", `请${retryWait}再试。本次请求不会自动重发。`],
       not_configured: ["公开体验还在准备中", "服务尚未完成连接配置，目前无法接收任务。请稍后再来。"],
       invalid_email: ["请检查邮箱地址", "请输入你自己的完整邮箱地址，再提交本次请求。"],
+      invalid_item_count: ["请重新选择新闻数量", "每封可选择 5–20 条整数新闻，请调整滑块后重试。"],
+      invalid_keywords: ["请调整关注关键词", "关键词最多 200 字，用空格或中英文逗号分隔。请移除不可见的控制字符后重试。"],
       invalid_request: ["本次请求未被接受", "请检查邮箱后重试；页面会继续使用同一个请求编号。"],
       origin_mismatch: ["请求来源未通过验证", "请从本站正式页面提交；本次请求没有被接受。"],
     };
     if (rejected[code]) {
       publicState.stage = "rejected";
+      publicState.request = null;
       feedback(rejected[code][0], rejected[code][1], "warning");
     } else if (["request_conflict", "request_already_used"].includes(code)) {
       publicState.stage = "unknown";
-      feedback("本次请求已有记录", "请先检查本次请求状态，并核对原来填写的邮箱。页面不会换用新编号再次发信。", "warning");
+      feedback("本次请求已有记录", "请先检查本次请求状态，并核对原来的邮箱、数量与关键词。页面不会换用新编号再次发信。", "warning");
     } else {
       publicState.stage = "unknown";
       feedback("提交结果尚未确认", "正在查询同一请求的结果。原请求编号已保留，页面不会自动重复提交。", "warning");
@@ -762,22 +797,34 @@
     event.preventDefault();
     if ($("public-submit").disabled || !$("public-form").reportValidity()) return;
     const email = $("public-email").value.trim();
+    const itemCount = Number($("public-item-count").value);
+    const keywords = $("public-keywords").value.replace(/\s+/g, " ").trim();
     $("public-email").value = email;
+    $("public-keywords").value = keywords;
+    updatePreferences();
+    if (!Number.isInteger(itemCount) || itemCount < 5 || itemCount > 20) {
+      feedback("请重新选择新闻数量", "每封可选择 5–20 条整数新闻。", "error");
+      return;
+    }
+    if (keywords.length > 200) {
+      feedback("关键词太长", "请将关注关键词缩短至 200 字以内。", "error");
+      return;
+    }
     if (!publicState.requestId) {
-      if (!window.crypto || typeof window.crypto.randomUUID !== "function") {
-        feedback("浏览器暂不支持安全提交", "请使用新版浏览器打开本站，以生成可防止重复发信的请求编号。", "error");
-        return;
-      }
-      publicState.requestId = window.crypto.randomUUID();
+      publicState.requestId = newRequestId();
+      if (!publicState.requestId) return;
       saveRequestId();
     }
+    // Once submission might have been accepted, retries preserve every input.
+    if (!publicState.request) publicState.request = { requestId: publicState.requestId, email, itemCount, keywords };
+    publicState.itemCount = publicState.request.itemCount;
     stopPolling();
     publicState.submitting = true;
     publicState.failures = 0;
     controls();
     feedback("正在提交本次任务", "请稍候，正在确认服务器是否接受本次请求。此时不会显示为发送成功。");
     try {
-      showJob(await publicApi("public-start", { requestId: publicState.requestId, email }));
+      showJob(await publicApi("public-start", publicState.request));
     } catch (error) {
       showStartError(error);
     } finally {
@@ -788,6 +835,22 @@
     }
   });
 
+  $("public-item-count").addEventListener("input", updatePreferences);
+  $("public-keywords").addEventListener("input", updatePreferences);
+  $("public-reset").addEventListener("click", () => {
+    if (publicState.submitting || publicState.checking || !["completed", "failed"].includes(publicState.stage)) return;
+    const requestId = newRequestId();
+    if (!requestId) return;
+    stopPolling();
+    Object.assign(publicState, { requestId, request: null, itemCount: null, stage: "idle", jobStatus: null, jobPhase: null, failures: 0 });
+    saveRequestId();
+    $("public-consent").checked = false;
+    $("public-updated").textContent = "";
+    $("public-updated").hidden = true;
+    feedback("准备下一封公开简报", "可以调整邮箱、数量与关键词，再确认并提交。同一邮箱 24 小时内最多 3 次；已发新闻会去重，符合条件的新闻不够则暂不发送。");
+    controls();
+    $("public-email").focus();
+  });
   $("public-check").addEventListener("click", () => { publicState.failures = 0; checkStatus(); });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) stopPolling();
@@ -798,6 +861,7 @@
     const saved = window.sessionStorage.getItem(storageKey);
     if (saved && uuidPattern.test(saved)) publicState.requestId = saved;
   } catch { /* Storage is optional; no email is saved. */ }
+  updatePreferences();
   if (publicState.requestId) {
     publicState.stage = "unknown";
     feedback("正在恢复上次请求", "只查询上次请求的进度，不会重新发送。邮箱地址没有保存在浏览器存储中。");

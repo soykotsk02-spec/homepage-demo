@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="robots" content="noindex, nofollow">
-  <meta name="description" content="体验科技简报 Agent：填写自己的邮箱，接收一封只包含公开科技新闻的简报，并查看真实运行进度。">
+  <meta name="description" content="体验科技简报 Agent：选择5–20条新闻与关注关键词，以自己的邮箱接收近3天国内外科技简报，并查看真实运行进度。">
   <meta name="theme-color" content="#f7f6f2">
   <title>科技简报 Agent · 公开体验与个人工作台</title>
   <link rel="stylesheet" href="/agents.css">
@@ -29,14 +29,24 @@
         <div class="public-copy">
           <p class="eyebrow">无需登录 · 公开体验</p>
           <h2 id="public-heading">把今天的科技新闻，<br>交给 Agent 整理。</h2>
-          <p class="public-description">优先采集近 3 天的国内外科技新闻，每封 10–15 条，整理后发到你自己的邮箱。新闻来源不足时会提示，暂不发信。提交后，可查看实际运行进度。</p>
+          <p class="public-description">选择 5–20 条新闻，填入关注的关键词。Agent 从媒体与机构来源中筛选近 3 天的国内外科技新闻，避开已发给这个邮箱的内容，再整理成简报。</p>
           <ol class="public-workflow" aria-label="公开简报的工作流程"><li><span>01</span>采集公开新闻</li><li><span>02</span>整理科技简报</li><li><span>03</span>发送到你的邮箱</li></ol>
-          <p id="public-scope" class="public-scope">只发一封公开新闻简报，不含站主本地资料。不会订阅每日邮件。</p>
+          <p id="public-scope" class="public-scope">仅使用媒体与机构白名单来源，排除个人自媒体，不含站主本地资料。每次手动发送一封，不会订阅每日邮件；符合条件的新闻不足所选数量时，会说明原因并暂不发信。</p>
         </div>
         <div class="public-form-card">
           <form id="public-form">
             <label for="public-email">你的接收邮箱</label>
             <input id="public-email" name="email" type="email" inputmode="email" autocomplete="email" autocapitalize="none" spellcheck="false" maxlength="254" required placeholder="you@example.com" aria-describedby="public-scope public-feedback-detail">
+            <p class="public-field-help">以收件邮箱作为账号标识，同一邮箱滚动 24 小时最多 3 次。</p>
+            <div class="public-preferences">
+              <div class="public-field-heading"><label for="public-item-count">每封新闻数量</label><output id="public-item-count-output" for="public-item-count">12 条</output></div>
+              <input id="public-item-count" name="itemCount" type="range" min="5" max="20" step="1" value="12" aria-describedby="public-count-help" aria-valuetext="12 条新闻">
+              <div class="public-range-labels" aria-hidden="true"><span>5 条</span><span>20 条</span></div>
+              <p id="public-count-help" class="public-field-help">国内与国际新闻都要有；数量不足时，可调小数量或放宽关键词。</p>
+              <div class="public-field-heading public-keyword-heading"><label for="public-keywords">关注关键词 <span>选填</span></label><span id="public-keyword-count">0 / 200</span></div>
+              <input id="public-keywords" name="keywords" type="text" maxlength="200" autocomplete="off" placeholder="例如：人工智能, 芯片" aria-describedby="public-keyword-help public-keyword-count">
+              <p id="public-keyword-help" class="public-field-help">用空格或中英文逗号分隔，匹配任一关键词即可。不填则关注综合科技新闻，最多 200 字。</p>
+            </div>
             <label class="public-consent" for="public-consent"><input id="public-consent" type="checkbox" required><span>这是我自己的邮箱，我同意接收这一封公开新闻简报。</span></label>
             <button id="public-submit" class="button primary full-width" type="submit"><span class="button-spinner" aria-hidden="true"></span><span data-button-label>发送公开简报到我的邮箱</span></button>
           </form>
@@ -47,7 +57,8 @@
             <p id="public-updated" class="public-updated" hidden></p>
           </div>
           <button id="public-check" class="button secondary full-width" type="button" hidden><span class="button-spinner" aria-hidden="true"></span><span data-button-label>检查本次请求状态</span></button>
-          <p class="public-footnote">邮箱仅用于本次投递；页面不会将邮箱保存到浏览器存储。发送结果未确认时，请先检查状态，避免重复提交。</p>
+          <button id="public-reset" class="button secondary full-width" type="button" hidden>再发一封</button>
+          <p class="public-footnote">按收件邮箱长期去重，同一新闻不重复寄送。页面不会把邮箱或关键词保存到浏览器存储；发送结果未确认时，请先检查状态，避免重复提交。</p>
         </div>
       </section>
 

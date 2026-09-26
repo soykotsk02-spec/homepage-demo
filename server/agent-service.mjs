@@ -8,6 +8,8 @@ const COOKIE = '__Secure-agent_session';
 const REQUEST_TTL_MS = 24 * 60 * 60_000;
 const LOGIN_WINDOW_MS = 15 * 60_000;
 const PUBLIC_WINDOW_MS = 24 * 60 * 60_000;
+const PUBLIC_DEFAULT_ITEM_COUNT = 12;
+const UNCERTAIN_DELIVERY_ERRORS = new Set(['delivery_unknown_check_local', 'worker_interrupted_check_local']);
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const IDENTIFIER = /^[a-zA-Z0-9][a-zA-Z0-9_.:-]{0,127}$/;
 const PHASES = new Set(['collect', 'local-read', 'analyze', 'render', 'send']);
@@ -75,10 +77,32 @@ function recipientEmail(value) {
       || !/^[a-z]{2,63}$/.test(labels.at(-1))) problem(400, 'invalid_email');
   return email;
 }
+function publicPreferences(input) {
+  const itemCount = input.itemCount === undefined ? PUBLIC_DEFAULT_ITEM_COUNT : input.itemCount;
+  if (!Number.isInteger(itemCount) || itemCount < 5 || itemCount > 20) problem(400, 'invalid_item_count');
+  const raw = input.keywords === undefined ? '' : input.keywords;
+  if (typeof raw !== 'string' || [...raw].length > 200 || /[\p{Cf}\p{Cs}]/u.test(raw)
+    || [...raw].some(char => /\p{Cc}/u.test(char) && !/\s/u.test(char))) problem(400, 'invalid_keywords');
+  const keywords = raw.replace(/\s+/gu, ' ').trim();
+  // The worker uses this as literal filter text, never as a model or executable instruction.
+  return { itemCount, keywords };
+}
+function jobPreferences(job) { return { itemCount: job.itemCount ?? PUBLIC_DEFAULT_ITEM_COUNT, keywords: job.keywords ?? '' }; }
+function deliveryUncertain(job) {
+  return job.status === 'failed' && (UNCERTAIN_DELIVERY_ERRORS.has(job.error)
+    || (typeof job.mailSent !== 'boolean' && job.error !== 'queue_expired'));
+}
+function refundablePublicJob(job) {
+  return job?.mode === 'public-send' && job.status === 'failed'
+    && !deliveryUncertain(job) && (job.mailSent === false || job.error === 'queue_expired');
+}
 function publicJob(job) {
   const result = Object.fromEntries(['id', 'mode', 'status', 'phase', 'createdAt', 'updatedAt'].map(key => [key, job[key]]));
-  result.error = job.error ? (['queue_expired', 'insufficient_news'].includes(job.error) ? job.error : 'run_failed') : null;
+  Object.assign(result, jobPreferences(job));
+  result.error = job.error ? (['queue_expired', 'insufficient_news', 'no_matching_news', ...UNCERTAIN_DELIVERY_ERRORS].includes(job.error) ? job.error : 'run_failed') : null;
   if (typeof job.mailSent === 'boolean') result.mailSent = job.mailSent;
+  else if (job.error === 'queue_expired') result.mailSent = false;
+  if (job.status === 'failed') result.deliveryUncertain = deliveryUncertain(job);
   return result;
 }
 function dashboardJob(job) {
@@ -90,18 +114,27 @@ function publicRequestJob(state, remembered) {
   const job = state.activeJob?.id === remembered.jobId ? state.activeJob : state.history.find(item => item.id === remembered.jobId) ?? remembered.job;
   return job?.mode === 'public-send' ? job : null;
 }
-function publicQuota(state, now, emailHash, ipHash) {
-  // Backwards-compatible with databases created before public delivery existed.
-  const accepted = (state.publicAccepted ?? []).filter(item => item.at > now - PUBLIC_WINDOW_MS);
+function quotaEntryJob(state, entry) {
+  const matches = Object.values(state.requests).filter(item => item.mode === 'public-send' && (entry.jobId
+    ? item.jobId === entry.jobId : item.emailHash === entry.emailHash && item.at === entry.at));
+  // Old entries have no unique job pointer: an ambiguous timestamp must never refund a sent job.
+  const remembered = matches.length === 1 ? matches[0] : null;
+  if (remembered) return publicRequestJob(state, remembered);
+  if (!entry.jobId) return null;
+  return state.activeJob?.id === entry.jobId ? state.activeJob : state.history.find(job => job.id === entry.jobId);
+}
+function publicQuota(state, now, emailHash, ipHash, jobId) {
+  // Legacy entries without jobId still count unless their matching job proves no mail was sent.
+  const accepted = (state.publicAccepted ?? []).filter(item => item.at > now - PUBLIC_WINDOW_MS && !refundablePublicJob(quotaEntryJob(state, item)));
   state.publicAccepted = accepted;
   for (const [code, matches, limit] of [
-    ['public_email_limit', accepted.filter(item => item.emailHash === emailHash), 1],
-    ['public_ip_limit', accepted.filter(item => item.ipHash === ipHash), 3],
-    ['public_daily_limit', accepted, 10],
+    ['public_email_limit', accepted.filter(item => item.emailHash === emailHash), 3],
+    ['public_ip_limit', accepted.filter(item => item.ipHash === ipHash), 9],
+    ['public_daily_limit', accepted, 30],
   ]) {
     if (matches.length >= limit) return { error: code, retryAfterSeconds: Math.max(1, Math.ceil((matches[0].at + PUBLIC_WINDOW_MS - now) / 1000)) };
   }
-  accepted.push({ at: now, emailHash, ipHash });
+  accepted.push({ at: now, emailHash, ipHash, jobId });
   return null;
 }
 
@@ -223,12 +256,18 @@ function rememberHistory(state, job) {
         if (job.runId) remembered.runId = job.runId;
       }
     }
+    if (refundablePublicJob(job)) {
+      state.publicAccepted = (state.publicAccepted ?? []).filter(entry => {
+        if (entry.jobId) return entry.jobId !== job.id;
+        return quotaEntryJob(state, entry)?.id !== job.id;
+      });
+    }
   }
 }
 function expireQueue(state, now) {
   const job = state.activeJob;
   if (job?.status === 'queued' && now - Date.parse(job.createdAt) >= QUEUE_TTL_MS) {
-    job.status = 'failed'; job.phase = 'failed'; job.error = 'queue_expired'; job.updatedAt = new Date(now).toISOString();
+    job.status = 'failed'; job.phase = 'failed'; job.error = 'queue_expired'; job.mailSent = false; job.updatedAt = new Date(now).toISOString();
     rememberHistory(state, job); state.activeJob = null;
     if (state.worker.activeJobId === job.id) { state.worker.activeJobId = null; state.worker.phase = 'idle'; }
   }
@@ -345,10 +384,11 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
         return response(200, await backingStore.transact(state => { expireQueue(state, currentTime); return viewState(state, currentTime); }));
       }
       if (publicAction) {
-        onlyKeys(body, action === 'public-start' ? ['requestId', 'email'] : ['requestId']);
+        onlyKeys(body, action === 'public-start' ? ['requestId', 'email', 'itemCount', 'keywords'] : ['requestId']);
         if (typeof body.requestId !== 'string' || !UUID.test(body.requestId)) problem(400, 'invalid_request');
         const requestKey = `public:${body.requestId.toLowerCase()}`;
         const email = action === 'public-start' ? recipientEmail(body.email) : null;
+        const preferences = action === 'public-start' ? publicPreferences(body) : null;
         const emailHash = email && createHmac('sha256', config.sessionSecret).update(`public-email:${email}`).digest('hex');
         const ipHash = createHmac('sha256', config.sessionSecret).update(`public-ip:${String(request.ip || 'unknown')}`).digest('hex');
         const jobId = action === 'public-start' ? makeId() : null;
@@ -356,7 +396,9 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
           expireQueue(state, currentTime);
           const remembered = state.requests[requestKey];
           if (remembered) {
-            if (remembered.mode !== 'public-send' || (email && remembered.emailHash !== emailHash)) return { status: 409, body: { error: 'request_conflict' } };
+            const previousPreferences = jobPreferences(remembered);
+            if (remembered.mode !== 'public-send' || (email && (remembered.emailHash !== emailHash
+              || previousPreferences.itemCount !== preferences.itemCount || previousPreferences.keywords !== preferences.keywords))) return { status: 409, body: { error: 'request_conflict' } };
             const job = publicRequestJob(state, remembered);
             return job ? { status: action === 'public-start' ? 202 : 200, body: { job: publicJob(job) } }
               : { status: action === 'public-start' ? 409 : 404, body: { error: action === 'public-start' ? 'request_already_used' : 'not_found' } };
@@ -364,12 +406,12 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
           if (action === 'public-status') return { status: 404, body: { error: 'not_found' } };
           if (state.activeJob) return { status: 409, body: { error: 'job_active' } };
           if (!workerOnline(state.worker, currentTime)) return { status: 409, body: { error: 'worker_offline' } };
-          const limited = publicQuota(state, currentTime, emailHash, ipHash);
+          const limited = publicQuota(state, currentTime, emailHash, ipHash, jobId);
           if (limited) return { status: 429, body: limited };
           const timestamp = new Date(currentTime).toISOString();
-          const job = { id: jobId, mode: 'public-send', recipient: email, status: 'queued', phase: 'queued', createdAt: timestamp, updatedAt: timestamp, error: null };
+          const job = { id: jobId, mode: 'public-send', recipient: email, ...preferences, status: 'queued', phase: 'queued', createdAt: timestamp, updatedAt: timestamp, error: null };
           state.activeJob = job;
-          state.requests[requestKey] = { jobId, mode: 'public-send', emailHash, at: currentTime };
+          state.requests[requestKey] = { jobId, mode: 'public-send', emailHash, ...preferences, at: currentTime };
           return { status: 202, body: { job: publicJob(job) } };
         });
         return response(outcome.status, outcome.body, outcome.status === 429 ? { 'Retry-After': String(outcome.body.retryAfterSeconds) } : {});
@@ -407,8 +449,8 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
           }
           const job = state.activeJob;
           state.worker.activeJobId = job?.id ?? null; state.worker.phase = job?.phase ?? 'idle';
-          // Only public delivery adds a validated recipient; never arbitrary prompts or paths.
-          return { job: job ? { id: job.id, mode: job.mode, ...(job.mode === 'public-send' ? { recipient: job.recipient } : {}) } : null, pollSeconds: 30 };
+          // Public delivery adds a validated recipient and literal filter preferences.
+          return { job: job ? { id: job.id, mode: job.mode, ...(job.mode === 'public-send' ? { recipient: job.recipient, ...jobPreferences(job) } : {}) } : null, pollSeconds: 30 };
         });
         return response(200, result);
       }
@@ -435,11 +477,11 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
       const runId = body.runId === undefined ? undefined : id(body.runId);
       const report = body.report === undefined ? null : sanitizeReport(body.report);
       if (report && (body.status !== 'completed' || (runId && report.runId !== runId))) problem(400, 'invalid_request');
-      if (body.status === 'completed' && !report) problem(400, 'report_required');
       const outcome = await backingStore.transact(state => {
         expireQueue(state, currentTime); touchWorker(state, currentTime);
         const job = state.activeJob;
         const knownJob = job?.id === body.jobId ? job : state.history.find(item => item.id === body.jobId);
+        if (knownJob && knownJob.mode !== 'public-send' && body.status === 'completed' && !report) return { status: 400, body: { error: 'report_required' } };
         if (knownJob?.mode === 'public-send' && report && (report.localConnections.length || report.localContext || report.localRelevanceNote)) return { status: 409, body: { error: 'public_report_private_data' } };
         if (!job || job.id !== body.jobId) {
           const terminal = state.history.find(item => item.id === body.jobId);
@@ -453,6 +495,7 @@ export function createAgentService({ env = process.env, store, now = Date.now, m
         job.error = body.status === 'failed' ? body.error || 'run_failed' : null;
         if (runId || report) job.runId = runId || report.runId;
         if (body.mailSent !== undefined) job.mailSent = body.mailSent;
+        else if (job.mode === 'public-send' && body.status === 'failed') delete job.mailSent;
         state.worker.phase = job.phase; state.worker.activeJobId = job.id;
         if (body.status !== 'running') {
           if (report && job.mode !== 'public-send') saveReport(state, report, Boolean(body.mailSent), job.updatedAt);

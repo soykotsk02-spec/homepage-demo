@@ -138,6 +138,11 @@ class DownloadLimitTests(unittest.TestCase):
 
 
 class CollectionTests(unittest.TestCase):
+    def setUp(self):
+        # These generic cross-source fixtures test fetching/audit, not publisher routing.
+        guard = patch.object(collector, "_trusted_article", return_value=True)
+        guard.start()
+        self.addCleanup(guard.stop)
     def test_every_source_is_fetched_cross_source_dedup_and_audit_files(self):
         fixture = rss(item("Shared story", "https://example.org/shared", "Sat, 26 Sep 2026 10:00:00 GMT"))
         with tempfile.TemporaryDirectory() as directory, patch.object(collector, "_download", return_value=(fixture, 200, SOURCE.url)) as download:

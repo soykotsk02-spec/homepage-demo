@@ -81,8 +81,9 @@ def validate_job(value):
     if not isinstance(value, dict):
         raise WorkerError("invalid_job_fields")
     public_only = value.get("mode") == "public-send"
-    expected = {"id", "mode", "recipient"} if public_only else {"id", "mode"}
-    if set(value) != expected:
+    expected = {"id", "mode", "recipient", "itemCount", "keywords"} if public_only else {"id", "mode"}
+    required = {"id", "mode", "recipient"} if public_only else expected
+    if not required.issubset(value) or not set(value).issubset(expected):
         raise WorkerError("invalid_job_fields")
     identifier = value["id"]
     if not isinstance(identifier, str) or value["mode"] not in ("preview", "send", "public-send"):
@@ -95,9 +96,10 @@ def validate_job(value):
         raise WorkerError("invalid_job_id")
     job = {"id": str(parsed), "mode": value["mode"]}
     if public_only:
-        from public_news import normalize_recipient
+        from public_news import normalize_recipient, normalize_preferences
         try:
             job["recipient"] = normalize_recipient(value["recipient"])
+            job["itemCount"], job["keywords"] = normalize_preferences(value.get("itemCount", 12), value.get("keywords", ""))
         except ValueError:
             raise WorkerError("invalid_recipient") from None
     return job
@@ -109,7 +111,7 @@ def build_command(job, root=ROOT):
     if job["mode"] in {"send", "public-send"}:
         command.append("--send")
     if job["mode"] == "public-send":
-        command.extend(["--public-only", "--recipient", job["recipient"]])
+        command.extend(["--public-only", "--recipient", job["recipient"], "--item-count", str(job["itemCount"]), "--keywords=" + job["keywords"]])
     return command
 
 
@@ -363,7 +365,7 @@ class WebWorker:
                     analysis = validate_public_report(_json_read(folder / "public-analysis.json"))
                 else:
                     analysis = _json_read(folder / "analysis.json")
-                report = sanitize_report(analysis)
+                report = None if public_only else sanitize_report(analysis)
             except (OSError, ValueError, WorkerError, AnalysisError):
                 record["status"] = "failed"
                 self._payload(record, "failed", "failed", error="report_unavailable", mail_sent=mail_sent)
@@ -371,8 +373,9 @@ class WebWorker:
                 record["status"] = "completed"
                 self._payload(record, "completed", "complete", report=report, mail_sent=mail_sent)
         else:
-            uncertain = interrupted or record.get("status") == "sending" or status.get("failureType") == "MailOutcomeUnknown" or (
-                record["mode"] in {"send", "public-send"} and "send" in self._phases(folder) and status.get("failureType") != "MailNotSent"
+            uncertain = interrupted or status.get("failureType") == "MailOutcomeUnknown" or (
+                status.get("failureType") != "MailNotSent" and (record.get("status") == "sending" or (
+                    record["mode"] in {"send", "public-send"} and "send" in self._phases(folder)))
             )
             record["status"] = "uncertain" if uncertain else "failed"
             error_code = "delivery_unknown_check_local" if uncertain else (

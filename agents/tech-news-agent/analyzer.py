@@ -250,13 +250,16 @@ def _run_cli(command: list[str], prompt: str, run_dir: Path) -> None:
         raise AnalysisError(f"独立 Codex 分析失败（退出码 {process.returncode}）；本次不发送邮件。")
 
 
-def _normalize(raw: Any, news: dict, candidates: dict[str, dict], library: dict) -> dict:
+def _normalize(raw: Any, news: dict, candidates: dict[str, dict], library: dict, *, item_count=None) -> dict:
     if not isinstance(raw, dict) or set(raw) != set(OUTPUT_SCHEMA["required"]):
         raise AnalysisError("模型结果根字段不符合 schema。")
     overview = _text(raw["overview"], "overview")
     raw_items = raw["items"]
-    minimum = min(10, len({candidate["urlKey"] for candidate in candidates.values() if candidate["freshness"] != "future"}))
-    if not isinstance(raw_items, list) or not max(1, minimum) <= len(raw_items) <= 15:
+    minimum = item_count if item_count is not None else min(10, len({candidate["urlKey"] for candidate in candidates.values() if candidate["freshness"] != "future"}))
+    maximum = item_count if item_count is not None else 15
+    if not isinstance(raw_items, list) or not max(1, minimum) <= len(raw_items) <= maximum:
+        if item_count is not None:
+            raise InsufficientNewsError("公开简报未达到本次指定的准确数量，停止发送。")
         raise AnalysisError("新简报须返回 10–15 条新闻，不能将不符合数量要求的报告记为完成。")
     suggestions = raw["learningSuggestions"]
     if not isinstance(suggestions, list) or len(suggestions) != 1:
@@ -301,6 +304,8 @@ def _normalize(raw: Any, news: dict, candidates: dict[str, dict], library: dict)
         })
     regions = {item["region"] for item in items}
     if len(items) >= 2 and regions != {"domestic", "international"}:
+        if item_count is not None:
+            raise InsufficientNewsError("符合筛选条件的国内外新闻不足，停止发送。")
         raise AnalysisError("本期新闻尚未同时覆盖国内和国际，不能将单一区域冒充完整简报。")
     connections = raw["localConnections"]
     if not isinstance(connections, list) or len(connections) > 3:
@@ -352,10 +357,10 @@ def _normalize(raw: Any, news: dict, candidates: dict[str, dict], library: dict)
     }
 
 
-def require_minimum_candidates(candidates: dict[str, dict]) -> None:
+def require_minimum_candidates(candidates: dict[str, dict], minimum=10) -> None:
     usable = {item["urlKey"] for item in candidates.values() if item["freshness"] != "future"}
-    if len(usable) < 10:
-        raise InsufficientNewsError("本次有效新闻不足 10 条，已停止生成和发送；不会编造新闻补数。")
+    if len(usable) < minimum:
+        raise InsufficientNewsError(f"本次有效新闻不足 {minimum} 条，已停止生成和发送；不会编造新闻补数。")
 
 
 def analyze(news: dict, profile: dict, run_dir: Path, codex_path: str) -> dict:
@@ -369,6 +374,8 @@ def analyze(news: dict, profile: dict, run_dir: Path, codex_path: str) -> dict:
     library = profile.get("localLibrary")
     if not isinstance(library, dict) or not library.get("assets") or not library.get("chunks"):
         raise AnalysisError("缺少本次实际读取的本地资料正文，不能只用背景标签代替。")
+    if not news.get("items"):
+        raise InsufficientNewsError("已发去重后没有可用新闻，停止发送。")
     _, candidates = _candidates(news)
     require_minimum_candidates(candidates)
     run_dir = Path(run_dir).resolve()

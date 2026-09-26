@@ -1,6 +1,7 @@
 import argparse
 import contextlib
 import copy
+from datetime import datetime, timezone, timedelta
 import io
 import json
 from pathlib import Path
@@ -26,7 +27,7 @@ RUN_ID = "20260927T010203000001Z"
 def batch(run_id=RUN_ID):
     return {"runId": run_id, "generatedAtUtc": "2026-09-27T01:02:04+00:00", "items": [{
         "id": "public-one", "sourceId": "rss", "sourceName": "公开来源", "title": "Public captured headline",
-        "url": "https://example.com/news", "publishedAtUtc": "2026-09-27T00:00:00+00:00", "summary": "Public RSS excerpt."}]}
+        "url": "https://example.com/news", "publishedAtUtc": (datetime.now(timezone.utc)-timedelta(hours=1)).isoformat(), "summary": "Public RSS excerpt."}]}
 
 
 def result():
@@ -48,16 +49,27 @@ def report(run_id=RUN_ID):
 
 def full_batch():
     news = batch()
-    news["items"] = [{**news["items"][0], "id": f"public-{index}", "url": f"https://example.com/news-{index}"}
+    news["generatedAtUtc"] = datetime.now(timezone.utc).isoformat()
+    news["items"] = [{**news["items"][0], "id": f"public-{index}", "title": f"Captured public headline {index}", "url": f"https://example.com/news-{index}"}
                      for index in range(10)]
     return news
 
 
 def full_result():
     raw = result()
-    raw["items"] = [{**raw["items"][0], "itemId": f"public-{index}",
+    raw["items"] = [{**raw["items"][0], "itemId": f"public-{index}", "title": f"公开新闻标题 {index}",
                      "region": "domestic" if index % 2 else "international"} for index in range(10)]
     return raw
+
+
+def full_report(news):
+    _, candidates = analyzer._candidates(news)
+    value = analyzer._normalize({**full_result(), "localConnections": [], "localRelevanceNote": "公开新闻。"},
+                                news, candidates, {"assets": [], "chunks": []}, item_count=10)
+    for key in ("localConnections", "localSourcesRead", "localContext"):
+        value.pop(key)
+    value["audience"] = "public"
+    return value
 
 
 class PublicInputTests(unittest.TestCase):
@@ -81,7 +93,7 @@ class PublicInputTests(unittest.TestCase):
         job = {"id": JOB_ID, "mode": "public-send", "recipient": "Reader@Example.com"}
         command = web_worker.build_command(job, Path("fixture"))
         self.assertEqual(command, [sys.executable, str(Path("fixture") / "agent.py"), "run", "--demo-id", "web-" + JOB_ID,
-                                   "--send", "--public-only", "--recipient", "reader@example.com"])
+                                   "--send", "--public-only", "--recipient", "reader@example.com", "--item-count", "12", "--keywords="])
         for bad in ({**job, "recipient": "a@example.com\n--public-only"}, {**job, "profile": "private.json"},
                     {**job, "mode": "send"}, {"id": JOB_ID, "mode": "public-send"}):
             with self.subTest(job=bad), self.assertRaises(web_worker.WorkerError):
@@ -100,7 +112,7 @@ class PublicAnalysisTests(unittest.TestCase):
                 self.assertNotIn("localProfileSummary", prompt)
                 Path(command[command.index("--output-last-message") + 1]).write_text(json.dumps(full_result()), encoding="utf-8")
             with patch.object(public_news, "_run_cli", side_effect=cli):
-                output = public_news.analyze_public(full_batch(), Path(folder), "fixture.exe")
+                output = public_news.analyze_public(full_batch(), Path(folder), "fixture.exe", item_count=10)
             self.assertEqual(output["audience"], "public")
             self.assertFalse(any(key.startswith("local") for key in output))
             self.assertEqual(output["items"][0]["url"], full_batch()["items"][0]["url"])
@@ -116,7 +128,7 @@ class PublicAnalysisTests(unittest.TestCase):
                 Path(command[command.index("--output-last-message") + 1]).write_text(
                     json.dumps({**full_result(), "localConnections": [{"quote": "PRIVATE"}]}), encoding="utf-8")
             with patch.object(public_news, "_run_cli", side_effect=cli), self.assertRaises(analyzer.AnalysisError):
-                public_news.analyze_public(full_batch(), Path(folder), "fixture.exe")
+                public_news.analyze_public(full_batch(), Path(folder), "fixture.exe", item_count=10)
         value = report()
         value["localContext"] = "PRIVATE"
         with self.assertRaises(analyzer.AnalysisError):
@@ -169,18 +181,18 @@ class PublicPipelineTests(unittest.TestCase):
         mail = Mock()
         mail.send.return_value = {"status": "sent", "acceptedAtUtc": "2026-09-27T01:05:00Z", "recipient": "reader@example.com"}
         args = argparse.Namespace(send=True, demo_id="web-" + JOB_ID, trigger="manual", public_only=True,
-                                  recipient="reader@example.com")
+                                  recipient="reader@example.com", item_count=10)
         with tempfile.TemporaryDirectory() as folder, patch.object(agent, "ROOT", Path(folder)):
             root = Path(folder)
             (root / "最新简报.html").write_text("PRIVATE LATEST", encoding="utf-8")
             def collect(run):
                 # Even an unrelated private artifact must not substitute for public analysis.
                 agent.write_json(run / "analysis.json", {"overview": "PRIVATE SECRET"})
-                return batch(run.name)
+                return {**full_batch(), "runId": run.name}
             with patch.object(collector, "collect", side_effect=collect) as capture, \
                  patch.object(local_library, "collect_local_context", side_effect=AssertionError("must never read local data")) as local, \
                  patch.object(analyzer, "analyze", side_effect=AssertionError("must never use private analyzer")) as private, \
-                 patch.object(public_news, "analyze_public", side_effect=lambda news, *a: report(news["runId"])) as public, \
+                 patch.object(public_news, "analyze_public", side_effect=lambda news, *a, **kw: full_report(news)) as public, \
                  patch.object(gmail_delivery, "GmailMailer", return_value=mail) as mailer:
                 self.assertEqual(agent.run_pipeline(args, config), 0)
                 self.assertEqual(agent.run_pipeline(args, config), 0)  # repeated delivery cannot resend
@@ -222,8 +234,7 @@ class PublicPipelineTests(unittest.TestCase):
                 worker._finish(job, 0, run, status)
                 self.assertEqual(job["status"], "completed")
                 self.assertTrue(job["updatePayload"]["mailSent"])
-                self.assertEqual(job["updatePayload"]["report"]["localConnections"], [])
-                self.assertEqual(job["updatePayload"]["report"]["localContext"], "")
+                self.assertNotIn("report", job["updatePayload"])
                 self.assertNotIn("PRIVATE", json.dumps(job["updatePayload"]))
                 worker.publish_daily_reports()
             self.assertEqual([call.args[0] for call in api.call_args_list], ["update"])

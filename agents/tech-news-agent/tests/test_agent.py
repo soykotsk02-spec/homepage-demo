@@ -1,4 +1,5 @@
 import argparse
+from datetime import datetime, timezone, timedelta
 import contextlib
 from html import escape
 import io
@@ -120,7 +121,7 @@ class DeliveryGuards(unittest.TestCase):
         calls=[]
         profiles=[]
         def collect(run):
-            news=dict(runId=run.name,generatedAtUtc='2026-09-26T12:00:00Z',items=[{'id':'one'}])
+            news=dict(runId=run.name,generatedAtUtc='2026-09-26T12:00:00Z',items=[{'id':'one','title':'Captured headline','url':'https://example.com/a?q=x&b=y','publishedAtUtc':(datetime.now(timezone.utc)-timedelta(hours=1)).isoformat()}])
             agent.write_json(run/'news.json',news)
             return news
         def analyze(news,profile,attempt,codex):
@@ -174,7 +175,7 @@ class LocalContextPipelineTests(unittest.TestCase):
     def test_current_local_evidence_reaches_model_and_read_status_is_saved(self):
         context = local_context('这是本次实际读取的独特正文，不是背景概括。')
         library = types.SimpleNamespace(collect_local_context=Mock(return_value=context))
-        news = {'runId': 'fixture', 'generatedAtUtc': '2026-09-26T12:00:00Z', 'items': [{'id': 'one'}]}
+        news = {'runId': 'fixture', 'generatedAtUtc': '2026-09-26T12:00:00Z', 'items': [{'id':'one','title':'Captured headline','url':'https://example.com/a?q=x&b=y'}]}
         collector = types.SimpleNamespace(collect=Mock(return_value=news))
         analyzer = types.SimpleNamespace(analyze=Mock(return_value=ReportTests().report()))
         mailer = types.SimpleNamespace(GmailMailer=Mock(), MailNotSent=RuntimeError, MailOutcomeUnknown=RuntimeError)
@@ -203,7 +204,7 @@ class LocalContextPipelineTests(unittest.TestCase):
                 collect_local = Mock(side_effect=outcome) if isinstance(outcome, Exception) else Mock(return_value=outcome)
                 library = types.SimpleNamespace(collect_local_context=collect_local)
                 collector = types.SimpleNamespace(collect=Mock(return_value={
-                    'generatedAtUtc': '2026-09-26T12:00:00Z', 'items': [{'id': 'one'}]}))
+                    'generatedAtUtc': '2026-09-26T12:00:00Z', 'items': [{'id':'one','title':'Captured headline','url':'https://example.com/a?q=x&b=y'}]}))
                 analyzer = types.SimpleNamespace(analyze=Mock())
                 mail = Mock()
                 mailer = types.SimpleNamespace(GmailMailer=Mock(return_value=mail),

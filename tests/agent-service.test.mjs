@@ -312,7 +312,7 @@ function publicReport(runId = 'public-run') {
 async function finishPublic(f, job, { success = false } = {}) {
   await f.worker('poll');
   return f.worker('update', success
-    ? { jobId: job.id, status: 'completed', phase: 'complete', runId: `public-${job.id}`, report: publicReport(`public-${job.id}`), mailSent: true }
+    ? { jobId: job.id, status: 'completed', phase: 'complete', runId: `public-${job.id}`, mailSent: true }
     : { jobId: job.id, status: 'failed', phase: 'failed', error: 'test_failed' });
 }
 
@@ -351,8 +351,8 @@ test('public capability responses expose only their own job and never the privat
   const accepted = await f.request('public-start', { requestId: ownerRequestId, email: 'visitor@example.org' });
   const job = accepted.body.job;
   assert.equal(accepted.status, 202); assert.notEqual(job.id, ownerJob.id);
-  assert.deepEqual(Object.keys(job).sort(), ['createdAt', 'error', 'id', 'mode', 'phase', 'status', 'updatedAt']);
-  assert.deepEqual((await f.worker('poll')).body.job, { id: job.id, mode: 'public-send', recipient: 'visitor@example.org' });
+  assert.deepEqual(Object.keys(job).sort(), ['createdAt', 'error', 'id', 'itemCount', 'keywords', 'mode', 'phase', 'status', 'updatedAt']);
+  assert.deepEqual((await f.worker('poll')).body.job, { id: job.id, mode: 'public-send', recipient: 'visitor@example.org', itemCount: 12, keywords: '' });
   assert.equal((await finishPublic(f, job, { success: true })).status, 200);
   const result = await f.request('public-status', { requestId: ownerRequestId });
   assert.equal(result.body.job.status, 'completed'); assert.equal(result.body.job.mailSent, true);
@@ -387,20 +387,24 @@ test('public submissions are atomically idempotent, bind the normalized recipien
 test('public quotas independently bound recipient, IP and global daily acceptance with a retry time', async () => {
   const f = fixture(); await f.worker('poll');
   for (let index = 0; index < 3; index++) {
-    const result = await f.request('public-start', { requestId: randomUUID(), email: `visitor${index}@example.org` });
-    assert.equal(result.status, 202); await finishPublic(f, result.body.job);
+    const result = await f.request('public-start', { requestId: randomUUID(), email: 'visitor0@example.org' });
+    assert.equal(result.status, 202); await finishPublic(f, result.body.job, { success: true });
   }
   let limited = await f.request('public-start', { requestId: randomUUID(), email: 'visitor0@example.org' }, { ip: '203.0.113.10' });
   assert.equal(limited.status, 429); assert.equal(limited.body.error, 'public_email_limit');
   assert.equal(limited.body.retryAfterSeconds, 86400); assert.equal(limited.headers['Retry-After'], '86400');
-  limited = await f.request('public-start', { requestId: randomUUID(), email: 'visitor3@example.org' });
-  assert.equal(limited.status, 429); assert.equal(limited.body.error, 'public_ip_limit');
-  for (let index = 3; index < 10; index++) {
-    const result = await f.request('public-start', { requestId: randomUUID(), email: `visitor${index}@example.org` }, { ip: `203.0.113.${index + 10}` });
-    assert.equal(result.status, 202); await finishPublic(f, result.body.job);
+  for (let index = 3; index < 9; index++) {
+    const result = await f.request('public-start', { requestId: randomUUID(), email: `visitor${index}@example.org` });
+    assert.equal(result.status, 202); await finishPublic(f, result.body.job, { success: true });
   }
-  limited = await f.request('public-start', { requestId: randomUUID(), email: 'visitor10@example.org' }, { ip: '203.0.113.100' });
-  assert.equal(limited.status, 429); assert.equal(limited.body.error, 'public_daily_limit'); assert.equal(f.store.state.publicAccepted.length, 10);
+  limited = await f.request('public-start', { requestId: randomUUID(), email: 'visitor9@example.org' });
+  assert.equal(limited.status, 429); assert.equal(limited.body.error, 'public_ip_limit');
+  for (let index = 9; index < 30; index++) {
+    const result = await f.request('public-start', { requestId: randomUUID(), email: `visitor${index}@example.org` }, { ip: `203.0.113.${index + 10}` });
+    assert.equal(result.status, 202); await finishPublic(f, result.body.job, { success: true });
+  }
+  limited = await f.request('public-start', { requestId: randomUUID(), email: 'visitor30@example.org' }, { ip: '203.0.113.100' });
+  assert.equal(limited.status, 429); assert.equal(limited.body.error, 'public_daily_limit'); assert.equal(f.store.state.publicAccepted.length, 30);
   f.advance(24 * 60 * 60_000); await f.worker('poll');
   assert.equal((await f.request('public-start', { requestId: randomUUID(), email: 'visitor0@example.org' })).status, 202);
   assert.equal(f.store.state.publicAccepted.length, 1);
@@ -463,4 +467,160 @@ test('public queue expiration and capability status remain honest after owner hi
   assert.equal((await f.request('public-start', body)).body.job.id, queued.body.job.id);
   f.advance(24 * 60 * 60_000);
   assert.equal((await f.request('public-status', { requestId })).status, 404);
+});
+
+test('public preferences validate counts and plain keywords, canonicalize whitespace and reach only the fixed worker fields', async () => {
+  const f = fixture(); await f.worker('poll');
+  const body = { requestId: randomUUID(), email: 'reader@example.org' };
+  for (const itemCount of [4, 21, 5.5, '12', null, true, [], {}]) {
+    const result = await f.request('public-start', { ...body, itemCount });
+    assert.equal(result.status, 400); assert.equal(result.body.error, 'invalid_item_count');
+  }
+  for (const keywords of [null, 12, [], {}, 'x'.repeat(201), 'AI\0robot', 'AI\u202e12', 'AI\u00adrobot', 'AI\u0085robot', 'AI\ud800robot']) {
+    const result = await f.request('public-start', { ...body, keywords });
+    assert.equal(result.status, 400, String(keywords)); assert.equal(result.body.error, 'invalid_keywords', String(keywords));
+  }
+  const accepted = await f.request('public-start', { ...body, itemCount: 20, keywords: '  AI,\n\t机器人，  Node.js C++ 代码执行漏洞  ' });
+  assert.equal(accepted.status, 202);
+  const preferences = { itemCount: 20, keywords: 'AI, 机器人， Node.js C++ 代码执行漏洞' };
+  assert.equal(accepted.body.job.itemCount, preferences.itemCount); assert.equal(accepted.body.job.keywords, preferences.keywords);
+  assert.deepEqual((await f.worker('poll')).body.job, { id: accepted.body.job.id, mode: 'public-send', recipient: 'reader@example.org', ...preferences });
+  assert.equal((await f.worker('update', { jobId: accepted.body.job.id, status: 'completed', phase: 'complete', runId: 'public-twenty', mailSent: true })).status, 200);
+  assert.equal(f.store.state.latestReport, null);
+  const second = await f.request('public-start', { requestId: randomUUID(), email: body.email, itemCount: 5, keywords: '字'.repeat(200) });
+  assert.equal(second.status, 202); assert.equal(second.body.job.keywords.length, 200);
+  assert.equal(f.store.state.publicAccepted.length, 2);
+});
+
+test('keyword syntax remains literal data for the worker without rejecting URLs or command topics', async () => {
+  const f = fixture(); await f.worker('poll');
+  const keywords = 'https://example.org <script> curl bash `whoami` $(whoami) 执行 shell 命令 run python';
+  const accepted = await f.request('public-start', { requestId: randomUUID(), email: 'reader@example.org', keywords });
+  assert.equal(accepted.status, 202);
+  assert.equal(accepted.body.job.keywords, keywords);
+  const polled = (await f.worker('poll')).body.job;
+  assert.equal(polled.keywords, keywords);
+  assert.deepEqual(Object.keys(polled).sort(), ['id', 'itemCount', 'keywords', 'mode', 'recipient']);
+});
+
+test('a failed public run cannot refund quota using a stale in-progress unsent flag', async () => {
+  const f = fixture(); await f.worker('poll');
+  const requestId = randomUUID();
+  const accepted = await f.request('public-start', { requestId, email: 'reader@example.org' });
+  const jobId = accepted.body.job.id;
+  await f.worker('poll');
+  assert.equal((await f.worker('update', { jobId, status: 'running', phase: 'send', mailSent: false })).status, 200);
+  assert.equal((await f.worker('update', { jobId, status: 'failed', phase: 'failed', error: 'run_failed' })).status, 200);
+  const status = await f.request('public-status', { requestId });
+  assert.equal(status.body.job.deliveryUncertain, true);
+  assert.equal(status.body.job.mailSent, undefined);
+  assert.equal(f.store.state.publicAccepted.length, 1);
+});
+
+test('public request identity binds normalized recipient and preferences including legacy defaults', async () => {
+  const f = fixture(); await f.worker('poll');
+  const body = { requestId: randomUUID(), email: 'reader@example.org', itemCount: 8, keywords: 'AI,\n机器人' };
+  const accepted = await f.request('public-start', body);
+  assert.equal((await f.request('public-start', { ...body, email: 'READER@example.org', keywords: ' AI,  机器人 ' })).body.job.id, accepted.body.job.id);
+  for (const change of [{ itemCount: 9 }, { keywords: '量子' }, { email: 'other@example.org' }]) {
+    assert.deepEqual((await f.request('public-start', { ...body, ...change })).body, { error: 'request_conflict' });
+  }
+  assert.equal(f.store.state.publicAccepted.length, 1);
+  await finishPublic(f, accepted.body.job, { success: true });
+  const oldBody = { requestId: randomUUID(), email: body.email };
+  const old = await f.request('public-start', oldBody);
+  for (const item of [f.store.state.activeJob, f.store.state.requests[`public:${oldBody.requestId}`]]) {
+    delete item.itemCount; delete item.keywords;
+  }
+  delete f.store.state.publicAccepted[1].jobId;
+  assert.deepEqual((await f.worker('poll')).body.job, { id: old.body.job.id, mode: 'public-send', recipient: body.email, itemCount: 12, keywords: '' });
+  assert.equal((await f.request('public-start', { ...oldBody, itemCount: 12, keywords: ' \t ' })).body.job.id, old.body.job.id);
+  assert.equal((await f.request('public-start', { ...oldBody, itemCount: 13 })).body.error, 'request_conflict');
+  assert.equal(f.store.state.publicAccepted.length, 2);
+});
+
+test('definitely unsent public failures refund once while completed and uncertain deliveries retain quota', async () => {
+  const f = fixture(); await f.worker('poll');
+  const email = 'reader@example.org';
+  const request = () => f.request('public-start', { requestId: randomUUID(), email });
+  const failed = (await request()).body.job; await f.worker('poll');
+  const failure = { jobId: failed.id, status: 'failed', phase: 'failed', error: 'no_matching_news', mailSent: false };
+  assert.equal((await f.worker('update', failure)).status, 200);
+  assert.equal((await f.worker('update', failure)).status, 200);
+  assert.equal(f.store.state.publicAccepted.length, 0);
+  assert.equal(f.store.state.history[0].mailSent, false);
+  const sent = (await request()).body.job; await finishPublic(f, sent, { success: true });
+  for (const error of ['delivery_unknown_check_local', 'worker_interrupted_check_local']) {
+    const uncertain = (await request()).body.job; await f.worker('poll');
+    // Existing workers deliberately omit mailSent while the outcome is uncertain.
+    assert.equal((await f.worker('update', { jobId: uncertain.id, status: 'failed', phase: 'failed', error })).status, 200);
+  }
+  assert.equal(f.store.state.publicAccepted.length, 3);
+  assert.equal((await request()).body.error, 'public_email_limit');
+  const records = Object.entries(f.store.state.requests).filter(([, value]) => value.mode === 'public-send');
+  const failedId = records.find(([, value]) => value.jobId === failed.id)[0].slice('public:'.length);
+  const failedStatus = (await f.request('public-status', { requestId: failedId })).body.job;
+  assert.equal(failedStatus.error, 'no_matching_news'); assert.equal(failedStatus.deliveryUncertain, false);
+  for (const [key, remembered] of records.filter(([, value]) => ![sent.id, failed.id].includes(value.jobId))) {
+    const status = (await f.request('public-status', { requestId: key.slice('public:'.length) })).body.job;
+    assert.equal(status.deliveryUncertain, true); assert.equal(status.mailSent, undefined);
+  }
+});
+
+test('uncertainty errors cannot accidentally refund even with a false flag; unclaimed expired jobs do refund', async () => {
+  const f = fixture(); await f.worker('poll');
+  const first = await f.request('public-start', { requestId: randomUUID(), email: 'reader@example.org' });
+  await f.worker('poll');
+  await f.worker('update', { jobId: first.body.job.id, status: 'failed', phase: 'failed', error: 'delivery_unknown_check_local', mailSent: false });
+  assert.equal(f.store.state.publicAccepted.length, 1);
+  const requestId = randomUUID();
+  await f.request('public-start', { requestId, email: 'reader@example.org' });
+  assert.equal(f.store.state.publicAccepted.length, 2);
+  f.advance(QUEUE_TTL_MS);
+  const result = await f.request('public-status', { requestId });
+  assert.equal(result.body.job.error, 'queue_expired'); assert.equal(result.body.job.mailSent, false); assert.equal(result.body.job.deliveryUncertain, false);
+  assert.equal(f.store.state.publicAccepted.length, 1);
+});
+
+test('same-recipient last quota slot is atomic and rolling expiry releases only the aged reservation', async () => {
+  const f = fixture(); await f.worker('poll');
+  const email = 'reader@example.org';
+  const start = () => f.request('public-start', { requestId: randomUUID(), email });
+  const first = (await start()).body.job; await finishPublic(f, first, { success: true });
+  f.advance(60_000); await f.worker('poll');
+  const second = (await start()).body.job; await finishPublic(f, second, { success: true });
+  const contenders = await Promise.all([start(), start(), start()]);
+  assert.equal(contenders.filter(item => item.status === 202).length, 1);
+  assert.equal(f.store.state.publicAccepted.length, 3);
+  await finishPublic(f, contenders.find(item => item.status === 202).body.job, { success: true });
+  assert.equal((await start()).body.error, 'public_email_limit');
+  f.advance(24 * 60 * 60_000 - 60_000); await f.worker('poll');
+  assert.equal((await start()).status, 202);
+  assert.equal(f.store.state.publicAccepted.length, 3);
+});
+
+test('legacy quota entries without job IDs count and can refund only when matched to a definitely unsent job', async () => {
+  const f = fixture(); await f.worker('poll');
+  const body = { requestId: randomUUID(), email: 'reader@example.org' };
+  const job = (await f.request('public-start', body)).body.job;
+  delete f.store.state.publicAccepted[0].jobId;
+  await f.worker('poll');
+  await f.worker('update', { jobId: job.id, status: 'failed', phase: 'failed', error: 'insufficient_news', mailSent: false });
+  assert.equal(f.store.state.publicAccepted.length, 0);
+  const accepted = await f.request('public-start', { ...body, requestId: randomUUID() });
+  await finishPublic(f, accepted.body.job, { success: true });
+  delete f.store.state.publicAccepted[0].jobId;
+  assert.equal((await f.request('public-start', { ...body, requestId: randomUUID() })).status, 202);
+  assert.equal(f.store.state.publicAccepted.length, 2);
+});
+
+test('private completion still requires a report and public completion still requires confirmed sending', async () => {
+  const f = fixture(); const privateJob = await started(f); await f.worker('poll');
+  assert.equal((await f.worker('update', { jobId: privateJob.id, status: 'completed', phase: 'complete', mailSent: false })).body.error, 'report_required');
+  await f.worker('update', { jobId: privateJob.id, status: 'failed', phase: 'failed' });
+  const publicJob = (await f.request('public-start', { requestId: randomUUID(), email: 'reader@example.org', itemCount: 20 })).body.job;
+  await f.worker('poll');
+  assert.equal((await f.worker('update', { jobId: publicJob.id, status: 'completed', phase: 'complete', runId: 'twenty-public' })).body.error, 'invalid_job_transition');
+  assert.equal((await f.worker('update', { jobId: publicJob.id, status: 'completed', phase: 'complete', runId: 'twenty-public', mailSent: true })).status, 200);
+  assert.equal(f.store.state.latestReport, null);
 });

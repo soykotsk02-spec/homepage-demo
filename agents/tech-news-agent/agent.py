@@ -78,7 +78,7 @@ def render_report(analysis: dict, recipient: str, *, public_only=False) -> tuple
     def e(value):
         return html.escape(str(value), quote=True)
 
-    if not analysis.get("items") or len(analysis["items"]) > 15:
+    if not analysis.get("items") or len(analysis["items"]) > (20 if public_only else 15):
         raise ValueError("报告须包含 1–15 条新闻；新简报在来源充足时为 10–15 条。")
     if public_only:
         from public_news import validate_public_report
@@ -151,11 +151,14 @@ def run_pipeline(args, config: dict) -> int:
     from gmail_delivery import GmailMailer, MailNotSent, MailOutcomeUnknown
 
     public_only = getattr(args, "public_only", False)
+    item_count = getattr(args, "item_count", None)
+    keywords = getattr(args, "keywords", "")
     override = getattr(args, "recipient", "")
-    if override and not public_only:
+    if (override or item_count is not None or keywords) and not public_only:
         raise ValueError("收件人覆盖仅适用于公开新闻模式。")
     if public_only:
-        from public_news import normalize_recipient
+        from public_news import normalize_recipient, normalize_preferences
+        item_count, keywords = normalize_preferences(12 if item_count is None else item_count, keywords)
         if not override or not args.demo_id:
             raise ValueError("公开新闻模式须提供收件邮箱和唯一任务编号。")
         config = copy.deepcopy(config)
@@ -219,6 +222,9 @@ def run_pipeline(args, config: dict) -> int:
         try:
             if args.send:
                 GmailMailer(config, run_dir).preflight()
+            from article_delivery import ArticleLedger, selected_source_items, ensure_recent_articles
+            article_ledger = ArticleLedger(data_dir)
+            article_ledger.backfill(recipient)
             news_path = run_dir / "news.json"
             if news_path.exists() and (cached := read_json(news_path)).get("items"):
                 news = cached
@@ -227,7 +233,14 @@ def run_pipeline(args, config: dict) -> int:
                 log(run_dir, "collect", "正在联网抓取国内外公开科技来源，优先采集近三天的新闻。")
                 news = collect(run_dir)
             if not news.get("items"):
-                raise RuntimeError("本次没有可用新闻，停止分析和发送。")
+                from analyzer import InsufficientNewsError
+                raise InsufficientNewsError("本次没有可用新闻，停止分析和发送。")
+            news = {**news, "items": article_ledger.filter(recipient, news["items"], run_id)}
+            if public_only:
+                from public_news import filter_keywords
+                news = filter_keywords(news, keywords)
+                status.update(itemCount=item_count, keywords=keywords)
+            write_json(run_dir / "eligible-news.json", news)
             status["collectedAtUtc"] = news["generatedAtUtc"]
             write_json(status_path, status)
             analysis_path = run_dir / ("public-analysis.json" if public_only else "analysis.json")
@@ -267,10 +280,14 @@ def run_pipeline(args, config: dict) -> int:
                 attempt_dir.mkdir(exist_ok=False)
                 if public_only:
                     from public_news import analyze_public
-                    analysis = analyze_public(news, attempt_dir, config["codexExecutable"])
+                    analysis = analyze_public(news, attempt_dir, config["codexExecutable"], item_count=item_count, keywords=keywords)
                 else:
                     analysis = analyze(news, profile, attempt_dir, config["codexExecutable"])
                 write_json(analysis_path, analysis)
+            if public_only and (len(analysis["items"]) != item_count or {item.get("region") for item in analysis["items"]} != {"domestic", "international"}):
+                from analyzer import InsufficientNewsError
+                raise InsufficientNewsError("本次新闻数量或国内外覆盖不满足要求，停止发送。")
+            selected_articles = selected_source_items(analysis, news)
             status["analyzedAtUtc"] = utc_now()
             log(run_dir, "render", "正在排版邮件，核对来源链接与发布时间。")
             body, plain = render_report(analysis, recipient, public_only=public_only)
@@ -285,6 +302,8 @@ def run_pipeline(args, config: dict) -> int:
                 log(run_dir, "complete", "抓取、模型分析和排版完成。本次为预览，没有发送邮件。")
                 return 0
             mailer = GmailMailer(config, run_dir)
+            ensure_recent_articles(selected_articles)
+            article_ledger.reserve(recipient, selected_articles, run_id)
             delivery["status"] = "sending"
             delivery["sendAttemptAtUtc"] = utc_now()
             write_json(state_path, delivery)  # crash after this is deliberately uncertain
@@ -294,10 +313,12 @@ def run_pipeline(args, config: dict) -> int:
             except MailNotSent:
                 delivery["status"] = "not_sent"
                 write_json(state_path, delivery)
+                article_ledger.finish(recipient, run_id, "not_sent")
                 raise
             except Exception:
                 delivery["status"] = "uncertain"
                 write_json(state_path, delivery)
+                article_ledger.finish(recipient, run_id, "uncertain")
                 raise
             delivery.update(status="sent", sentAtUtc=receipt["acceptedAtUtc"])
             # Save independent receipt before ledger: either one prevents accidental resend.
@@ -307,6 +328,13 @@ def run_pipeline(args, config: dict) -> int:
             status.update(status="sent", sent=True, messageId=delivery["messageId"],
                           mailAcceptedAtUtc=receipt["acceptedAtUtc"], gmailMessageId=receipt.get("gmailMessageId"))
             write_json(status_path, status)
+            try:
+                article_ledger.finish(recipient, run_id, "sent")
+            except Exception:
+                # Receipt and original delivery ledger are authoritative. The
+                # reservation remains blocking; next backfill repairs the index.
+                status["articleIndexRepairPending"] = True
+                write_json(status_path, status)
             log(run_dir, "complete", "Gmail 已确认发送成功。请在配置的收件邮箱确认本次邮件，再保存录屏。")
             return 0
         except Exception as exc:
@@ -327,16 +355,19 @@ def main(argv=None):
     run.add_argument("--demo-id", default="")
     run.add_argument("--public-only", action="store_true", help="仅使用本次公开新闻，不读取个人资料")
     run.add_argument("--recipient", default="", help="公开新闻模式的唯一收件邮箱")
+    run.add_argument("--item-count", type=int, default=None, help="公开模式精确条数，5–20，默认12")
+    run.add_argument("--keywords", default="", help="公开新闻筛选词，不作为模型指令")
     run.add_argument("--trigger", choices=["manual", "windows_task"], default="manual")
     commands.add_parser("check", help="检查模型程序、地图和邮件配置，不发信")
     args = parser.parse_args(argv)
     if args.command == "run":
-        if args.recipient and not args.public_only:
+        if (args.recipient or args.item_count is not None or args.keywords) and not args.public_only:
             parser.error("--recipient 仅适用于 --public-only；原有私人收件配置不能被覆盖。")
         if args.public_only:
-            from public_news import normalize_recipient
+            from public_news import normalize_recipient, normalize_preferences
             try:
                 args.recipient = normalize_recipient(args.recipient)
+                args.item_count, args.keywords = normalize_preferences(12 if args.item_count is None else args.item_count, args.keywords)
             except ValueError:
                 parser.error("公开新闻模式需要一个有效的纯文本收件邮箱。")
             if not args.demo_id:

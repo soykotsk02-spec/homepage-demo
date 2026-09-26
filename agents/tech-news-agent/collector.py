@@ -21,7 +21,7 @@ from itertools import zip_longest
 from pathlib import Path
 from urllib.error import HTTPError
 from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
-from urllib.request import Request, urlopen
+from urllib.request import Request, build_opener, HTTPRedirectHandler
 
 UTC = timezone.utc
 LOOKBACK_DAYS = 3
@@ -50,6 +50,41 @@ SOURCES = (
     Source("hugging-face", "Hugging Face Blog", "https://huggingface.co/blog/feed.xml", "international"),
     Source("openai-news", "OpenAI News", "https://openai.com/news/rss.xml", "international"),
 )
+
+# Only editorial publishers and official organization feeds are configured.
+# Visitors cannot add feeds or request arbitrary URLs. Article links stay on
+# each publisher's own hosts; personal/community posts are excluded.
+ARTICLE_HOSTS = {
+    "ithome": {"www.ithome.com", "ithome.com", "m.ithome.com"},
+    "ifanr": {"www.ifanr.com", "ifanr.com"},
+    "bbc-technology": {"www.bbc.com", "bbc.com", "www.bbc.co.uk", "bbc.co.uk"},
+    "the-verge": {"www.theverge.com", "theverge.com"},
+    "ars-technica": {"arstechnica.com", "www.arstechnica.com"},
+    "hugging-face": {"huggingface.co"},
+    "openai-news": {"openai.com", "www.openai.com"},
+}
+FEED_HOSTS = {urlsplit(source.url).hostname for source in SOURCES} | {"feeds.feedburner.com"}
+
+
+class _AllowedFeedRedirect(HTTPRedirectHandler):
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        parsed = urlsplit(newurl)
+        if parsed.scheme != "https" or parsed.hostname not in FEED_HOSTS or parsed.username or parsed.password or parsed.port not in (None, 443):
+            raise FeedError("Feed redirect left the trusted HTTPS publishers")
+        return super().redirect_request(req, fp, code, msg, headers, newurl)
+
+
+urlopen = build_opener(_AllowedFeedRedirect()).open
+
+
+def _trusted_article(source, url):
+    parsed = urlsplit(url)
+    hosts = ARTICLE_HOSTS.get(source.id)
+    if hosts is not None and (parsed.hostname not in hosts or parsed.port not in (None, 443)):
+        return False
+    if source.id == "hugging-face" and (parsed.path.startswith("/blog/community") or len(parsed.path.strip("/").split("/")) != 2):
+        return False
+    return True
 
 
 class CollectionError(RuntimeError):
@@ -227,7 +262,7 @@ def _parse_feed(body: bytes, source: Source, reference_now: datetime, fetched_at
     for entry in entries:
         title = _plain_text(_child_text(entry, ("title",)), 300)
         url = _article_url(entry)
-        if not title or not url:
+        if not title or not url or not _trusted_article(source, url):
             counts["invalidItemExcludedCount"] += 1
             continue
         raw_date = _child_text(entry, ("pubDate", "published", "date", "updated"))
