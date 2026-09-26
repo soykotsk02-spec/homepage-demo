@@ -77,7 +77,7 @@ function recipientEmail(value) {
 }
 function publicJob(job) {
   const result = Object.fromEntries(['id', 'mode', 'status', 'phase', 'createdAt', 'updatedAt'].map(key => [key, job[key]]));
-  result.error = job.error ? (job.error === 'queue_expired' ? 'queue_expired' : 'run_failed') : null;
+  result.error = job.error ? (['queue_expired', 'insufficient_news'].includes(job.error) ? job.error : 'run_failed') : null;
   if (typeof job.mailSent === 'boolean') result.mailSent = job.mailSent;
   return result;
 }

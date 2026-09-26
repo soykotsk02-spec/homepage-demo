@@ -432,6 +432,20 @@ test('public worker cannot read local material, report unsent success, or replac
   assert.equal((await f.worker('publish', { runId: 'public-run', report: publicReport(), mailSent: true, completedAt: new Date(f.time()).toISOString() })).body.error, 'public_report_publish_forbidden');
 });
 
+test('public insufficient-news failure preserves the safe actionable error and unsent result', async () => {
+  const f = fixture(); await f.worker('poll');
+  const requestId = randomUUID();
+  const job = (await f.request('public-start', { requestId, email: 'visitor@example.org' })).body.job;
+  await f.worker('poll');
+  assert.equal((await f.worker('update', { jobId: job.id, status: 'failed', phase: 'failed', error: 'insufficient_news', mailSent: false })).status, 200);
+  const result = await f.request('public-status', { requestId });
+  assert.equal(result.body.job.status, 'failed');
+  assert.equal(result.body.job.error, 'insufficient_news');
+  assert.equal(result.body.job.mailSent, false);
+  assert.equal(result.body.job.report, undefined);
+  assert.equal(result.body.job.recipient, undefined);
+});
+
 test('public queue expiration and capability status remain honest after owner history displaces the job', async () => {
   const f = fixture(); await f.worker('poll'); await f.login();
   const requestId = randomUUID(); const body = { requestId, email: 'visitor@example.org' };
