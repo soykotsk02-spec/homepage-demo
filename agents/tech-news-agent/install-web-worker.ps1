@@ -11,10 +11,18 @@ if($Remove){
 if(-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'web-worker-config.json') -PathType Leaf)){throw 'web-worker-config.json 不存在，未安装任务。'}
 & (Join-Path $PSScriptRoot 'run-web-worker.ps1') -Check
 if($LASTEXITCODE -ne 0){throw '网页 worker 本地配置检查失败，未安装任务。'}
-$workerPwsh=(Get-Command pwsh -ErrorAction Stop).Source
-$workerRunner=Join-Path $PSScriptRoot 'run-web-worker.ps1'
 $workerUser=[Security.Principal.WindowsIdentity]::GetCurrent().Name
-$workerAction=New-ScheduledTaskAction -Execute $workerPwsh -Argument ('-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "'+$workerRunner+'"') -WorkingDirectory $PSScriptRoot
+$workerAgentConfig=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'config.json') -Raw | ConvertFrom-Json
+$workerPythonw=Join-Path (Split-Path -Parent $workerAgentConfig.pythonExecutable) 'pythonw.exe'
+if(Test-Path -LiteralPath $workerPythonw -PathType Leaf){
+ # A GUI-subsystem interpreter has no hidden console that another host can close.
+ $workerScript=Join-Path $PSScriptRoot 'web_worker.py'
+ $workerAction=New-ScheduledTaskAction -Execute $workerPythonw -Argument ('-X utf8 "'+$workerScript+'"') -WorkingDirectory $PSScriptRoot
+}else{
+ $workerPwsh=(Get-Command pwsh -ErrorAction Stop).Source
+ $workerRunner=Join-Path $PSScriptRoot 'run-web-worker.ps1'
+ $workerAction=New-ScheduledTaskAction -Execute $workerPwsh -Argument ('-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File "'+$workerRunner+'"') -WorkingDirectory $PSScriptRoot
+}
 $workerTrigger=New-ScheduledTaskTrigger -AtLogOn -User $workerUser
 $workerPrincipal=New-ScheduledTaskPrincipal -UserId $workerUser -LogonType Interactive -RunLevel Limited
 $workerSettings=New-ScheduledTaskSettingsSet -StartWhenAvailable -AllowStartIfOnBatteries -DontStopIfGoingOnBatteries -ExecutionTimeLimit ([TimeSpan]::Zero) -MultipleInstances IgnoreNew -RestartCount 3 -RestartInterval (New-TimeSpan -Minutes 1) -Hidden

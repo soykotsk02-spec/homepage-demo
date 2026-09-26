@@ -52,6 +52,27 @@ class WebWorkerTests(unittest.TestCase):
         self.assertEqual(command, [sys.executable, str(self.root / "agent.py"), "run", "--demo-id", "web-" + JOB["id"], "--send"])
         self.assertNotIn("--send", worker.build_command({**JOB, "mode": "preview"}, self.root))
 
+    def test_windowless_worker_uses_console_python_for_hidden_agent_child(self):
+        pythonw = self.root / "PythonW.exe"
+        python = self.root / "python.exe"
+        python.write_bytes(b"fixture")
+        with patch.object(worker.sys, "executable", str(pythonw)):
+            self.assertEqual(worker.build_command(JOB, self.root)[0], str(python))
+            python.unlink()
+            with self.assertRaisesRegex(worker.WorkerError, "console_python_missing"):
+                worker.build_command(JOB, self.root)
+
+    def test_windowless_unexpected_failure_has_safe_file_diagnostics(self):
+        with patch.object(worker, "ROOT", self.root), patch.object(worker, "WebWorker", side_effect=TypeError("SECRET_TOKEN_MUST_NOT_APPEAR")), \
+             patch.object(worker.sys, "stdout", None), patch.object(worker.sys, "stderr", None):
+            self.assertEqual(worker.main(["--check"]), 1)
+        path = self.root / "data/web-worker/diagnostics.log.jsonl"
+        text = path.read_text(encoding="utf-8")
+        self.assertNotIn("SECRET_TOKEN_MUST_NOT_APPEAR", text)
+        event = json.loads(text.strip())
+        self.assertEqual(event["code"], "worker_failed_check_local")
+        self.assertEqual(event["errorType"], "TypeError")
+
     def test_report_whitelist_retains_research_quote_but_no_private_fields(self):
         value = analysis()
         fake_path = "Z:" + chr(92) + "synthetic-fixture.docx"

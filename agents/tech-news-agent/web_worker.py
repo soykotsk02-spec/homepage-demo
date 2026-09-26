@@ -107,7 +107,12 @@ def validate_job(value):
 
 def build_command(job, root=ROOT):
     job = validate_job(job)
-    command = [sys.executable, str(Path(root) / "agent.py"), "run", "--demo-id", "web-" + job["id"]]
+    executable = Path(sys.executable)
+    if executable.name.lower() == "pythonw.exe":
+        executable = executable.with_name("python.exe")
+        if not executable.is_file():
+            raise WorkerError("console_python_missing")
+    command = [str(executable), str(Path(root) / "agent.py"), "run", "--demo-id", "web-" + job["id"]]
     if job["mode"] in {"send", "public-send"}:
         command.append("--send")
     if job["mode"] == "public-send":
@@ -413,7 +418,7 @@ class WebWorker:
             options["start_new_session"] = True
         try:
             process = subprocess.Popen(build_command(job, self.root), **options)
-        except OSError:
+        except (OSError, WorkerError):
             record["status"] = "failed"
             self._payload(record, "failed", "failed", error="agent_start_failed", mail_sent=False)
             self._save()
@@ -516,6 +521,22 @@ class WebWorker:
                 time.sleep(max(self.poll_seconds, self.retry_at - time.monotonic(), 1))
 
 
+def safe_diagnostic(code, error=None):
+    """Keep a usable error trail when pythonw has no stdout/stderr. No raw exceptions."""
+    event = {"atUtc": utc_now(), "code": code}
+    if error is not None:
+        error_type = type(error).__name__
+        event["errorType"] = error_type if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]{0,79}", error_type) else "Exception"
+    try:
+        folder = ROOT / "data" / "web-worker"
+        folder.mkdir(parents=True, exist_ok=True)
+        with (folder / "diagnostics.log.jsonl").open("a", encoding="utf-8") as stream:
+            stream.write(json.dumps(event, ensure_ascii=False) + "\n")
+            stream.flush()
+    except (OSError, ValueError):
+        pass  # A diagnostic failure must not replace the original exit reason.
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="网页任务的电脑端 HTTPS 轮询 worker")
     parser.add_argument("--config", type=Path, default=ROOT / "web-worker-config.json")
@@ -528,11 +549,15 @@ def main(argv=None):
             print(json.dumps(worker.check(), ensure_ascii=False))
             return 0
         return worker.serve(once=args.once)
-    except KeyboardInterrupt:
-        print("worker_stopped_check_any_interrupted_job")
+    except KeyboardInterrupt as error:
+        safe_diagnostic("worker_interrupted_check_local", error)
+        if sys.stdout is not None:
+            print("worker_stopped_check_any_interrupted_job")
         return 130
-    except (WorkerError, RuntimeError, OSError):
-        print("worker_failed_check_local_configuration_or_log", file=sys.stderr)
+    except Exception as error:
+        safe_diagnostic("worker_failed_check_local", error)
+        if sys.stderr is not None:
+            print("worker_failed_check_local_configuration_or_log", file=sys.stderr)
         return 1
 
 
