@@ -1,0 +1,513 @@
+{
+  "schemaVersion": 1,
+  "frozenBeforeRetrieval": true,
+  "goldMethod": "人工从官方年报指定物理页转录；不向检索器和答案模块传入标准答案。",
+  "questions": [
+    {
+      "id": "Q01",
+      "question": "宁波银行2025年营业收入是多少？请注明单位。",
+      "type": "single",
+      "expectedAnswer": "71,969 百万元人民币。",
+      "goldEvidence": [
+        {
+          "company": "宁波银行",
+          "code": "002142",
+          "pdfPage": 9,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-25/1225189419.PDF",
+          "term": "营业收入",
+          "values": [
+            "71,969"
+          ],
+          "unit": "百万元",
+          "note": ""
+        }
+      ],
+      "company": "宁波银行"
+    },
+    {
+      "id": "Q02",
+      "question": "招商银行2025年归属于本行股东的净利润是多少？",
+      "type": "single",
+      "expectedAnswer": "150,181 百万元人民币；不能替换为净利润151,126百万元。",
+      "goldEvidence": [
+        {
+          "company": "招商银行",
+          "code": "600036",
+          "pdfPage": 14,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-28/1225047590.PDF",
+          "term": "归属于本行股东的净利润",
+          "values": [
+            "150,181"
+          ],
+          "unit": "百万元",
+          "note": ""
+        }
+      ],
+      "company": "招商银行"
+    },
+    {
+      "id": "Q03",
+      "question": "平安银行2025年末不良贷款率是多少，较2024年末变化多少？",
+      "type": "comparison",
+      "expectedAnswer": "2025年末1.05%，2024年末1.06%，下降0.01个百分点。",
+      "goldEvidence": [
+        {
+          "company": "平安银行",
+          "code": "000001",
+          "pdfPage": 17,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-21/1225022887.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "1.05",
+            "1.06",
+            "0.01"
+          ],
+          "unit": "% / 个百分点",
+          "note": ""
+        }
+      ],
+      "company": "平安银行"
+    },
+    {
+      "id": "Q04",
+      "question": "宁波银行2025年末公司贷款及垫款本金是多少，同比增长多少？",
+      "type": "single",
+      "expectedAnswer": "1,073,136百万元，同比增长30.45%。",
+      "goldEvidence": [
+        {
+          "company": "宁波银行",
+          "code": "002142",
+          "pdfPage": 9,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-25/1225189419.PDF",
+          "term": "公司贷款及垫款本金",
+          "values": [
+            "1,073,136",
+            "30.45"
+          ],
+          "unit": "百万元 / %",
+          "note": ""
+        }
+      ],
+      "company": "宁波银行"
+    },
+    {
+      "id": "Q05",
+      "question": "招商银行在2025年数智化转型中落地了多少个领域专精模型和场景应用？",
+      "type": "qualitative",
+      "expectedAnswer": "183个领域专精模型，856个场景应用。",
+      "goldEvidence": [
+        {
+          "company": "招商银行",
+          "code": "600036",
+          "pdfPage": 8,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-28/1225047590.PDF",
+          "term": "模型",
+          "values": [
+            "183",
+            "856"
+          ],
+          "unit": "个",
+          "note": ""
+        }
+      ],
+      "company": "招商银行"
+    },
+    {
+      "id": "Q06",
+      "question": "江苏银行2025年净息差是多少，采用什么利息净收入口径计算？",
+      "type": "footnote",
+      "expectedAnswer": "集团净息差1.73%；采用还原口径利息净收入计算，需结合表下注4。",
+      "goldEvidence": [
+        {
+          "company": "江苏银行",
+          "code": "600919",
+          "pdfPage": 23,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225247387.PDF",
+          "term": "净息差",
+          "values": [
+            "1.73"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "江苏银行",
+          "code": "600919",
+          "pdfPage": 23,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225247387.PDF",
+          "term": "还原口径",
+          "values": [
+            "还原口径",
+            "利息净收"
+          ],
+          "unit": "",
+          "note": "表下注4跨行文本"
+        }
+      ],
+      "company": "江苏银行"
+    },
+    {
+      "id": "Q07",
+      "question": "苏州银行2025年的净利润与归属于母公司股东的净利润分别是多少？",
+      "type": "comparison",
+      "expectedAnswer": "净利润5,578,439千元；归母净利润5,348,303千元。",
+      "goldEvidence": [
+        {
+          "company": "苏州银行",
+          "code": "002966",
+          "pdfPage": 12,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225240273.PDF",
+          "term": "净利润",
+          "values": [
+            "5,578,439",
+            "5,348,303"
+          ],
+          "unit": "千元",
+          "note": ""
+        }
+      ],
+      "company": "苏州银行"
+    },
+    {
+      "id": "Q08",
+      "question": "上海银行2025年净息差为什么下降？生息资产收益率和计息负债付息率各下降多少个百分点？",
+      "type": "reasoning",
+      "expectedAnswer": "LPR下行和存量资产重定价，资产端收益率下降快于负债成本；生息资产平均收益率下降0.46个百分点，计息负债平均付息率下降0.40个百分点。",
+      "goldEvidence": [
+        {
+          "company": "上海银行",
+          "code": "601229",
+          "pdfPage": 24,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-24/1225173739.PDF",
+          "term": "净息差",
+          "values": [
+            "LPR",
+            "重定价"
+          ],
+          "unit": "",
+          "note": ""
+        },
+        {
+          "company": "上海银行",
+          "code": "601229",
+          "pdfPage": 24,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-24/1225173739.PDF",
+          "term": "平均收益率",
+          "values": [
+            "0.46",
+            "0.40"
+          ],
+          "unit": "个百分点",
+          "note": ""
+        }
+      ],
+      "company": "上海银行"
+    },
+    {
+      "id": "Q09",
+      "question": "请逐家列出知识库内12家银行2025年的营业收入，保留各报告原始单位并给出处。",
+      "type": "panoramic",
+      "expectedAnswer": "招商银行 337,532 百万元；平安银行 131,442 百万元；宁波银行 71,969 百万元；江苏银行 87,942,367 千元；南京银行 55,541,916 千元；杭州银行 38,798,611 千元；成都银行 23,602,625 千元；苏州银行 12,355,561 千元；长沙银行 25,470,844 千元；青岛银行 14,572,778 千元；厦门银行 5,859,815 千元；上海银行 54,761,019 千元",
+      "goldEvidence": [
+        {
+          "company": "招商银行",
+          "code": "600036",
+          "pdfPage": 14,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-28/1225047590.PDF",
+          "term": "营业收入",
+          "values": [
+            "337,532"
+          ],
+          "unit": "百万元",
+          "note": ""
+        },
+        {
+          "company": "平安银行",
+          "code": "000001",
+          "pdfPage": 17,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-21/1225022887.PDF",
+          "term": "营业收入",
+          "values": [
+            "131,442"
+          ],
+          "unit": "百万元",
+          "note": ""
+        },
+        {
+          "company": "宁波银行",
+          "code": "002142",
+          "pdfPage": 9,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-25/1225189419.PDF",
+          "term": "营业收入",
+          "values": [
+            "71,969"
+          ],
+          "unit": "百万元",
+          "note": ""
+        },
+        {
+          "company": "江苏银行",
+          "code": "600919",
+          "pdfPage": 17,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225247387.PDF",
+          "term": "营业收入",
+          "values": [
+            "87,942,367"
+          ],
+          "unit": "千元",
+          "note": ""
+        },
+        {
+          "company": "南京银行",
+          "code": "601009",
+          "pdfPage": 16,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157414.PDF",
+          "term": "营业收入",
+          "values": [
+            "55,541,916"
+          ],
+          "unit": "千元",
+          "note": ""
+        },
+        {
+          "company": "杭州银行",
+          "code": "600926",
+          "pdfPage": 13,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157162.PDF",
+          "term": "营业收入",
+          "values": [
+            "38,798,611"
+          ],
+          "unit": "千元",
+          "note": ""
+        },
+        {
+          "company": "成都银行",
+          "code": "601838",
+          "pdfPage": 15,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225153907.PDF",
+          "term": "营业收入",
+          "values": [
+            "23,602,625"
+          ],
+          "unit": "千元",
+          "note": ""
+        },
+        {
+          "company": "苏州银行",
+          "code": "002966",
+          "pdfPage": 12,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225240273.PDF",
+          "term": "营业收入",
+          "values": [
+            "12,355,561"
+          ],
+          "unit": "千元",
+          "note": ""
+        },
+        {
+          "company": "长沙银行",
+          "code": "601577",
+          "pdfPage": 12,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225235609.PDF",
+          "term": "营业收入",
+          "values": [
+            "25,470,844"
+          ],
+          "unit": "千元",
+          "note": ""
+        },
+        {
+          "company": "青岛银行",
+          "code": "002948",
+          "pdfPage": 8,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-27/1225036782.PDF",
+          "term": "营业收入",
+          "values": [
+            "14,572,778"
+          ],
+          "unit": "千元",
+          "note": ""
+        },
+        {
+          "company": "厦门银行",
+          "code": "601187",
+          "pdfPage": 12,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-30/1225266446.PDF",
+          "term": "营业收入",
+          "values": [
+            "5,859,815"
+          ],
+          "unit": "千元",
+          "note": ""
+        },
+        {
+          "company": "上海银行",
+          "code": "601229",
+          "pdfPage": 16,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-24/1225173739.PDF",
+          "term": "营业收入",
+          "values": [
+            "54,761,019"
+          ],
+          "unit": "千元",
+          "note": ""
+        }
+      ],
+      "crossCompany": true
+    },
+    {
+      "id": "Q10",
+      "question": "请逐家列出知识库内12家银行2025年末的不良贷款率，并给出各自出处。",
+      "type": "panoramic",
+      "expectedAnswer": "招商银行 0.94%；平安银行 1.05%；宁波银行 0.76%；江苏银行 0.84%；南京银行 0.83%；杭州银行 0.76%；成都银行 0.68%；苏州银行 0.82%；长沙银行 1.15%；青岛银行 0.97%；厦门银行 0.77%；上海银行 1.18%",
+      "goldEvidence": [
+        {
+          "company": "招商银行",
+          "code": "600036",
+          "pdfPage": 16,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-28/1225047590.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "0.94"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "平安银行",
+          "code": "000001",
+          "pdfPage": 17,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-21/1225022887.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "1.05"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "宁波银行",
+          "code": "002142",
+          "pdfPage": 18,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-25/1225189419.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "0.76"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "江苏银行",
+          "code": "600919",
+          "pdfPage": 19,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225247387.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "0.84"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "南京银行",
+          "code": "601009",
+          "pdfPage": 18,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157414.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "0.83"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "杭州银行",
+          "code": "600926",
+          "pdfPage": 15,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157162.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "0.76"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "成都银行",
+          "code": "601838",
+          "pdfPage": 16,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225153907.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "0.68"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "苏州银行",
+          "code": "002966",
+          "pdfPage": 15,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225240273.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "0.82"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "长沙银行",
+          "code": "601577",
+          "pdfPage": 13,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225235609.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "1.15"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "青岛银行",
+          "code": "002948",
+          "pdfPage": 9,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-27/1225036782.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "0.97"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "厦门银行",
+          "code": "601187",
+          "pdfPage": 13,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-30/1225266446.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "0.77"
+          ],
+          "unit": "%",
+          "note": ""
+        },
+        {
+          "company": "上海银行",
+          "code": "601229",
+          "pdfPage": 18,
+          "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-24/1225173739.PDF",
+          "term": "不良贷款率",
+          "values": [
+            "1.18"
+          ],
+          "unit": "%",
+          "note": ""
+        }
+      ],
+      "crossCompany": true
+    }
+  ]
+}

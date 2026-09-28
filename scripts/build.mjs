@@ -1,9 +1,10 @@
-import { mkdir, copyFile, rm } from 'node:fs/promises';
+import { mkdir, copyFile, rm, readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const output = path.join(root, 'public');
+await import('../report-qa/scripts/prepare-public.mjs');
 if (path.dirname(output) !== root || path.basename(output) !== 'public') {
   throw new Error('Refusing to clean an unexpected output directory.');
 }
@@ -14,4 +15,12 @@ await mkdir(output, { recursive: true });
 for (const name of ['index.html', 'agents.html', 'agents.js', 'agents.css', 'schedule-countdown.js']) {
   await copyFile(path.join(root, name), path.join(output, name));
 }
-console.log('Public website built from five explicit frontend files.');
+const researchRoot = path.join(root, 'report-qa', 'site');
+const files = JSON.parse(await readFile(path.join(root, 'report-qa', 'public-files.json'), 'utf8'));
+for (const name of files) {
+  if (typeof name !== 'string' || name.includes('..') || path.isAbsolute(name) || !/^[a-zA-Z0-9_./-]+$/.test(name)) throw new Error('Unsafe public filename');
+  const target = path.join(output, 'report-qa', name);
+  await mkdir(path.dirname(target), { recursive: true });
+  await copyFile(path.join(researchRoot, name), target);
+}
+console.log(`Public website built: five existing frontend files and ${files.length} reviewed research assets.`);

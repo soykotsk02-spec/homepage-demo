@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#18273f">
+  <meta name="description" content="以原始年报为依据的银行财报检索工作台。支持 BM25、文本向量与混合检索，逐条返回公司、章节和 PDF 页码。">
+  <base href="/report-qa/">
+  <title>银行年报研究台 · 2025</title>
+  <link rel="stylesheet" href="./style.css">
+  <script type="module" src="./app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#query">跳到提问</a>
+  <header class="topbar">
+    <a class="brand" href="./" aria-label="银行年报研究台首页"><span class="brand-mark" aria-hidden="true">研</span><span>年报研究台<small>ANNUAL REPORT RESEARCH</small></span></a>
+    <nav class="top-nav" aria-label="主要导航">
+      <button type="button" class="nav-item active" data-view="research" aria-current="page">研究工作台</button>
+      <button type="button" class="nav-item" data-view="evaluation">10 题评测</button>
+      <a class="nav-item conclusion-link" href="./conclusion.html" target="_blank" rel="noopener">一页结论 <span aria-hidden="true">↗</span></a>
+    </nav>
+    <a class="home-link" href="/">返回主页 <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main class="shell">
+    <section class="masthead" aria-labelledby="page-title">
+      <div><p class="eyebrow">FINANCIAL RESEARCH / FY 2025</p><h1 id="page-title">银行年报<span>研究台</span></h1><p class="masthead-description">从一个问题出发，回到每一处原文。<br class="mobile-break">在 12 家银行的 2025 年报中检索、比较与核验。</p></div>
+      <div class="edition"><span class="edition-rule"></span><span>RESEARCH NOTE</span><strong>2025<span> / 银行业</span></strong><small>原始年报 · 可追溯证据</small></div>
+    </section>
+
+    <section id="runtime-status" class="runtime-banner" role="status" aria-live="polite">
+      <span class="status-dot loading" id="runtime-dot"></span><div><strong id="runtime-title">正在准备检索环境</strong><span id="runtime-detail">读取本地索引后即可开始。向量模型首次载入可能需要稍等。</span></div><span id="runtime-badge" class="runtime-badge">初始化</span>
+    </section>
+
+    <div id="research-view">
+      <div class="workspace-grid">
+        <section class="query-panel panel" aria-labelledby="question-heading">
+          <div class="section-heading"><div><p class="eyebrow">01 / ASK & RETRIEVE</p><h2 id="question-heading">你想从年报里了解什么？</h2></div><span class="small-label">自由提问</span></div>
+          <form id="query-form">
+            <label class="sr-only" for="query">研究问题</label>
+            <div class="textarea-wrap"><textarea id="query" name="query" rows="3" maxlength="1000" placeholder="例如：各家银行如何披露不良贷款率及其变化？" required></textarea><span class="input-hint">中文自然语言 · 最多 1000 字</span></div>
+            <div class="field-label">检索方式 <span id="mode-note">混合检索兼顾关键词与语义</span></div>
+            <fieldset class="mode-selector"><legend class="sr-only">选择检索方式</legend>
+              <label><input type="radio" name="mode" value="hybrid" checked><span><strong>混合检索</strong><small>BM25 + 向量</small></span></label>
+              <label><input type="radio" name="mode" value="bm25"><span><strong>关键词</strong><small>BM25</small></span></label>
+              <label><input type="radio" name="mode" value="dense"><span><strong>语义向量</strong><small>Dense retrieval</small></span></label>
+            </fieldset>
+            <details class="scope-picker" id="scope-picker"><summary><span>公司范围 <strong id="scope-summary">全部银行</strong></span><span class="scope-toggle">调整范围 <span aria-hidden="true">⌄</span></span></summary><div class="scope-content"><div class="scope-actions"><button type="button" id="select-all">全选</button><button type="button" id="select-none">清空</button></div><div id="company-options" class="company-options"><span class="muted">公司名单载入中…</span></div></div></details>
+            <div class="query-bottom"><label class="coverage-option"><input type="checkbox" id="cross-company"><span>逐家公司检索<small>全景比较时，保留每家银行的证据</small></span></label><button id="submit-query" class="primary-button" type="submit" disabled>检索并整理 <span aria-hidden="true">↗</span></button></div>
+          </form>
+          <div class="suggestion-area"><span>从这里开始</span><div id="question-suggestions" class="suggestion-list"><button type="button" class="suggestion" data-question="各家银行如何披露不良贷款率及其变化？" data-panoramic="true">资产质量全景 <span>↗</span></button><button type="button" class="suggestion" data-question="年报如何描述绿色金融的发展与绿色信贷规模？">绿色金融 <span>↗</span></button><button type="button" class="suggestion" data-question="年报披露了哪些人工智能应用与数字化转型进展？">AI 与数字化 <span>↗</span></button></div></div>
+        </section>
+
+        <aside class="corpus-panel panel" aria-labelledby="corpus-heading">
+          <div class="section-heading"><div><p class="eyebrow">02 / SOURCE LIBRARY</p><h2 id="corpus-heading">研究资料库</h2></div><span class="year-tag">2025</span></div>
+          <div class="stats-grid"><div><strong id="stat-reports">—</strong><span>份年报</span></div><div><strong id="stat-pages">—</strong><span>PDF 页</span></div><div><strong id="stat-chunks">—</strong><span>检索块</span></div></div>
+          <p class="corpus-caption">来自公司公开披露的原始年报</p><div id="report-list" class="report-list"><div class="empty-mini">正在载入资料清单</div></div>
+          <details class="method-note"><summary>这里的答案是如何生成的？ <span>＋</span></summary><p>先使用所选方法检索原文，再按问题关键词截取相关段落、呈现表格。答案是实时整理的原文摘录，未调用生成式大模型；向量模型仅用于文本检索。</p><p>页码均指 PDF 文件的物理页序，可能与年报正文印刷页码不同。重要数值请点击出处核对表头、单位与统计口径。</p><p id="index-note"></p></details>
+        </aside>
+      </div>
+
+      <section id="answer-section" class="answer-section" aria-labelledby="answer-heading">
+        <div class="answer-section-heading"><div><p class="eyebrow">03 / EVIDENCE & FINDINGS</p><h2 id="answer-heading">让每一条回答，都有出处</h2></div><span class="section-number" aria-hidden="true">03</span></div>
+        <div id="search-progress" class="search-progress" role="status" aria-live="polite" hidden><span class="spinner"></span><div><strong id="search-progress-title">正在检索</strong><p id="search-progress-detail">检索结果与运行状态将在这里更新。</p></div><span id="search-elapsed">0.0s</span></div>
+        <div id="answer-content" class="answer-empty panel"><span class="empty-symbol" aria-hidden="true">“</span><h3>先问一个具体的问题</h3><p>查询后，这里会按公司呈现原文摘录、表格与页码证据。<br>也可以从「10 题评测」中选择一个问题开始。</p><div class="evidence-trail"><span>研究问题</span><i>→</i><span>检索证据</span><i>→</i><span>原始 PDF</span></div></div>
+      </section>
+    </div>
+
+    <section id="evaluation-view" class="evaluation-view" hidden aria-labelledby="evaluation-heading">
+      <div class="evaluation-intro"><div><p class="eyebrow">RETRIEVAL BENCHMARK</p><h2 id="evaluation-heading">同样的问题，检验不同的检索方式</h2><p>覆盖事实、表格与跨公司全景问题。点击任一题，可用当前索引重新运行检索。</p></div><a class="outline-button conclusion-link" href="./conclusion.html" target="_blank" rel="noopener">打开一页结论 ↗</a></div>
+      <div id="evaluation-summary" class="evaluation-summary"></div><div id="evaluation-list" class="evaluation-list"><div class="panel empty-mini">评测数据载入中…</div></div>
+      <p class="result-notes">评测说明：证据召回衡量是否找到了人工标注的原页，关键事实覆盖衡量展示内容是否包含核验事实；这些比例均不等于答对率。MRR 衡量首个正确出处的排序位置。逐题结论来自人工核查，仍需检查单位、年份与统计口径。</p>
+    </section>
+
+    <footer class="footer"><span>年报研究台 <span class="footer-divider">/</span> 2025 银行业</span><p>检索辅助阅读，结论以原始披露为准。<span>向量用于检索 · 摘录用于作答</span></p><a class="conclusion-link" href="./conclusion.html" target="_blank" rel="noopener">一页结论 ↗</a></footer>
+  </main>
+</body>
+</html>

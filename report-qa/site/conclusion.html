@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<base href="/report-qa/"><title>一页结论 · 银行年报研究台</title><meta name="description" content="12份银行年报、10道真实问题的检索问答实验结论与边界。"><link rel="stylesheet" href="./conclusion.css"></head>
+<body><nav class="screen-nav" aria-label="页面导航"><a href="./">← 返回研究台</a><a href="./data/evaluation.json">完整评测数据</a></nav>
+<main class="sheet"><header><p class="eyebrow">2025 银行业年报 · 检索问答实验</p><p class="edition">RESEARCH NOTE / 01</p><h1>能找到原文证据，仍需核对口径</h1><p class="lead">默认混合检索经 10 题人工复核：7 题证据充分、3 题部分回答、0 题错误。判断基于完整摘录，非首条结果。明确公司与单项指标时较好；全景比较仍会漏项、混入其他期间或口径。</p><p class="corpus">12 份完整年报  /  3,265 页  /  17,474 个检索块  /  2,607 张提取表</p></header>
+<section class="metrics"><div class="section-title"><span>01</span><h2>三种检索方式的实际表现</h2></div><table><thead><tr><th scope="col">方法</th><th scope="col">规范页命中</th><th scope="col">MRR</th><th scope="col">自动数字覆盖</th></tr></thead><tbody><tr><td>BM25 关键词</td><td>74.2%</td><td>0.415</td><td>90.8%</td></tr>
+<tr><td>BGE 语义向量</td><td>50.0%</td><td>0.208</td><td>69.2%</td></tr>
+<tr><td>RRF 混合检索</td><td>60.0%</td><td>0.335</td><td>91.7%</td></tr></tbody></table><p class="fine-print">指标均为 10 题宏平均。“规范页命中”只检查指定来源页，不代表全部相关证据召回；MRR 衡量首次规范证据排名；“数字覆盖”是自动字符串检查，不是人工正确率。仅混合检索有人工作答核验；小样本不外推至所有财报问题。</p></section>
+<div class="findings"><section><div class="section-title"><span>02</span><h2>哪里有效</h2></div><p>单公司、指标名称明确的数字题较稳。公司过滤缩小范围，保留表格行列、单位和年份后，可回到原页核验。Q01-Q06、Q08 的完整摘录证据足以作答；部分题需联合多条证据。</p></section><section><div class="section-title"><span>03</span><h2>哪里翻车</h2></div><p>Q07 混入季度相关片段，未形成干净的年度回答。Q09 全景题仅 3 家完整、5 家部分、4 家缺失；Q10 按集团口径仅 5 家完整、3 家部分、4 家缺失。南京银行 0.80% 属母公司口径，是真实值但不能当成集团答案。</p></section></div>
+<section class="reason"><div class="section-title"><span>04</span><h2>为什么</h2></div><p>本题集以精确财务名词为主，BM25 关键词的规范页命中最高；语义相近不保证年份、单位与口径正确。全景每家只取 2 块，多层表头和重复披露会占用名额。RRF 融合也可能把含正确证据的候选排后。</p></section>
+<section class="next"><div class="section-title"><span>05</span><h2>下一轮直接改这三件事</h2></div><ol><li>先按公司、年度、集团/母公司、单位规范化指标，再生成答案；冲突时并列原文，不自动选值。</li><li>全景题逐公司补检索：扩大候选池，按“公司 × 指标”检查覆盖，缺失项明确标出。</li><li>加入表头与跨页表衔接、相关性重排；扩充人工题集，分别评估数值、单位、期间和口径。</li></ol></section>
+<footer><p>真实 512 维 BGE-small-zh 向量 + BM25 + RRF；回答为检索原文摘录，未使用生成式大模型。普通题 Top-10；2 道全景题逐公司 Top-2。</p><p>未做图片 OCR；跨页表未自动合并；跨公司单位与财务口径未自动统一。表格为 PDF 提取结果，仍须查看原表。</p><div><span>依据：固定题集、实际召回与人工逐题核验</span><span>2026-09-28 · 1 / 1</span></div></footer></main></body></html>

@@ -5,6 +5,7 @@ tests/
 .env.*
 *.local.json
 web-worker-config.json
-data/
+/data/
+report-qa/artifacts/
 __pycache__/
 agents/

@@ -1,0 +1,1098 @@
+{
+  "schemaVersion": 1,
+  "reportYear": 2025,
+  "pageNumbering": "one-based PDF physical pages",
+  "unrecognizedLabel": "未识别章节",
+  "limitations": [
+    "此映射仅适用于清单SHA-256所固定的2025年报文件，不能套用其他版本。",
+    "物理页是页级来源定位；同页含两个章节时明确同时标注，未声称逐字符章节定位。",
+    "财务附件重新编号时保持物理页定位，不能沿用主体印刷页偏移。"
+  ],
+  "reports": [
+    {
+      "code": "600036",
+      "company": "招商银行",
+      "reportYear": 2025,
+      "pageCount": 350,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-28/1225047590.PDF",
+      "pdfSha256": "abe612a273468072b176dd51ea460c1e1596f8ca729cbc6db3fa28ba9a57ea79",
+      "tocPdfPage": 2,
+      "mainContentsPrintedToPhysicalOffset": 1,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "目录印刷页加1；正文页眉逐项复核。财务报告持续至物理349页，350页为封底。页眉页码不属于章节名称。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 10,
+          "section": "封面、目录与前言",
+          "evidencePdfPage": 1,
+          "headingEvidence": "招 商 銀 行 股 份 有 限 公 司 | 股票代碼：600036"
+        },
+        {
+          "pdfStart": 11,
+          "pdfEnd": 13,
+          "section": "第一章 公司简介",
+          "evidencePdfPage": 11,
+          "headingEvidence": "10 招商银行股份有限公司 第一章 公司简介 | 2025年度报告（A股） | 公司简介"
+        },
+        {
+          "pdfStart": 14,
+          "pdfEnd": 18,
+          "section": "第二章 会计数据和财务指标摘要",
+          "evidencePdfPage": 14,
+          "headingEvidence": "招商银行股份有限公司 第二章 会计数据和财务指标摘要 13 | 2025年度报告（A股） | 会计数据和财务指标摘要"
+        },
+        {
+          "pdfStart": 19,
+          "pdfEnd": 70,
+          "section": "第三章 管理层讨论与分析",
+          "evidencePdfPage": 19,
+          "headingEvidence": "18 招商银行股份有限公司 第三章 管理层讨论与分析 | 2025年度报告（A股） | 管理层讨论与分析"
+        },
+        {
+          "pdfStart": 71,
+          "pdfEnd": 81,
+          "section": "第四章 环境、社会与治理(ESG)",
+          "evidencePdfPage": 71,
+          "headingEvidence": "70 招商银行股份有限公司 第四章 环境、社会与治理(ESG) | 2025年度报告（A股） | 环境、社会与治理"
+        },
+        {
+          "pdfStart": 82,
+          "pdfEnd": 107,
+          "section": "第五章 公司治理",
+          "evidencePdfPage": 82,
+          "headingEvidence": "招商银行股份有限公司 第五章 公司治理 81 | 2025年度报告（A股） | 公司治理"
+        },
+        {
+          "pdfStart": 108,
+          "pdfEnd": 113,
+          "section": "第六章 重要事项",
+          "evidencePdfPage": 108,
+          "headingEvidence": "招商银行股份有限公司 第六章 重要事项 107 | 2025年度报告（A股） | 重要事项"
+        },
+        {
+          "pdfStart": 114,
+          "pdfEnd": 118,
+          "section": "第七章 股份变动及股东情况",
+          "evidencePdfPage": 114,
+          "headingEvidence": "招商银行股份有限公司 第七章 股份变动及股东情况 113 | 2025年度报告（A股） | 股份变动及股东情况"
+        },
+        {
+          "pdfStart": 119,
+          "pdfEnd": 349,
+          "section": "第八章 财务报告",
+          "evidencePdfPage": 119,
+          "headingEvidence": "118 招商银行股份有限公司 第八章 财务报告 | 2025年度报告（A股） | 财务报告"
+        },
+        {
+          "pdfStart": 350,
+          "pdfEnd": 350,
+          "section": "封底",
+          "evidencePdfPage": 350,
+          "headingEvidence": "因 您 而 變"
+        }
+      ]
+    },
+    {
+      "code": "000001",
+      "company": "平安银行",
+      "reportYear": 2025,
+      "pageCount": 288,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-21/1225022887.PDF",
+      "pdfSha256": "2273565ecbe1b32536631fd4a019a4f4a990f4c793cfd5b70eae90d44d3ff16c",
+      "tocPdfPage": 3,
+      "mainContentsPrintedToPhysicalOffset": 1,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "主章节书签、目录印刷页加1及正文起始页一致；财务附件归属第八章。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 8,
+          "section": "封面、目录与前言",
+          "evidencePdfPage": 1,
+          "headingEvidence": "平安银行股份有限公司 | 年年度报告 | 2025"
+        },
+        {
+          "pdfStart": 9,
+          "pdfEnd": 16,
+          "section": "第一章 公司简介",
+          "evidencePdfPage": 9,
+          "headingEvidence": "平安银行股份有限公司 | 第一章 公司简介 | 2025 年年度报告"
+        },
+        {
+          "pdfStart": 17,
+          "pdfEnd": 24,
+          "section": "第二章 会计数据和财务指标",
+          "evidencePdfPage": 17,
+          "headingEvidence": "平安银行股份有限公司 | 第二章 会计数据和财务指标 | 2025 年年度报告"
+        },
+        {
+          "pdfStart": 25,
+          "pdfEnd": 63,
+          "section": "第三章 管理层讨论与分析",
+          "evidencePdfPage": 25,
+          "headingEvidence": "平安银行股份有限公司 | 第三章 管理层讨论与分析 | 2025 年年度报告"
+        },
+        {
+          "pdfStart": 64,
+          "pdfEnd": 91,
+          "section": "第四章 公司治理、环境和社会",
+          "evidencePdfPage": 64,
+          "headingEvidence": "平安银行股份有限公司 | 第四章 公司治理、环境和社会 | 2025 年年度报告"
+        },
+        {
+          "pdfStart": 92,
+          "pdfEnd": 96,
+          "section": "第五章 重要事项",
+          "evidencePdfPage": 92,
+          "headingEvidence": "平安银行股份有限公司 | 第五章 重要事项 | 2025 年年度报告"
+        },
+        {
+          "pdfStart": 97,
+          "pdfEnd": 105,
+          "section": "第六章 股份变动及股东情况",
+          "evidencePdfPage": 97,
+          "headingEvidence": "平安银行股份有限公司 | 第六章 股份变动及股东情况 | 2025 年年度报告"
+        },
+        {
+          "pdfStart": 106,
+          "pdfEnd": 106,
+          "section": "第七章 债券相关情况",
+          "evidencePdfPage": 106,
+          "headingEvidence": "平安银行股份有限公司 | 第七章 债券相关情况 | 2025 年年度报告"
+        },
+        {
+          "pdfStart": 107,
+          "pdfEnd": 288,
+          "section": "第八章 财务报告",
+          "evidencePdfPage": 107,
+          "headingEvidence": "平安银行股份有限公司 | 第八章 财务报告 | 2025 年年度报告"
+        }
+      ]
+    },
+    {
+      "code": "002142",
+      "company": "宁波银行",
+      "reportYear": 2025,
+      "pageCount": 237,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-25/1225189419.PDF",
+      "pdfSha256": "6610078eb1d109465781dbd47d3256d4abbbe2f4ff1f8017e1724b3fadb35558",
+      "tocPdfPage": 3,
+      "mainContentsPrintedToPhysicalOffset": 1,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "主章节书签、目录印刷页加1及正文起始页一致；附后审计报告及报表仍属于第十节。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 1,
+          "section": "封面",
+          "evidencePdfPage": 1,
+          "headingEvidence": "宁波银行股份有限公司 | BANK OF NINGBO CO.,LTD. | （股票代码： ）"
+        },
+        {
+          "pdfStart": 2,
+          "pdfEnd": 5,
+          "section": "第一节 重要提示、目录及释义",
+          "evidencePdfPage": 2,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第一节 重要提示、目录及释义 | 公司董事会及董事、高级管理人员保证年度报告内容的真实、准确、完整，不存在虚假记载、"
+        },
+        {
+          "pdfStart": 6,
+          "pdfEnd": 8,
+          "section": "第二节 公司简介",
+          "evidencePdfPage": 6,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第二节 公司简介 | 一、公司信息"
+        },
+        {
+          "pdfStart": 9,
+          "pdfEnd": 11,
+          "section": "第三节 会计数据和财务指标摘要",
+          "evidencePdfPage": 9,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第三节 会计数据和财务指标摘要 | 一、主要会计数据和财务指标"
+        },
+        {
+          "pdfStart": 12,
+          "pdfEnd": 13,
+          "section": "第四节 董事长致辞",
+          "evidencePdfPage": 12,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第四节 董事长致辞 | 2025年是“十四五”规划的收官之年，也是中国经济在高质量发展道路上砥砺前行、新旧动"
+        },
+        {
+          "pdfStart": 14,
+          "pdfEnd": 15,
+          "section": "第五节 行长致辞",
+          "evidencePdfPage": 14,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第五节 行长致辞 | 初心如磐，奋楫笃行。2025年是“十四五”规划的收官之年，也是银行业面临深刻变革与全"
+        },
+        {
+          "pdfStart": 16,
+          "pdfEnd": 52,
+          "section": "第六节 管理层讨论与分析",
+          "evidencePdfPage": 16,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第六节 管理层讨论与分析 | 一、报告期内从事的主营业务"
+        },
+        {
+          "pdfStart": 53,
+          "pdfEnd": 66,
+          "section": "第七节 公司治理、环境和社会",
+          "evidencePdfPage": 53,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第七节 公司治理、环境和社会 | 一、公司治理的基本状况"
+        },
+        {
+          "pdfStart": 67,
+          "pdfEnd": 69,
+          "section": "第八节 重要事项",
+          "evidencePdfPage": 67,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第八节 重要事项 | 一、承诺事项履行情况"
+        },
+        {
+          "pdfStart": 70,
+          "pdfEnd": 73,
+          "section": "第九节 股份变动及股东情况",
+          "evidencePdfPage": 70,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第九节 股份变动及股东情况 | 一、股份变动情况"
+        },
+        {
+          "pdfStart": 74,
+          "pdfEnd": 237,
+          "section": "第十节 财务报告",
+          "evidencePdfPage": 74,
+          "headingEvidence": "宁波银行股份有限公司 2025 年年度报告 | 第十节 财务报告 | 一、审计报告。"
+        }
+      ]
+    },
+    {
+      "code": "600919",
+      "company": "江苏银行",
+      "reportYear": 2025,
+      "pageCount": 227,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225247387.PDF",
+      "pdfSha256": "63f6612a6d97530a7572ddf7ead66e8b61c97d7b5c72197e2d0ed94b7c36d566",
+      "tocPdfPage": 2,
+      "mainContentsPrintedToPhysicalOffset": 1,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "无可用章节书签。目录印刷页008/016/026/058/082/090/096/100/106全部加1，并逐项核对实际标题；107页直接开始审计报告，226页仍为财务补充资料。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 8,
+          "section": "封面、目录与前言",
+          "evidencePdfPage": 1,
+          "headingEvidence": "2025 | ANNUAL | REPORT"
+        },
+        {
+          "pdfStart": 9,
+          "pdfEnd": 16,
+          "section": "第一节 公司简介",
+          "evidencePdfPage": 9,
+          "headingEvidence": "江苏银行 BANK OF JIANGSU | 公司简介 | 一、基本信息"
+        },
+        {
+          "pdfStart": 17,
+          "pdfEnd": 26,
+          "section": "第二节 财务概要",
+          "evidencePdfPage": 17,
+          "headingEvidence": "江苏银行 BANK OF JIANGSU | 财务概要 | 一、近三年主要会计数据和财务指标"
+        },
+        {
+          "pdfStart": 27,
+          "pdfEnd": 58,
+          "section": "第三节 经营情况讨论与分析",
+          "evidencePdfPage": 27,
+          "headingEvidence": "江苏银行 BANK OF JIANGSU | 经营情况讨论与分析 | 一、核心竞争力"
+        },
+        {
+          "pdfStart": 59,
+          "pdfEnd": 82,
+          "section": "第四节 公司治理",
+          "evidencePdfPage": 59,
+          "headingEvidence": "江苏银行 BANK OF JIANGSU | 公司治理 | 一、公司治理相关情况说明"
+        },
+        {
+          "pdfStart": 83,
+          "pdfEnd": 90,
+          "section": "第五节 环境与社会责任",
+          "evidencePdfPage": 83,
+          "headingEvidence": "江苏银行 BANK OF JIANGSU | 环境与社会责任 | 一、环境信息情况"
+        },
+        {
+          "pdfStart": 91,
+          "pdfEnd": 96,
+          "section": "第六节 重要事项",
+          "evidencePdfPage": 91,
+          "headingEvidence": "江苏银行 BANK OF JIANGSU | 重要事项 | 一、承诺事项履行情况"
+        },
+        {
+          "pdfStart": 97,
+          "pdfEnd": 100,
+          "section": "第七节 股份变动及股东情况",
+          "evidencePdfPage": 97,
+          "headingEvidence": "江苏银行 BANK OF JIANGSU | 股份变动及股东情况 | 一、股本变动情况"
+        },
+        {
+          "pdfStart": 101,
+          "pdfEnd": 106,
+          "section": "第八节 优先股相关情况",
+          "evidencePdfPage": 101,
+          "headingEvidence": "江苏银行 BANK OF JIANGSU | 优先股相关情况 | 一、报告期内优先股发行与上市情况"
+        },
+        {
+          "pdfStart": 107,
+          "pdfEnd": 226,
+          "section": "第九节 财务报告",
+          "evidencePdfPage": 107,
+          "headingEvidence": "江苏银行 BANK OF JIANGSU | 江苏银行股份有限公司 | 财务报表及审计报告"
+        },
+        {
+          "pdfStart": 227,
+          "pdfEnd": 227,
+          "section": "封底",
+          "evidencePdfPage": 227,
+          "headingEvidence": "2025 | ANNUAL | REPORT"
+        }
+      ]
+    },
+    {
+      "code": "601009",
+      "company": "南京银行",
+      "reportYear": 2025,
+      "pageCount": 252,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157414.PDF",
+      "pdfSha256": "b7ed7b82689963ca038d635086d5a979e4fc35f5abfa9917dbf272361a554651",
+      "tocPdfPage": 3,
+      "mainContentsPrintedToPhysicalOffset": 2,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "目录印刷页加2，与不带章节序号的PDF书签一致。15/20/60/101/106/114/117页为相应章节扉页，正文从后页继续；117页已属财务报告，119页开始审计报告。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 4,
+          "section": "封面、目录与前言",
+          "evidencePdfPage": 1,
+          "headingEvidence": "股票代码: 601009 | 地址 Address: | 20"
+        },
+        {
+          "pdfStart": 5,
+          "pdfEnd": 6,
+          "section": "第一节 重要提示及释义",
+          "evidencePdfPage": 5,
+          "headingEvidence": "第一节 重要提示及释义 | 1. 公司董事会及董事、高级管理人员保证年度报告内容的真实、准确、完整，不存在虚假记载、误导性陈述或重大 | 遗漏，并承担个别和连带的法律责任。"
+        },
+        {
+          "pdfStart": 7,
+          "pdfEnd": 9,
+          "section": "董事长致辞",
+          "evidencePdfPage": 7,
+          "headingEvidence": "董事长致辞 | 各位股东 ： | 2025年是“十四五”规划收官之年。南京银行"
+        },
+        {
+          "pdfStart": 10,
+          "pdfEnd": 11,
+          "section": "行长致辞",
+          "evidencePdfPage": 10,
+          "headingEvidence": "行长致辞 | 各位股东 ： | 2025年，是南京银行新时期战略规划全面推"
+        },
+        {
+          "pdfStart": 12,
+          "pdfEnd": 14,
+          "section": "第二节 公司简介",
+          "evidencePdfPage": 12,
+          "headingEvidence": "第二节 公司简介 | 一、 公司基本信息 | 法定中文名称 南京银行股份有限公司"
+        },
+        {
+          "pdfStart": 15,
+          "pdfEnd": 19,
+          "section": "第三节 主要会计数据和财务指标",
+          "evidencePdfPage": 15,
+          "headingEvidence": "主 要 会 计 数 据 | 和 财 务 指 标 | 秦 淮 河"
+        },
+        {
+          "pdfStart": 20,
+          "pdfEnd": 59,
+          "section": "第四节 管理层讨论与分析",
+          "evidencePdfPage": 20,
+          "headingEvidence": "管 理 层 讨 论 | 与 分 析 | 玄 武 湖"
+        },
+        {
+          "pdfStart": 60,
+          "pdfEnd": 100,
+          "section": "第五节 公司治理、环境与社会",
+          "evidencePdfPage": 60,
+          "headingEvidence": "公 司 治 理 、 | 环 境 与 社 会 | 石 臼 湖"
+        },
+        {
+          "pdfStart": 101,
+          "pdfEnd": 105,
+          "section": "第六节 重要事项",
+          "evidencePdfPage": 101,
+          "headingEvidence": "重 要 事 项 | 莫 愁 湖"
+        },
+        {
+          "pdfStart": 106,
+          "pdfEnd": 113,
+          "section": "第七节 股份变动及股东情况",
+          "evidencePdfPage": 106,
+          "headingEvidence": "股 份 变 动 | 及 股 东 情 况 | 百 家 湖"
+        },
+        {
+          "pdfStart": 114,
+          "pdfEnd": 116,
+          "section": "第八节 债券相关情况",
+          "evidencePdfPage": 114,
+          "headingEvidence": "债 券 相 关 情 况 | 珍 珠 泉"
+        },
+        {
+          "pdfStart": 117,
+          "pdfEnd": 251,
+          "section": "第九节 财务报告",
+          "evidencePdfPage": 117,
+          "headingEvidence": "财 务 报 告 | 长 江 主 航 道 南 京 段"
+        },
+        {
+          "pdfStart": 252,
+          "pdfEnd": 252,
+          "section": "封底",
+          "evidencePdfPage": 252,
+          "headingEvidence": "股票代码: 601009 | 地址 Address: | 20"
+        }
+      ]
+    },
+    {
+      "code": "600926",
+      "company": "杭州银行",
+      "reportYear": 2025,
+      "pageCount": 278,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157162.PDF",
+      "pdfSha256": "8969c2e4b35d820cb1ee90b2cd6b5a5625a4c1226bf3e092d69eceba8d72849b",
+      "tocPdfPage": 3,
+      "mainContentsPrintedToPhysicalOffset": 0,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "年报主体印刷页等于物理页。物理8页确有第一、第二节两标题，因此页级元数据明确同时列出；9页继续第二节。102页指向财务附件，103页起附件重新编号，仍归财务报告。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 7,
+          "section": "封面、目录与前言",
+          "evidencePdfPage": 1,
+          "headingEvidence": "股票代码：600926 | 2025 | 杭"
+        },
+        {
+          "pdfStart": 8,
+          "pdfEnd": 8,
+          "section": "第一节 释义；第二节 公司简介（同页）",
+          "evidencePdfPage": 8,
+          "headingEvidence": "杭州银行股份有限公司 2025 年年度报告 | 第一节 释义 | 一、 释义"
+        },
+        {
+          "pdfStart": 9,
+          "pdfEnd": 12,
+          "section": "第二节 公司简介",
+          "evidencePdfPage": 9,
+          "headingEvidence": "杭州银行股份有限公司 2025 年年度报告 | （三）基本情况简介 | 公司注册及办公地址 浙江省杭州市上城区解放东路168号"
+        },
+        {
+          "pdfStart": 13,
+          "pdfEnd": 16,
+          "section": "第三节 会计数据和财务指标",
+          "evidencePdfPage": 13,
+          "headingEvidence": "杭州银行股份有限公司 2025 年年度报告 | 第三节 会计数据和财务指标 | 一、 近三年主要会计数据和财务指标"
+        },
+        {
+          "pdfStart": 17,
+          "pdfEnd": 57,
+          "section": "第四节 经营情况讨论与分析",
+          "evidencePdfPage": 17,
+          "headingEvidence": "杭州银行股份有限公司 2025 年年度报告 | 第四节 经营情况讨论与分析 | 一、报告期内主要经营情况"
+        },
+        {
+          "pdfStart": 58,
+          "pdfEnd": 85,
+          "section": "第五节 公司治理、环境和社会",
+          "evidencePdfPage": 58,
+          "headingEvidence": "杭州银行股份有限公司 2025 年年度报告 | 第五节 公司治理、环境和社会 | 一、公司治理运作情况"
+        },
+        {
+          "pdfStart": 86,
+          "pdfEnd": 92,
+          "section": "第六节 重要事项",
+          "evidencePdfPage": 86,
+          "headingEvidence": "杭州银行股份有限公司 2025 年年度报告 | 第六节 重要事项 | 一、承诺事项履行情况"
+        },
+        {
+          "pdfStart": 93,
+          "pdfEnd": 99,
+          "section": "第七节 股份变动及股东情况",
+          "evidencePdfPage": 93,
+          "headingEvidence": "杭州银行股份有限公司 2025 年年度报告 | 第七节 股份变动及股东情况 | 一、 普通股股本变动情况"
+        },
+        {
+          "pdfStart": 100,
+          "pdfEnd": 101,
+          "section": "第八节 可转换公司债券情况",
+          "evidencePdfPage": 100,
+          "headingEvidence": "杭州银行股份有限公司 2025 年年度报告 | 第八节 可转换公司债券情况 | 一、 可转债发行情况"
+        },
+        {
+          "pdfStart": 102,
+          "pdfEnd": 278,
+          "section": "第九节 财务报告",
+          "evidencePdfPage": 102,
+          "headingEvidence": "杭州银行股份有限公司 2025 年年度报告 | 第九节 财务报告 | 一、杭州银行股份有限公司 2025 年年度审计报告"
+        }
+      ]
+    },
+    {
+      "code": "601838",
+      "company": "成都银行",
+      "reportYear": 2025,
+      "pageCount": 267,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225153907.PDF",
+      "pdfSha256": "8d0667415eb1dccb69034726221a0b92aeead3a2b7658d9a7856b66222ab4eb6",
+      "tocPdfPage": 4,
+      "mainContentsPrintedToPhysicalOffset": 0,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "年报主体印刷页等于物理页，全部主章节实际起始页已核对；122页起财务附件重新编号，仍归第九节。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 1,
+          "section": "封面",
+          "evidencePdfPage": 1,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 成都银行股份有限公司 | BANK OF CHENGDU CO., LTD."
+        },
+        {
+          "pdfStart": 2,
+          "pdfEnd": 5,
+          "section": "第一节 重要提示、目录和释义",
+          "evidencePdfPage": 2,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 第一节 重要提示、目录和释义 | 1.1 本公司董事会及董事、高级管理人员保证本年度报告内容的真实、准确、完整，不"
+        },
+        {
+          "pdfStart": 6,
+          "pdfEnd": 8,
+          "section": "第二节 董事长致辞",
+          "evidencePdfPage": 6,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 第二节 董事长致辞 | 2025 年，是成都银行“十四五”规划收官之年，也是迈向“十五五”的关键衔接期。这"
+        },
+        {
+          "pdfStart": 9,
+          "pdfEnd": 11,
+          "section": "第三节 行长致辞",
+          "evidencePdfPage": 9,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 第三节 行长致辞 | 2025 年是“十四五”规划收官之年，更是成都银行深化改革创新、奋力迈向高质量发展"
+        },
+        {
+          "pdfStart": 12,
+          "pdfEnd": 20,
+          "section": "第四节 公司简介和主要财务指标",
+          "evidencePdfPage": 12,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 第四节 公司简介和主要财务指标 | 4.1 法定中文名称：成都银行股份有限公司（简称“成都银行”）"
+        },
+        {
+          "pdfStart": 21,
+          "pdfEnd": 65,
+          "section": "第五节 管理层讨论与分析",
+          "evidencePdfPage": 21,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 第五节 管理层讨论与分析 | 5.1 报告期内公司主要业务情况"
+        },
+        {
+          "pdfStart": 66,
+          "pdfEnd": 103,
+          "section": "第六节 公司治理、环境和社会",
+          "evidencePdfPage": 66,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 第六节 公司治理、环境和社会 | 6.1 公司治理基本情况"
+        },
+        {
+          "pdfStart": 104,
+          "pdfEnd": 109,
+          "section": "第七节 重要事项",
+          "evidencePdfPage": 104,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 第七节 重要事项 | 7.1 公司实际控制人、股东、关联方、收购人以及公司等承诺相关方在报告期内或持续"
+        },
+        {
+          "pdfStart": 110,
+          "pdfEnd": 120,
+          "section": "第八节 股份变动及股东情况",
+          "evidencePdfPage": 110,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 第八节 股份变动及股东情况 | 8.1 普通股股份变动情况"
+        },
+        {
+          "pdfStart": 121,
+          "pdfEnd": 267,
+          "section": "第九节 财务报告",
+          "evidencePdfPage": 121,
+          "headingEvidence": "成都银行股份有限公司 2025 年年度报告 | 第九节 财务报告 | 9.1 成都银行股份有限公司2025年年度审计报告（见附件）"
+        }
+      ]
+    },
+    {
+      "code": "002966",
+      "company": "苏州银行",
+      "reportYear": 2025,
+      "pageCount": 254,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225240273.PDF",
+      "pdfSha256": "48c1836b8a049abf4f2d70417db7bd646df9325c2b6f73713ee7ec71faf9011b",
+      "tocPdfPage": 3,
+      "mainContentsPrintedToPhysicalOffset": 0,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "年报主体印刷页等于物理页，全部主章节实际起始页已核对；98页起财务附件重新编号，仍归第十节。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 1,
+          "section": "封面",
+          "evidencePdfPage": 1,
+          "headingEvidence": "苏州银行股份有限公司 | BANK OF SUZHOU CO.,LTD | （股票代码：002966）"
+        },
+        {
+          "pdfStart": 2,
+          "pdfEnd": 5,
+          "section": "第一节 重要提示、目录和释义",
+          "evidencePdfPage": 2,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第一节 重要提示、目录和释义 | 一、本行董事会及董事、高级管理人员保证年度报告内容的真实、准确、完整，不存在虚假记载、误导性陈述或重大遗"
+        },
+        {
+          "pdfStart": 6,
+          "pdfEnd": 7,
+          "section": "第二节 董事长致辞",
+          "evidencePdfPage": 6,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第二节 董事长致辞 | 2025 年，“十四五”圆满收官，党的二十届四中全会胜利召开，擘画了未来 5 年中国发展宏伟蓝图。这一年，面对复"
+        },
+        {
+          "pdfStart": 8,
+          "pdfEnd": 9,
+          "section": "第三节 行长致辞",
+          "evidencePdfPage": 8,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第三节 行长致辞 | 时光荏苒，征途如虹。我们携手走过了砥砺奋进、硕果累累的 2025 年。曼德拉说：It always seems impossible until it’s"
+        },
+        {
+          "pdfStart": 10,
+          "pdfEnd": 16,
+          "section": "第四节 公司简介和主要财务指标",
+          "evidencePdfPage": 10,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第四节 公司简介和主要财务指标 | 一、公司信息"
+        },
+        {
+          "pdfStart": 17,
+          "pdfEnd": 56,
+          "section": "第五节 管理层讨论与分析",
+          "evidencePdfPage": 17,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第五节 管理层讨论与分析 | 一、报告期内公司从事的主要业务"
+        },
+        {
+          "pdfStart": 57,
+          "pdfEnd": 75,
+          "section": "第六节 公司治理、环境和社会",
+          "evidencePdfPage": 57,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第六节 公司治理、环境和社会 | 一、公司治理的基本状况"
+        },
+        {
+          "pdfStart": 76,
+          "pdfEnd": 87,
+          "section": "第七节 重要事项",
+          "evidencePdfPage": 76,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第七节 重要事项 | 一、承诺事项履行情况"
+        },
+        {
+          "pdfStart": 88,
+          "pdfEnd": 93,
+          "section": "第八节 股份变动及股东情况",
+          "evidencePdfPage": 88,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第八节 股份变动及股东情况 | 一、股份变动情况"
+        },
+        {
+          "pdfStart": 94,
+          "pdfEnd": 96,
+          "section": "第九节 债券相关情况",
+          "evidencePdfPage": 94,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第九节 债券相关情况 | 一、企业债券"
+        },
+        {
+          "pdfStart": 97,
+          "pdfEnd": 254,
+          "section": "第十节 财务报告",
+          "evidencePdfPage": 97,
+          "headingEvidence": "苏州银行股份有限公司2025年年度报告全文 | 第十节 财务报告 | 一、审计报告"
+        }
+      ]
+    },
+    {
+      "code": "601577",
+      "company": "长沙银行",
+      "reportYear": 2025,
+      "pageCount": 226,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225235609.PDF",
+      "pdfSha256": "bd3a0cadc8e579e4c457df990515412d968a243a73293bd857399815eed7f39b",
+      "tocPdfPage": 3,
+      "mainContentsPrintedToPhysicalOffset": 1,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "主体目录印刷页加1。89页明示财务及审计报告详见附件，90页仅为备查目录。91页为已审财务报表封面；93页附件目录将附件印刷1/8/16/130页分别定位到物理94/101/109/223页，均已核对。不得把91—226页标为备查目录。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 8,
+          "section": "封面、目录与前言",
+          "evidencePdfPage": 1,
+          "headingEvidence": "长沙银行股份有限公司 | BANK OF CHANGSHA CO., LTD. | 2025年年度报告"
+        },
+        {
+          "pdfStart": 9,
+          "pdfEnd": 9,
+          "section": "第一节 释义",
+          "evidencePdfPage": 9,
+          "headingEvidence": "长沙银行股份有限公司2025年年度报告 | 第一节 释义 | 在本年度报告中，除非另有所指，下列词语具有如下含义："
+        },
+        {
+          "pdfStart": 10,
+          "pdfEnd": 13,
+          "section": "第二节 公司简介和主要财务指标",
+          "evidencePdfPage": 10,
+          "headingEvidence": "长沙银行股份有限公司2025年年度报告 | 第二节 公司简介和主要财务指标 | 一、公司信息"
+        },
+        {
+          "pdfStart": 14,
+          "pdfEnd": 52,
+          "section": "第三节 管理层讨论与分析",
+          "evidencePdfPage": 14,
+          "headingEvidence": "长沙银行股份有限公司2025年年度报告 | 第三节 管理层讨论与分析 | 一、报告期内公司从事的业务情况"
+        },
+        {
+          "pdfStart": 53,
+          "pdfEnd": 76,
+          "section": "第四节 公司治理、环境和社会",
+          "evidencePdfPage": 53,
+          "headingEvidence": "长沙银行股份有限公司2025年年度报告 | 第四节 公司治理、环境和社会 | 一、公司治理相关情况说明"
+        },
+        {
+          "pdfStart": 77,
+          "pdfEnd": 82,
+          "section": "第五节 重要事项",
+          "evidencePdfPage": 77,
+          "headingEvidence": "长沙银行股份有限公司2025年年度报告 | 第五节 重要事项 | 一、承诺事项履行情况"
+        },
+        {
+          "pdfStart": 83,
+          "pdfEnd": 88,
+          "section": "第六节 股份变动及股东情况",
+          "evidencePdfPage": 83,
+          "headingEvidence": "长沙银行股份有限公司2025年年度报告 | 第六节 股份变动及股东情况 | 一、股本变动情况"
+        },
+        {
+          "pdfStart": 89,
+          "pdfEnd": 89,
+          "section": "第七节 财务报告",
+          "evidencePdfPage": 89,
+          "headingEvidence": "长沙银行股份有限公司2025年年度报告 | 第七节 财务报告 | 本行2025年度财务报告及审计报告详见附件。"
+        },
+        {
+          "pdfStart": 90,
+          "pdfEnd": 90,
+          "section": "第八节 备查文件目录",
+          "evidencePdfPage": 90,
+          "headingEvidence": "长沙银行股份有限公司2025年年度报告 | 第八节 备查文件目录 | 一、载有本行法定代表人、主管会计工作负责人、会计机构负责人签名并盖章的"
+        },
+        {
+          "pdfStart": 91,
+          "pdfEnd": 93,
+          "section": "第七节 财务报告（附后财务报告封面及目录）",
+          "evidencePdfPage": 91,
+          "headingEvidence": "长沙银行股份有限公司2025年年度报告 | 长沙银行股份有限公司 | 已审财务报表"
+        },
+        {
+          "pdfStart": 94,
+          "pdfEnd": 100,
+          "section": "第七节 财务报告（附后审计报告）",
+          "evidencePdfPage": 94,
+          "headingEvidence": "审 计 报 告 | 天健审〔2026〕2-295 号 | 长沙银行股份有限公司全体股东："
+        },
+        {
+          "pdfStart": 101,
+          "pdfEnd": 108,
+          "section": "第七节 财务报告（附后财务报表）",
+          "evidencePdfPage": 101,
+          "headingEvidence": "合 并 资 产 负 债 表 | 2025年12月31日 | 会商银01表"
+        },
+        {
+          "pdfStart": 109,
+          "pdfEnd": 222,
+          "section": "第七节 财务报告（附后财务报表附注）",
+          "evidencePdfPage": 109,
+          "headingEvidence": "长沙银行股份有限公司 | 财务报表附注 | 2025 年度"
+        },
+        {
+          "pdfStart": 223,
+          "pdfEnd": 226,
+          "section": "第七节 财务报告（审计机构资质附件）",
+          "evidencePdfPage": 223,
+          "headingEvidence": "普殊特（所务事师计会健天明证，用之附后告报号592-2〕6202〔审健天司公限有份股行银沙长供仅件印复本 | 。传外自擅得不且效无用他，营经法合）伙合通 | 页"
+        }
+      ]
+    },
+    {
+      "code": "002948",
+      "company": "青岛银行",
+      "reportYear": 2025,
+      "pageCount": 310,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-27/1225036782.PDF",
+      "pdfSha256": "5cd62c0e37fea097de15d3d89910f7ad3c13c78891d800f35e7e63dd90a36787",
+      "tocPdfPage": 4,
+      "mainContentsPrintedToPhysicalOffset": 1,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "以目录印刷页加1及实际起始标题为准。第三、第七、第十节的PDF书签错误地指向物理11/109/133页，实际应为12/110/134页。134页明示附件为财务报表；135页起附后报告属于该节。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 1,
+          "section": "封面",
+          "evidencePdfPage": 1,
+          "headingEvidence": "青岛银行股份有限公司 | （A 股证券代码：002948） | 年度报告"
+        },
+        {
+          "pdfStart": 2,
+          "pdfEnd": 5,
+          "section": "第一节 重要提示、目录和释义",
+          "evidencePdfPage": 2,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第一节 重要提示、目录和释义 | 1. 本行董事会及董事、高级管理人员保证年度报告内容的真实、准确、完整，不存在"
+        },
+        {
+          "pdfStart": 6,
+          "pdfEnd": 11,
+          "section": "第二节 公司简介和主要财务指标",
+          "evidencePdfPage": 6,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第二节 公司简介和主要财务指标 | 一、公司信息"
+        },
+        {
+          "pdfStart": 12,
+          "pdfEnd": 12,
+          "section": "第三节 董事长致辞",
+          "evidencePdfPage": 12,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第三节 董事长致辞 | 2025 年是“十四五”规划的收官之年，也是青岛银行 2023-2025 三年战略规划全面落地的"
+        },
+        {
+          "pdfStart": 13,
+          "pdfEnd": 13,
+          "section": "第四节 行长致辞",
+          "evidencePdfPage": 13,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第四节 行长致辞 | 2025 年是全面实现“十四五”规划的收官之年，亦是青岛银行三年战略规划的决胜之年。"
+        },
+        {
+          "pdfStart": 14,
+          "pdfEnd": 73,
+          "section": "第五节 管理层讨论与分析",
+          "evidencePdfPage": 14,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第五节 管理层讨论与分析 | 一、报告期内本行从事的主要业务"
+        },
+        {
+          "pdfStart": 74,
+          "pdfEnd": 109,
+          "section": "第六节 公司治理、环境和社会",
+          "evidencePdfPage": 74,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第六节 公司治理、环境和社会 | 一、公司治理的基本状况"
+        },
+        {
+          "pdfStart": 110,
+          "pdfEnd": 119,
+          "section": "第七节 重要事项",
+          "evidencePdfPage": 110,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第七节 重要事项 | 一、承诺事项履行情况"
+        },
+        {
+          "pdfStart": 120,
+          "pdfEnd": 126,
+          "section": "第八节 股份变动及股东情况",
+          "evidencePdfPage": 120,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第八节 股份变动及股东情况 | 一、股份变动情况"
+        },
+        {
+          "pdfStart": 127,
+          "pdfEnd": 133,
+          "section": "第九节 董事会报告",
+          "evidencePdfPage": 127,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第九节 董事会报告 | 一、主要业务"
+        },
+        {
+          "pdfStart": 134,
+          "pdfEnd": 310,
+          "section": "第十节 附件（财务报表及审计报告）",
+          "evidencePdfPage": 134,
+          "headingEvidence": "青岛银行股份有限公司 2025 年度报告 | 第十节 附 件 | 附件：财务报表"
+        }
+      ]
+    },
+    {
+      "code": "601187",
+      "company": "厦门银行",
+      "reportYear": 2025,
+      "pageCount": 273,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-30/1225266446.PDF",
+      "pdfSha256": "8047983ccd128fe1b41d189dd4aa48e7928c4c8cf082b51607a5e7d71dc934e0",
+      "tocPdfPage": 9,
+      "mainContentsPrintedToPhysicalOffset": 0,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "主体目录印刷页等于物理页。107页明示财务全文见附件；108页为董事、高管年度报告书面确认意见；109页为已审财务报表封面，110页为附件目录，111页起审计正文。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 9,
+          "section": "封面、目录与前言",
+          "evidencePdfPage": 1,
+          "headingEvidence": ""
+        },
+        {
+          "pdfStart": 10,
+          "pdfEnd": 10,
+          "section": "第一节 释义",
+          "evidencePdfPage": 10,
+          "headingEvidence": "第一节 释义 | 一、释义 | 在本报告书中，除非文义另有所指，下列词语具有如下含义："
+        },
+        {
+          "pdfStart": 11,
+          "pdfEnd": 17,
+          "section": "第二节 公司简介和主要财务指标",
+          "evidencePdfPage": 11,
+          "headingEvidence": "第二节 公司简介和主要财务指标 | 一、公司信息 | 公司的中文名称 厦门银行股份有限公司"
+        },
+        {
+          "pdfStart": 18,
+          "pdfEnd": 58,
+          "section": "第三节 管理层讨论与分析",
+          "evidencePdfPage": 18,
+          "headingEvidence": "第三节 管理层讨论与分析 | 一、经营情况讨论与分析 | 2025 年，公司深入贯彻党的二十大及二十届历次全会精神，全面落实中央经济工作会"
+        },
+        {
+          "pdfStart": 59,
+          "pdfEnd": 89,
+          "section": "第四节 公司治理、环境和社会",
+          "evidencePdfPage": 59,
+          "headingEvidence": "第四节 公司治理、环境和社会 | 一、公司治理相关情况说明 | 本公司根据《中华人民共和国公司法》（以下简称“《公司法》”）、《中华人民共和"
+        },
+        {
+          "pdfStart": 90,
+          "pdfEnd": 98,
+          "section": "第五节 重要事项",
+          "evidencePdfPage": 90,
+          "headingEvidence": "第五节 重要事项 | 一、承诺事项履行情况 | （一）公司实际控制人、股东、关联方、收购人以及公司等承诺相关方在报告期内或持"
+        },
+        {
+          "pdfStart": 99,
+          "pdfEnd": 106,
+          "section": "第六节 普通股股份变动及股东情况",
+          "evidencePdfPage": 99,
+          "headingEvidence": "第六节 普通股股份变动及股东情况 | 一、股本变动情况 | （一）股份变动情况表"
+        },
+        {
+          "pdfStart": 107,
+          "pdfEnd": 107,
+          "section": "第七节 财务报告",
+          "evidencePdfPage": 107,
+          "headingEvidence": "第七节 财务报告 | 本公司 2025 年度财务报告已经德勤华永会计师事务所（特殊普通合伙）审计，经注册 | 会计师沈小红、刘书旸签字，并出具了标准无保留意见审计报告。财务报告全文见附件。"
+        },
+        {
+          "pdfStart": 108,
+          "pdfEnd": 108,
+          "section": "年度报告书面确认意见",
+          "evidencePdfPage": 108,
+          "headingEvidence": "厦门银行股份有限公司董事、高级管理人员关于 | 公司 2025 年年度报告的书面确认意见 | 根据《中华人民共和国证券法》《公开发行证券的公司信息披露内容与格式准则第 2"
+        },
+        {
+          "pdfStart": 109,
+          "pdfEnd": 273,
+          "section": "第七节 财务报告（附后财务报表及审计报告）",
+          "evidencePdfPage": 109,
+          "headingEvidence": "厦门银行股份有限公司 | 补充材料（续） | 2025 年度 人民币元"
+        }
+      ]
+    },
+    {
+      "code": "601229",
+      "company": "上海银行",
+      "reportYear": 2025,
+      "pageCount": 303,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-24/1225173739.PDF",
+      "pdfSha256": "ee03fef968462982fd65e5f5f39aa77fe9cc7731bfb51f9b97e3feafdc271d3e",
+      "tocPdfPage": 3,
+      "mainContentsPrintedToPhysicalOffset": 1,
+      "verification": "目录与实际起始页交叉核对；书签仅作为辅助，未直接采用未经核对的书签。",
+      "notes": "主体目录印刷页加1。145页明示财务全文见附件；146页为年度报告书面确认意见；147页为财务报表封面，148页起审计报告；附件重新编号。",
+      "sections": [
+        {
+          "pdfStart": 1,
+          "pdfEnd": 10,
+          "section": "封面、目录与前言",
+          "evidencePdfPage": 1,
+          "headingEvidence": "股票代码：601229 | 2025 | 上"
+        },
+        {
+          "pdfStart": 11,
+          "pdfEnd": 15,
+          "section": "第一章 公司简介",
+          "evidencePdfPage": 11,
+          "headingEvidence": "上海银行股份有限公司 2025 年度报告 | 第一章 公司简介 | 一、法定中文名称：上海银行股份有限公司（简称：上海银行）"
+        },
+        {
+          "pdfStart": 16,
+          "pdfEnd": 19,
+          "section": "第二章 会计数据和财务指标概要",
+          "evidencePdfPage": 16,
+          "headingEvidence": "上海银行股份有限公司 2025 年度报告 | 第二章 会计数据和财务指标概要 | 一、近三年主要会计数据和财务指标"
+        },
+        {
+          "pdfStart": 20,
+          "pdfEnd": 76,
+          "section": "第三章 管理层讨论与分析",
+          "evidencePdfPage": 20,
+          "headingEvidence": "上海银行股份有限公司 2025 年度报告 | 第三章 管理层讨论与分析 | 一、总体经营情况分析"
+        },
+        {
+          "pdfStart": 77,
+          "pdfEnd": 118,
+          "section": "第四章 公司治理、环境和社会",
+          "evidencePdfPage": 77,
+          "headingEvidence": "上海银行股份有限公司 2025 年度报告 | 第四章 公司治理、环境和社会 | 一、公司治理的基本状况"
+        },
+        {
+          "pdfStart": 119,
+          "pdfEnd": 132,
+          "section": "第五章 重要事项",
+          "evidencePdfPage": 119,
+          "headingEvidence": "上海银行股份有限公司 2025 年度报告 | 第五章 重要事项 | 一、公司实际控制人、股东、关联方、收购人以及公司等承诺相关方在报告期内履行完毕及截至报"
+        },
+        {
+          "pdfStart": 133,
+          "pdfEnd": 140,
+          "section": "第六章 股份变动及股东情况",
+          "evidencePdfPage": 133,
+          "headingEvidence": "上海银行股份有限公司 2025 年度报告 | 第六章 股份变动及股东情况 | 一、普通股股份变动情况"
+        },
+        {
+          "pdfStart": 141,
+          "pdfEnd": 144,
+          "section": "第七章 债券相关情况",
+          "evidencePdfPage": 141,
+          "headingEvidence": "上海银行股份有限公司 2025 年度报告 | 第七章 债券相关情况 | 一、可转换公司债券相关情况"
+        },
+        {
+          "pdfStart": 145,
+          "pdfEnd": 145,
+          "section": "第八章 财务报告",
+          "evidencePdfPage": 145,
+          "headingEvidence": "上海银行股份有限公司 2025 年度报告 | 第八章 财务报告 | 本公司 2025 年度财务报告已经毕马威华振会计师事务所（特殊普通合伙）审计，注册会计师"
+        },
+        {
+          "pdfStart": 146,
+          "pdfEnd": 146,
+          "section": "年度报告书面确认意见",
+          "evidencePdfPage": 146,
+          "headingEvidence": "上海银行股份有限公司 2025 年度报告 | 上海银行股份有限公司董事、高级管理人员 | 关于 2025 年度报告的书面确认意见"
+        },
+        {
+          "pdfStart": 147,
+          "pdfEnd": 303,
+          "section": "第八章 财务报告（附后财务报表及审计报告）",
+          "evidencePdfPage": 147,
+          "headingEvidence": "上海银行股份有限公司 | 自 2025 年 1 月 1 日 | 至 2025 年 12 月 31 日止年度财务报表"
+        }
+      ]
+    }
+  ]
+}

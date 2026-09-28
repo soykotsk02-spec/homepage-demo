@@ -1,0 +1,14 @@
+{
+  "name": "annual-report-local-retrieval",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "download:model": "node lib/download-model.mjs",
+    "embed": "node scripts/embed.mjs",
+    "build:browser": "node scripts/build-browser.mjs",
+    "test": "node --test lib/*.test.mjs"
+  },
+  "dependencies": { "@huggingface/transformers": "3.8.1" },
+  "devDependencies": { "esbuild": "0.25.10" }
+}

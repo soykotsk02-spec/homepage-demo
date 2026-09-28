@@ -1,0 +1,14 @@
+node_modules/
+artifacts/
+*.partial
+__pycache__/
+*.pyc
+site/data/chunks.json
+site/data/vectors.bin
+site/data/evaluation.json
+site/data/.embed-*
+# Large binaries are restored from checksum-verified datasets/*.bin parts.
+# Small configuration, runtime .mjs files and manifests remain ordinary Git files.
+site/models/bge-small-zh-v1.5/onnx/
+site/vendor/*.wasm
+datasets/*.partial

@@ -1,0 +1,304 @@
+{
+  "title": "银行年报问答研究台",
+  "reportYear": 2025,
+  "reports": [
+    {
+      "company": "招商银行",
+      "code": "600036",
+      "reportYear": 2025,
+      "title": "招商银行股份有限公司2025年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-28/1225047590.PDF",
+      "publicationDate": "2026-03-28",
+      "file": "600036-2025.pdf",
+      "bytes": 32081947,
+      "sha256": "abe612a273468072b176dd51ea460c1e1596f8ca729cbc6db3fa28ba9a57ea79",
+      "pageCount": 350,
+      "chunkCount": 1965,
+      "tableCount": 260,
+      "lowTextPages": [
+        18,
+        70,
+        81,
+        107,
+        350
+      ],
+      "tableMethods": {
+        "shaded_column_expanded_using_pdf_geometry": 31,
+        "conservative_repeated_numeric_alignment": 215,
+        "pdfplumber_ruled_grid": 14
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "平安银行",
+      "code": "000001",
+      "reportYear": 2025,
+      "title": "2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-21/1225022887.PDF",
+      "publicationDate": "2026-03-21",
+      "file": "000001-2025.pdf",
+      "bytes": 1975076,
+      "sha256": "2273565ecbe1b32536631fd4a019a4f4a990f4c793cfd5b70eae90d44d3ff16c",
+      "pageCount": 288,
+      "chunkCount": 1371,
+      "tableCount": 169,
+      "lowTextPages": [],
+      "tableMethods": {
+        "pdfplumber_ruled_grid": 78,
+        "ruled_grid_repaired_with_whole_pdf_words": 25,
+        "conservative_repeated_numeric_alignment": 66
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "宁波银行",
+      "code": "002142",
+      "reportYear": 2025,
+      "title": "2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-25/1225189419.PDF",
+      "publicationDate": "2026-04-25",
+      "file": "002142-2025.pdf",
+      "bytes": 1848593,
+      "sha256": "6610078eb1d109465781dbd47d3256d4abbbe2f4ff1f8017e1724b3fadb35558",
+      "pageCount": 237,
+      "chunkCount": 1029,
+      "tableCount": 132,
+      "lowTextPages": [],
+      "tableMethods": {
+        "ruled_grid_repaired_with_whole_pdf_words": 11,
+        "pdfplumber_ruled_grid": 23,
+        "header_columns_extended_along_horizontal_rules": 45,
+        "conservative_repeated_numeric_alignment": 52,
+        "shaded_column_expanded_using_pdf_geometry": 1
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "江苏银行",
+      "code": "600919",
+      "reportYear": 2025,
+      "title": "江苏银行2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225247387.PDF",
+      "publicationDate": "2026-04-29",
+      "file": "600919-2025.pdf",
+      "bytes": 3920975,
+      "sha256": "63f6612a6d97530a7572ddf7ead66e8b61c97d7b5c72197e2d0ed94b7c36d566",
+      "pageCount": 227,
+      "chunkCount": 1472,
+      "tableCount": 256,
+      "lowTextPages": [
+        7
+      ],
+      "tableMethods": {
+        "pdfplumber_ruled_grid": 90,
+        "shaded_column_expanded_using_pdf_geometry": 2,
+        "ruled_grid_repaired_with_whole_pdf_words": 152,
+        "header_columns_extended_along_horizontal_rules": 12
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "南京银行",
+      "code": "601009",
+      "reportYear": 2025,
+      "title": "南京银行股份有限公司2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157414.PDF",
+      "publicationDate": "2026-04-23",
+      "file": "601009-2025.pdf",
+      "bytes": 8445389,
+      "sha256": "b7ed7b82689963ca038d635086d5a979e4fc35f5abfa9917dbf272361a554651",
+      "pageCount": 252,
+      "chunkCount": 1492,
+      "tableCount": 260,
+      "lowTextPages": [
+        2,
+        101,
+        114
+      ],
+      "tableMethods": {
+        "header_columns_extended_along_horizontal_rules": 1,
+        "pdfplumber_ruled_grid": 69,
+        "shaded_column_expanded_using_pdf_geometry": 153,
+        "conservative_repeated_numeric_alignment": 31,
+        "ruled_grid_repaired_with_whole_pdf_words": 6
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "杭州银行",
+      "code": "600926",
+      "reportYear": 2025,
+      "title": "杭州银行2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157162.PDF",
+      "publicationDate": "2026-04-23",
+      "file": "600926-2025.pdf",
+      "bytes": 7400045,
+      "sha256": "8969c2e4b35d820cb1ee90b2cd6b5a5625a4c1226bf3e092d69eceba8d72849b",
+      "pageCount": 278,
+      "chunkCount": 1327,
+      "tableCount": 195,
+      "lowTextPages": [],
+      "tableMethods": {
+        "pdfplumber_ruled_grid": 38,
+        "ruled_grid_repaired_with_whole_pdf_words": 4,
+        "shaded_column_expanded_using_pdf_geometry": 1,
+        "conservative_repeated_numeric_alignment": 128,
+        "header_columns_extended_along_horizontal_rules": 24
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "成都银行",
+      "code": "601838",
+      "reportYear": 2025,
+      "title": "成都银行股份有限公司2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225153907.PDF",
+      "publicationDate": "2026-04-23",
+      "file": "601838-2025.pdf",
+      "bytes": 2628400,
+      "sha256": "8d0667415eb1dccb69034726221a0b92aeead3a2b7658d9a7856b66222ab4eb6",
+      "pageCount": 267,
+      "chunkCount": 1225,
+      "tableCount": 188,
+      "lowTextPages": [],
+      "tableMethods": {
+        "pdfplumber_ruled_grid": 102,
+        "ruled_grid_repaired_with_whole_pdf_words": 10,
+        "conservative_repeated_numeric_alignment": 76
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "苏州银行",
+      "code": "002966",
+      "reportYear": 2025,
+      "title": "2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225240273.PDF",
+      "publicationDate": "2026-04-29",
+      "file": "002966-2025.pdf",
+      "bytes": 6662734,
+      "sha256": "48c1836b8a049abf4f2d70417db7bd646df9325c2b6f73713ee7ec71faf9011b",
+      "pageCount": 254,
+      "chunkCount": 1713,
+      "tableCount": 213,
+      "lowTextPages": [],
+      "tableMethods": {
+        "pdfplumber_ruled_grid": 55,
+        "ruled_grid_repaired_with_whole_pdf_words": 51,
+        "header_columns_extended_along_horizontal_rules": 1,
+        "conservative_repeated_numeric_alignment": 106
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "长沙银行",
+      "code": "601577",
+      "reportYear": 2025,
+      "title": "长沙银行股份有限公司2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225235609.PDF",
+      "publicationDate": "2026-04-29",
+      "file": "601577-2025.pdf",
+      "bytes": 3766634,
+      "sha256": "bd3a0cadc8e579e4c457df990515412d968a243a73293bd857399815eed7f39b",
+      "pageCount": 226,
+      "chunkCount": 1279,
+      "tableCount": 283,
+      "lowTextPages": [],
+      "tableMethods": {
+        "pdfplumber_ruled_grid": 267,
+        "header_columns_extended_along_horizontal_rules": 1,
+        "ruled_grid_repaired_with_whole_pdf_words": 13,
+        "shaded_column_expanded_using_pdf_geometry": 2
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "青岛银行",
+      "code": "002948",
+      "reportYear": 2025,
+      "title": "2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-27/1225036782.PDF",
+      "publicationDate": "2026-03-27",
+      "file": "002948-2025.pdf",
+      "bytes": 2165552,
+      "sha256": "5cd62c0e37fea097de15d3d89910f7ad3c13c78891d800f35e7e63dd90a36787",
+      "pageCount": 310,
+      "chunkCount": 1550,
+      "tableCount": 220,
+      "lowTextPages": [],
+      "tableMethods": {
+        "pdfplumber_ruled_grid": 107,
+        "ruled_grid_repaired_with_whole_pdf_words": 12,
+        "header_columns_extended_along_horizontal_rules": 1,
+        "conservative_repeated_numeric_alignment": 100
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "厦门银行",
+      "code": "601187",
+      "reportYear": 2025,
+      "title": "厦门银行股份有限公司2025年年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-30/1225266446.PDF",
+      "publicationDate": "2026-04-30",
+      "file": "601187-2025.pdf",
+      "bytes": 2836374,
+      "sha256": "8047983ccd128fe1b41d189dd4aa48e7928c4c8cf082b51607a5e7d71dc934e0",
+      "pageCount": 273,
+      "chunkCount": 1442,
+      "tableCount": 201,
+      "lowTextPages": [
+        1,
+        3,
+        6
+      ],
+      "tableMethods": {
+        "pdfplumber_ruled_grid": 109,
+        "ruled_grid_repaired_with_whole_pdf_words": 21,
+        "header_columns_extended_along_horizontal_rules": 3,
+        "conservative_repeated_numeric_alignment": 68
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    },
+    {
+      "company": "上海银行",
+      "code": "601229",
+      "reportYear": 2025,
+      "title": "上海银行2025年度报告",
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-24/1225173739.PDF",
+      "publicationDate": "2026-04-24",
+      "file": "601229-2025.pdf",
+      "bytes": 3791001,
+      "sha256": "ee03fef968462982fd65e5f5f39aa77fe9cc7731bfb51f9b97e3feafdc271d3e",
+      "pageCount": 303,
+      "chunkCount": 1609,
+      "tableCount": 230,
+      "lowTextPages": [
+        41
+      ],
+      "tableMethods": {
+        "pdfplumber_ruled_grid": 122,
+        "ruled_grid_repaired_with_whole_pdf_words": 16,
+        "header_columns_extended_along_horizontal_rules": 1,
+        "conservative_repeated_numeric_alignment": 91
+      },
+      "sectionMap": "reports/sections.json; verified physical-page ranges"
+    }
+  ],
+  "totalPages": 3265,
+  "totalChunks": 17474,
+  "totalTables": 2607,
+  "generatedAt": "2026-09-28T06:52:40.616344+00:00",
+  "chunksSha256": "ade7ba7e73b706c58c02d8f0c480582c3fd88ecf2e931bb68004593f777a59b7",
+  "chunking": {
+    "maxBodyCharacters": 340,
+    "overlapCharacters": 35,
+    "physicalPageNumbering": true,
+    "preserveTableRows": true
+  },
+  "limitations": [
+    "未自动合并跨页表；复杂合并表头保留空单元格和原表坐标。",
+    "图片页未进行OCR；低文本页在各报告lowTextPages中列出。",
+    "年报口径与单位不做自动统一，跨公司比较需核对原表。"
+  ]
+}

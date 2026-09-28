@@ -1,0 +1,1279 @@
+{
+  "schemaVersion": 1,
+  "goldSource": "Manual transcription from original official PDF physical pages",
+  "reportYear": 2025,
+  "banks": 12,
+  "pagesChecked": 24,
+  "financialChecks": 28,
+  "layoutChecks": 5,
+  "failed": 0,
+  "durationSeconds": 5.382,
+  "checks": [
+    {
+      "id": "revenue-600036",
+      "code": "600036",
+      "company": "招商银行",
+      "pdfPage": 14,
+      "label": "营业收入",
+      "unit": "百万元",
+      "cells": {
+        "1": "337,532"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-28/1225047590.PDF",
+      "sourceSha256": "abe612a273468072b176dd51ea460c1e1596f8ca729cbc6db3fa28ba9a57ea79",
+      "method": "shaded_column_expanded_using_pdf_geometry",
+      "qualityFlags": [
+        "columns_recovered_from_horizontal_segment_endpoints",
+        "header_recovered_above_grid",
+        "row_boundaries_extended_from_shaded_column",
+        "word_crosses_column_boundary_preserved_whole"
+      ],
+      "headers": [
+        "（人民币百万元，特别注明除外）",
+        "2025年",
+        "2024年",
+        "本年比上年\n增减(%)",
+        "2023年"
+      ],
+      "actualRow": [
+        "营业收入",
+        "337,532",
+        "337,488",
+        "0.01",
+        "339,123"
+      ],
+      "bbox": [
+        85.039,
+        156.282,
+        538.582,
+        472.764
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-000001",
+      "code": "000001",
+      "company": "平安银行",
+      "pdfPage": 17,
+      "label": "营业收入",
+      "unit": "百万元",
+      "cells": {
+        "1": "131,442"
+      },
+      "columnCounts": [
+        4,
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-21/1225022887.PDF",
+      "sourceSha256": "2273565ecbe1b32536631fd4a019a4f4a990f4c793cfd5b70eae90d44d3ff16c",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "internal_header_rows_preserved"
+      ],
+      "headers": [
+        "项 目",
+        "2025 年",
+        "2024 年",
+        "本年同比增减"
+      ],
+      "actualRow": [
+        "营业收入",
+        "131,442",
+        "146,695",
+        "(10.4%)"
+      ],
+      "bbox": [
+        68.15,
+        151.54,
+        534.517,
+        414.04
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-002142",
+      "code": "002142",
+      "company": "宁波银行",
+      "pdfPage": 9,
+      "label": "营业收入",
+      "unit": "百万元",
+      "cells": {
+        "1": "71,969"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-25/1225189419.PDF",
+      "sourceSha256": "6610078eb1d109465781dbd47d3256d4abbbe2f4ff1f8017e1724b3fadb35558",
+      "method": "header_columns_extended_along_horizontal_rules",
+      "qualityFlags": [
+        "vertical_boundaries_extended_from_header"
+      ],
+      "headers": [
+        "经营业绩（人民币 百万元）",
+        "2025 年",
+        "2024 年",
+        "本报告期比\n上年同期增减",
+        "2023 年"
+      ],
+      "actualRow": [
+        "营业收入",
+        "71,969",
+        "66,631",
+        "8.01%",
+        "61,585"
+      ],
+      "bbox": [
+        72.45,
+        168.023,
+        512.15,
+        455.44
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-600919",
+      "code": "600919",
+      "company": "江苏银行",
+      "pdfPage": 17,
+      "label": "营业收入",
+      "unit": "千元",
+      "cells": {
+        "1": "87,942,367"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225247387.PDF",
+      "sourceSha256": "63f6612a6d97530a7572ddf7ead66e8b61c97d7b5c72197e2d0ed94b7c36d566",
+      "method": "ruled_grid_repaired_with_whole_pdf_words",
+      "qualityFlags": [
+        "internal_header_rows_preserved",
+        "ornamental_header_splits_replaced_by_dominant_body_columns"
+      ],
+      "headers": [
+        "经营业绩指标（人民币 千元）",
+        "2025年",
+        "2024年",
+        "本期比上年同期增减(%)",
+        "2023年"
+      ],
+      "actualRow": [
+        "营业收入",
+        "87,942,367",
+        "80,815,212",
+        "8.82",
+        "74,293,433"
+      ],
+      "bbox": [
+        85.039,
+        431.546,
+        510.236,
+        720.113
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-601009",
+      "code": "601009",
+      "company": "南京银行",
+      "pdfPage": 16,
+      "label": "营业收入",
+      "unit": "千元",
+      "cells": {
+        "1": "55,541,916"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157414.PDF",
+      "sourceSha256": "b7ed7b82689963ca038d635086d5a979e4fc35f5abfa9917dbf272361a554651",
+      "method": "shaded_column_expanded_using_pdf_geometry",
+      "qualityFlags": [
+        "columns_recovered_from_horizontal_segment_endpoints",
+        "row_boundaries_extended_from_shaded_column"
+      ],
+      "headers": [
+        "主要会计数据",
+        "2025年",
+        "2024年",
+        "同比增减(%)",
+        "2023年"
+      ],
+      "actualRow": [
+        "营业收入",
+        "55,541,916",
+        "50,273,070",
+        "10.48",
+        "45,159,511"
+      ],
+      "bbox": [
+        76.535,
+        101.927,
+        538.583,
+        337.624
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-600926",
+      "code": "600926",
+      "company": "杭州银行",
+      "pdfPage": 13,
+      "label": "营业收入",
+      "unit": "千元",
+      "cells": {
+        "1": "38,798,611"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157162.PDF",
+      "sourceSha256": "8969c2e4b35d820cb1ee90b2cd6b5a5625a4c1226bf3e092d69eceba8d72849b",
+      "method": "conservative_repeated_numeric_alignment",
+      "qualityFlags": [
+        "columns_inferred_from_repeated_numeric_alignment",
+        "rows_are_physical_text_lines_wrapped_labels_not_merged",
+        "word_crosses_column_boundary_preserved_whole"
+      ],
+      "headers": [
+        "主要会计数据",
+        "2025年度",
+        "2024年度",
+        "本期比上年\n同期增减(%)",
+        "2023年度"
+      ],
+      "actualRow": [
+        "营业收入",
+        "38,798,611",
+        "38,381,172",
+        "1.09",
+        "35,015,541"
+      ],
+      "bbox": [
+        76.68,
+        182.394,
+        529.3,
+        276.551
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-601838",
+      "code": "601838",
+      "company": "成都银行",
+      "pdfPage": 15,
+      "label": "营业收入",
+      "unit": "千元",
+      "cells": {
+        "1": "23,602,625"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225153907.PDF",
+      "sourceSha256": "8d0667415eb1dccb69034726221a0b92aeead3a2b7658d9a7856b66222ab4eb6",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "internal_header_rows_preserved"
+      ],
+      "headers": [
+        "项目",
+        "2025 年",
+        "2024 年",
+        "本报告期比上年同期\n增减",
+        "2023 年"
+      ],
+      "actualRow": [
+        "营业收入",
+        "23,602,625",
+        "22,981,527",
+        "2.70%",
+        "21,702,189"
+      ],
+      "bbox": [
+        63.264,
+        302.69,
+        548.98,
+        702.816
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-002966",
+      "code": "002966",
+      "company": "苏州银行",
+      "pdfPage": 12,
+      "label": "营业收入",
+      "unit": "千元",
+      "cells": {
+        "1": "12,355,561"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225240273.PDF",
+      "sourceSha256": "48c1836b8a049abf4f2d70417db7bd646df9325c2b6f73713ee7ec71faf9011b",
+      "method": "ruled_grid_repaired_with_whole_pdf_words",
+      "qualityFlags": [
+        "internal_header_rows_preserved",
+        "ornamental_header_splits_replaced_by_dominant_body_columns"
+      ],
+      "headers": [
+        "项目",
+        "2025 年 1-12 月",
+        "2024 年 1-12 月",
+        "本期比上年同期增减",
+        "2023 年 1-12 月"
+      ],
+      "actualRow": [
+        "营业收入",
+        "12,355,561",
+        "12,223,786",
+        "1.08%",
+        "11,866,120"
+      ],
+      "bbox": [
+        46.932,
+        163.724,
+        548.388,
+        623.5
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-601577",
+      "code": "601577",
+      "company": "长沙银行",
+      "pdfPage": 12,
+      "label": "营业收入",
+      "unit": "千元",
+      "cells": {
+        "1": "25,470,844"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225235609.PDF",
+      "sourceSha256": "bd3a0cadc8e579e4c457df990515412d968a243a73293bd857399815eed7f39b",
+      "method": "ruled_grid_repaired_with_whole_pdf_words",
+      "qualityFlags": [
+        "internal_header_rows_preserved",
+        "native_boundary_crossed_numeric_word_repaired",
+        "word_crosses_column_boundary_preserved_whole"
+      ],
+      "headers": [
+        "经营业绩（人民币千元）",
+        "2025年",
+        "2024年",
+        "本报告期较上年\n同期增减（%）",
+        "2023年"
+      ],
+      "actualRow": [
+        "营业收入",
+        "25,470,844",
+        "25,935,801",
+        "-1.79",
+        "24,802,828"
+      ],
+      "bbox": [
+        55.4,
+        95.453,
+        540.087,
+        766.32
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-002948",
+      "code": "002948",
+      "company": "青岛银行",
+      "pdfPage": 8,
+      "label": "营业收入",
+      "unit": "千元",
+      "cells": {
+        "1": "14,572,778"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-27/1225036782.PDF",
+      "sourceSha256": "5cd62c0e37fea097de15d3d89910f7ad3c13c78891d800f35e7e63dd90a36787",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "empty_or_merged_cells"
+      ],
+      "headers": [
+        "项目",
+        "2025 年",
+        "2024 年",
+        "本年比上年",
+        "2023 年"
+      ],
+      "actualRow": [
+        "营业收入",
+        "14,572,778",
+        "13,497,534",
+        "7.97",
+        "12,472,276"
+      ],
+      "bbox": [
+        44.375,
+        142.44,
+        550.875,
+        474.94
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-601187",
+      "code": "601187",
+      "company": "厦门银行",
+      "pdfPage": 12,
+      "label": "营业收入",
+      "unit": "千元",
+      "cells": {
+        "1": "5,859,815"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-30/1225266446.PDF",
+      "sourceSha256": "8047983ccd128fe1b41d189dd4aa48e7928c4c8cf082b51607a5e7d71dc934e0",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "internal_header_rows_preserved"
+      ],
+      "headers": [
+        "项目",
+        "2025年",
+        "2024年",
+        "本报告期较上\n年同期增减(%)",
+        "2023年"
+      ],
+      "actualRow": [
+        "营业收入",
+        "5,859,815",
+        "5,759,163",
+        "1.75",
+        "5,602,714"
+      ],
+      "bbox": [
+        84.525,
+        333.973,
+        506.875,
+        781.59
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "revenue-601229",
+      "code": "601229",
+      "company": "上海银行",
+      "pdfPage": 16,
+      "label": "营业收入",
+      "unit": "千元",
+      "cells": {
+        "1": "54,761,019"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-24/1225173739.PDF",
+      "sourceSha256": "ee03fef968462982fd65e5f5f39aa77fe9cc7731bfb51f9b97e3feafdc271d3e",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "empty_or_merged_cells",
+        "internal_header_rows_preserved"
+      ],
+      "headers": [
+        "经营业绩",
+        "2025 年",
+        "2024 年",
+        "变化",
+        "2023 年"
+      ],
+      "actualRow": [
+        "营业收入",
+        "54,761,019",
+        "52,985,550",
+        "3.35%",
+        "50,564,474"
+      ],
+      "bbox": [
+        63.984,
+        197.9,
+        531.6,
+        764.52
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-600036",
+      "code": "600036",
+      "company": "招商银行",
+      "pdfPage": 16,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "0.94"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-28/1225047590.PDF",
+      "sourceSha256": "abe612a273468072b176dd51ea460c1e1596f8ca729cbc6db3fa28ba9a57ea79",
+      "method": "shaded_column_expanded_using_pdf_geometry",
+      "qualityFlags": [
+        "columns_recovered_from_horizontal_segment_endpoints",
+        "header_recovered_above_grid",
+        "row_boundaries_extended_from_shaded_column"
+      ],
+      "headers": [
+        "资产质量指标(%)",
+        "2025年\n12月31日",
+        "2024年\n12月31日",
+        "本年末比\n上年末增减",
+        "2023年\n12月31日"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "0.94",
+        "0.95",
+        "下降0.01个百分点",
+        "0.95"
+      ],
+      "bbox": [
+        85.039,
+        316.019,
+        538.582,
+        389.705
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-000001",
+      "code": "000001",
+      "company": "平安银行",
+      "pdfPage": 17,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "1.05"
+      },
+      "columnCounts": [
+        4
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-21/1225022887.PDF",
+      "sourceSha256": "2273565ecbe1b32536631fd4a019a4f4a990f4c793cfd5b70eae90d44d3ff16c",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "internal_header_rows_preserved"
+      ],
+      "headers": [
+        "项 目",
+        "2025 年",
+        "2024 年",
+        "本年同比增减"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "1.05%",
+        "1.06%",
+        "-0.01 个百分点"
+      ],
+      "bbox": [
+        68.15,
+        151.54,
+        534.517,
+        414.04
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-600919",
+      "code": "600919",
+      "company": "江苏银行",
+      "pdfPage": 19,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "0.84"
+      },
+      "columnCounts": [
+        4
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225247387.PDF",
+      "sourceSha256": "63f6612a6d97530a7572ddf7ead66e8b61c97d7b5c72197e2d0ed94b7c36d566",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [],
+      "headers": [
+        "主要指标（%）",
+        "2025年末",
+        "2024年末",
+        "2023年末"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "0.84",
+        "0.89",
+        "0.89"
+      ],
+      "bbox": [
+        84.948,
+        113.74,
+        510.066,
+        308.082
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-601009",
+      "code": "601009",
+      "company": "南京银行",
+      "pdfPage": 18,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "0.83"
+      },
+      "columnCounts": [
+        7
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157414.PDF",
+      "sourceSha256": "b7ed7b82689963ca038d635086d5a979e4fc35f5abfa9917dbf272361a554651",
+      "method": "shaded_column_expanded_using_pdf_geometry",
+      "qualityFlags": [
+        "column_layout_supported_by_one_full_width_rule",
+        "columns_recovered_from_horizontal_segment_endpoints",
+        "paired_year_subheaders_combined_raw_rows_preserved",
+        "row_boundaries_extended_from_shaded_column",
+        "word_crosses_column_boundary_preserved_whole"
+      ],
+      "headers": [
+        "主要指标(%)",
+        "2025年 期末",
+        "2025年 平均",
+        "2024年 期末",
+        "2024年 平均",
+        "2023年 期末",
+        "2023年 平均"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "0.83",
+        "0.83",
+        "0.83",
+        "0.87",
+        "0.90",
+        "0.90"
+      ],
+      "bbox": [
+        76.535,
+        86.903,
+        538.583,
+        463.591
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-600926",
+      "code": "600926",
+      "company": "杭州银行",
+      "pdfPage": 15,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "0.76"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225157162.PDF",
+      "sourceSha256": "8969c2e4b35d820cb1ee90b2cd6b5a5625a4c1226bf3e092d69eceba8d72849b",
+      "method": "conservative_repeated_numeric_alignment",
+      "qualityFlags": [
+        "columns_inferred_from_repeated_numeric_alignment",
+        "rows_are_physical_text_lines_wrapped_labels_not_merged",
+        "word_crosses_column_boundary_preserved_whole"
+      ],
+      "headers": [
+        "流动性风险指标",
+        "2025 年\n12 月 31 日",
+        "2024 年\n12 月 31 日",
+        "本期末比上年末\n增减（%/百分点）",
+        "2023 年\n12月31日"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "0.76",
+        "0.76",
+        "与上年末持平",
+        "0.76"
+      ],
+      "bbox": [
+        76.721,
+        258.17,
+        529.3,
+        612.601
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-601838",
+      "code": "601838",
+      "company": "成都银行",
+      "pdfPage": 16,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "0.68"
+      },
+      "columnCounts": [
+        4
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-23/1225153907.PDF",
+      "sourceSha256": "8d0667415eb1dccb69034726221a0b92aeead3a2b7658d9a7856b66222ab4eb6",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "internal_header_rows_preserved"
+      ],
+      "headers": [
+        "项目",
+        "2025 年",
+        "2024 年",
+        "2023 年"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "0.68%",
+        "0.66%",
+        "0.68%"
+      ],
+      "bbox": [
+        63.171,
+        548.47,
+        549.073,
+        716.136
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-002966",
+      "code": "002966",
+      "company": "苏州银行",
+      "pdfPage": 15,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "2": "0.82"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225240273.PDF",
+      "sourceSha256": "48c1836b8a049abf4f2d70417db7bd646df9325c2b6f73713ee7ec71faf9011b",
+      "method": "ruled_grid_repaired_with_whole_pdf_words",
+      "qualityFlags": [
+        "ornamental_header_splits_replaced_by_dominant_body_columns"
+      ],
+      "headers": [
+        "指标",
+        "监管指标",
+        "2025 年 12 月 31 日",
+        "2024 年 12 月 31 日",
+        "2023 年 12 月 31 日"
+      ],
+      "actualRow": [
+        "不良贷款率（%）",
+        "≤5",
+        "0.82",
+        "0.83",
+        "0.84"
+      ],
+      "bbox": [
+        51.252,
+        232.251,
+        544.085,
+        674.14
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-601577",
+      "code": "601577",
+      "company": "长沙银行",
+      "pdfPage": 13,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "1.15"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225235609.PDF",
+      "sourceSha256": "bd3a0cadc8e579e4c457df990515412d968a243a73293bd857399815eed7f39b",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [],
+      "headers": [
+        "主要指标（%）",
+        "2025年",
+        "2024年",
+        "本年比上年增减（%）",
+        "2023年"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "1.15",
+        "1.17",
+        "-0.02",
+        "1.15"
+      ],
+      "bbox": [
+        71.75,
+        529.595,
+        523.742,
+        762.97
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-002948",
+      "code": "002948",
+      "company": "青岛银行",
+      "pdfPage": 9,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "0.97"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-27/1225036782.PDF",
+      "sourceSha256": "5cd62c0e37fea097de15d3d89910f7ad3c13c78891d800f35e7e63dd90a36787",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "empty_or_merged_cells"
+      ],
+      "headers": [
+        "项目",
+        "2025 年\n12 月 31 日",
+        "2024 年\n12 月 31 日",
+        "本年末比\n上年末",
+        "2023 年\n12 月 31 日"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "0.97",
+        "1.14",
+        "(0.17)",
+        "1.18"
+      ],
+      "bbox": [
+        44.6,
+        465.04,
+        550.667,
+        708.64
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-601187",
+      "code": "601187",
+      "company": "厦门银行",
+      "pdfPage": 13,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "0.77"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-30/1225266446.PDF",
+      "sourceSha256": "8047983ccd128fe1b41d189dd4aa48e7928c4c8cf082b51607a5e7d71dc934e0",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "internal_header_rows_preserved"
+      ],
+      "headers": [
+        "每股计（元／股）",
+        "2025年",
+        "2024年",
+        "本报告期较上年同\n期增减(%)",
+        "2023年"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "0.77%",
+        "0.74%",
+        "上升 个百分点\n0.03",
+        "0.76%"
+      ],
+      "bbox": [
+        84.508,
+        216.273,
+        512.07,
+        615.34
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "npl-601229",
+      "code": "601229",
+      "company": "上海银行",
+      "pdfPage": 18,
+      "label": "不良贷款率",
+      "unit": "%",
+      "cells": {
+        "1": "1.18"
+      },
+      "columnCounts": [
+        5
+      ],
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-24/1225173739.PDF",
+      "sourceSha256": "ee03fef968462982fd65e5f5f39aa77fe9cc7731bfb51f9b97e3feafdc271d3e",
+      "method": "pdfplumber_ruled_grid",
+      "qualityFlags": [
+        "header_not_detected",
+        "internal_header_rows_preserved"
+      ],
+      "headers": [
+        "列 1",
+        "列 2",
+        "列 3",
+        "列 4",
+        "列 5"
+      ],
+      "actualRow": [
+        "不良贷款率",
+        "1.18%",
+        "1.18%",
+        "-",
+        "1.21%"
+      ],
+      "bbox": [
+        63.864,
+        102.26,
+        531.48,
+        234.29
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "ningbo-corporate-loans",
+      "code": "002142",
+      "pdfPage": 9,
+      "label": "公司贷款及垫款本金",
+      "unit": "百万元",
+      "columnCounts": [
+        5
+      ],
+      "cells": {
+        "1": "1,073,136",
+        "2": "822,628",
+        "3": "30.45",
+        "4": "661,269"
+      },
+      "company": "宁波银行",
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-25/1225189419.PDF",
+      "sourceSha256": "6610078eb1d109465781dbd47d3256d4abbbe2f4ff1f8017e1724b3fadb35558",
+      "method": "header_columns_extended_along_horizontal_rules",
+      "qualityFlags": [
+        "vertical_boundaries_extended_from_header"
+      ],
+      "headers": [
+        "规模指标（人民币 百万元）",
+        "2025 年 12 月 31 日",
+        "2024 年 12 月 31 日",
+        "本报告期末比\n上年末增减",
+        "2023 年 12 月 31 日"
+      ],
+      "actualRow": [
+        "－公司贷款及垫款本金",
+        "1,073,136",
+        "822,628",
+        "30.45%",
+        "661,269"
+      ],
+      "bbox": [
+        64.4,
+        503.073,
+        530.9,
+        756.34
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "cmb-attributable-profit",
+      "code": "600036",
+      "pdfPage": 14,
+      "label": "归属于本行股东的净利润",
+      "unit": "百万元",
+      "columnCounts": [
+        5
+      ],
+      "cells": {
+        "1": "150,181",
+        "2": "148,391",
+        "3": "1.21",
+        "4": "146,602"
+      },
+      "company": "招商银行",
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-03-28/1225047590.PDF",
+      "sourceSha256": "abe612a273468072b176dd51ea460c1e1596f8ca729cbc6db3fa28ba9a57ea79",
+      "method": "shaded_column_expanded_using_pdf_geometry",
+      "qualityFlags": [
+        "columns_recovered_from_horizontal_segment_endpoints",
+        "header_recovered_above_grid",
+        "row_boundaries_extended_from_shaded_column",
+        "word_crosses_column_boundary_preserved_whole"
+      ],
+      "headers": [
+        "（人民币百万元，特别注明除外）",
+        "2025年",
+        "2024年",
+        "本年比上年\n增减(%)",
+        "2023年"
+      ],
+      "actualRow": [
+        "归属于本行股东的净利润",
+        "150,181",
+        "148,391",
+        "1.21",
+        "146,602"
+      ],
+      "bbox": [
+        85.039,
+        156.282,
+        538.582,
+        472.764
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "suzhou-net-profit",
+      "code": "002966",
+      "pdfPage": 12,
+      "label": "净利润",
+      "unit": "千元",
+      "columnCounts": [
+        5
+      ],
+      "cells": {
+        "1": "5,578,439",
+        "2": "5,272,956",
+        "3": "5.79",
+        "4": "4,797,129"
+      },
+      "company": "苏州银行",
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225240273.PDF",
+      "sourceSha256": "48c1836b8a049abf4f2d70417db7bd646df9325c2b6f73713ee7ec71faf9011b",
+      "method": "ruled_grid_repaired_with_whole_pdf_words",
+      "qualityFlags": [
+        "internal_header_rows_preserved",
+        "ornamental_header_splits_replaced_by_dominant_body_columns"
+      ],
+      "headers": [
+        "项目",
+        "2025 年 1-12 月",
+        "2024 年 1-12 月",
+        "本期比上年同期增减",
+        "2023 年 1-12 月"
+      ],
+      "actualRow": [
+        "净利润",
+        "5,578,439",
+        "5,272,956",
+        "5.79%",
+        "4,797,129"
+      ],
+      "bbox": [
+        46.932,
+        163.724,
+        548.388,
+        623.5
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "suzhou-attributable-profit",
+      "code": "002966",
+      "pdfPage": 12,
+      "label": "归属于母公司股东的净利润",
+      "unit": "千元",
+      "columnCounts": [
+        5
+      ],
+      "cells": {
+        "1": "5,348,303",
+        "2": "5,068,207",
+        "3": "5.53",
+        "4": "4,600,649"
+      },
+      "company": "苏州银行",
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225240273.PDF",
+      "sourceSha256": "48c1836b8a049abf4f2d70417db7bd646df9325c2b6f73713ee7ec71faf9011b",
+      "method": "ruled_grid_repaired_with_whole_pdf_words",
+      "qualityFlags": [
+        "internal_header_rows_preserved",
+        "ornamental_header_splits_replaced_by_dominant_body_columns"
+      ],
+      "headers": [
+        "项目",
+        "2025 年 1-12 月",
+        "2024 年 1-12 月",
+        "本期比上年同期增减",
+        "2023 年 1-12 月"
+      ],
+      "actualRow": [
+        "归属于母公司股东的净利润",
+        "5,348,303",
+        "5,068,207",
+        "5.53%",
+        "4,600,649"
+      ],
+      "bbox": [
+        46.932,
+        163.724,
+        548.388,
+        623.5
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    },
+    {
+      "id": "jiangsu-net-interest-margin",
+      "code": "600919",
+      "pdfPage": 23,
+      "label": "净息差",
+      "unit": "%",
+      "columnCounts": [
+        4
+      ],
+      "cells": {
+        "3": "1.73"
+      },
+      "company": "江苏银行",
+      "reportYear": 2025,
+      "sourceUrl": "https://static.cninfo.com.cn/finalpage/2026-04-29/1225247387.PDF",
+      "sourceSha256": "63f6612a6d97530a7572ddf7ead66e8b61c97d7b5c72197e2d0ed94b7c36d566",
+      "method": "header_columns_extended_along_horizontal_rules",
+      "qualityFlags": [
+        "header_not_detected",
+        "internal_header_rows_preserved",
+        "vertical_boundaries_extended_from_header"
+      ],
+      "headers": [
+        "列 1",
+        "列 2",
+        "列 3",
+        "列 4"
+      ],
+      "actualRow": [
+        "4\n净息差",
+        "",
+        "",
+        "1.73%"
+      ],
+      "bbox": [
+        85.039,
+        217.256,
+        510.236,
+        626.164
+      ],
+      "originalSourceRowVerified": true,
+      "passed": true
+    }
+  ],
+  "layouts": [
+    {
+      "id": "complete-quarter-number",
+      "code": "600919",
+      "pdfPage": 19,
+      "passed": true
+    },
+    {
+      "id": "paired-year-subheaders",
+      "code": "601009",
+      "pdfPage": 18,
+      "passed": true
+    },
+    {
+      "id": "internal-date-header",
+      "code": "000001",
+      "pdfPage": 17,
+      "passed": true
+    },
+    {
+      "id": "currency-unit-in-header",
+      "code": "002142",
+      "pdfPage": 9,
+      "passed": true
+    },
+    {
+      "id": "narrative-is-not-a-table",
+      "code": "002142",
+      "pdfPage": 18,
+      "passed": true
+    }
+  ]
+}
