@@ -68,7 +68,7 @@ def content(evaluation, manifest, counts):
     return {
         "eyebrow": "2025 银行业年报 · 检索问答实验",
         "title": "能找到原文证据，仍需核对口径",
-        "lead": f"默认混合检索经 10 题人工复核：{counts['correct']} 题证据充分、{counts['partial']} 题部分回答、{counts['incorrect']} 题错误。判断基于完整摘录，非首条结果。明确公司与单项指标时较好；全景比较仍会漏项、混入其他期间或口径。",
+        "lead": f"默认混合检索经 10 题人工复核：{counts['correct']} 题证据充分、{counts['partial']} 题未完整答对（部分回答）。按完整摘录核验，不是首条准确率；全景题仍有缺失和集团/母行口径错误。",
         "stats": f"{len(manifest['reports'])} 份完整年报  /  {manifest['totalPages']:,} 页  /  {manifest['totalChunks']:,} 个检索块  /  {manifest['totalTables']:,} 张提取表",
         "good": "单公司、指标名称明确的数字题较稳。公司过滤缩小范围，保留表格行列、单位和年份后，可回到原页核验。Q01-Q06、Q08 的完整摘录证据足以作答；部分题需联合多条证据。",
         "failure": "Q07 混入季度相关片段，未形成干净的年度回答。Q09 全景题仅 3 家完整、5 家部分、4 家缺失；Q10 按集团口径仅 5 家完整、3 家部分、4 家缺失。南京银行 0.80% 属母公司口径，是真实值但不能当成集团答案。",
@@ -112,7 +112,7 @@ def md(value):
 
 
 def write_record(evaluation, manifest, counts, target, evaluation_hash):
-    lines = ["# 银行年报问答：逐题评测记录", "", f"评测生成时间：{evaluation.get('generatedAt', '')}", "", f"评测 JSON SHA-256：`{evaluation_hash}`", "", f"语料：{len(manifest['reports'])} 份完整 2025 年报、{manifest['totalPages']:,} 个物理页、{manifest['totalChunks']:,} 个检索块、{manifest['totalTables']:,} 张提取表。", "", "## 口径与复核范围", "", "- 10 道固定问题；普通题取 Top-10，2 道全景题逐公司取 Top-2。排名及分数保留实际检索输出；不同方法的原始分数不可直接比较。", "- 仅默认混合检索（hybrid）的 10 道题完成人工复核；BM25 和 dense 两组只报告自动指标和真实召回，不赋予人工对错标签。", f"- 混合检索人工判断：正确 {counts['correct']}、部分正确 {counts['partial']}、错误 {counts['incorrect']}。", "- 规范页命中（evidenceRecall）只检查人工预先指定的物理页；其他重复披露页可能包含正确答案，但不计该规范页命中。它不是全部相关证据的召回率。", "- displayedFactCoverage 是展示文本对预设数字字符串的自动覆盖，不验证单位、年份和集团/母公司口径，不是人工正确率。", "- 真实向量为 512 维 BGE-small-zh；回答按召回原文摘录组装，未调用生成式大模型。", "", "## 三种方法的自动指标", "", "| 方法 | 规范页命中 | MRR | 自动数字覆盖 |", "|---|---:|---:|---:|"]
+    lines = ["# 银行年报问答：逐题评测记录", "", f"评测生成时间：{evaluation.get('generatedAt', '')}", "", f"评测 JSON SHA-256：`{evaluation_hash}`", "", f"语料：{len(manifest['reports'])} 份完整 2025 年报、{manifest['totalPages']:,} 个物理页、{manifest['totalChunks']:,} 个检索块、{manifest['totalTables']:,} 张提取表。", "", "## 口径与复核范围", "", "- 10 道固定问题；普通题取 Top-10，2 道全景题逐公司取 Top-2。排名及分数保留实际检索输出；不同方法的原始分数不可直接比较。", "- 仅默认混合检索（hybrid）的 10 道题完成人工复核；BM25 和 dense 两组只报告自动指标和真实召回，不赋予人工对错标签。", f"- 混合检索人工判断：{counts['correct']} 题证据充分、{counts['partial']} 题未完整答对（部分回答）。按完整摘录核验，不是首条准确率，也不表示每条片段中的数值、期间和口径都正确。", "- 规范页命中（evidenceRecall）只检查人工预先指定的物理页；其他重复披露页可能包含正确答案，但不计该规范页命中。它不是全部相关证据的召回率。", "- displayedFactCoverage 是展示文本对预设数字字符串的自动覆盖，不验证单位、年份和集团/母公司口径，不是人工正确率。", "- 真实向量为 512 维 BGE-small-zh；回答按召回原文摘录组装，未调用生成式大模型。", "", "## 三种方法的自动指标", "", "| 方法 | 规范页命中 | MRR | 自动数字覆盖 |", "|---|---:|---:|---:|"]
     lines += ["| " + " | ".join(row) + " |" for row in metric_rows(evaluation)]
     for q in evaluation["questions"]:
         lines += ["", f"## {q['id']} · {q['question']}", "", f"题型：{'全景题（逐公司 Top-2）' if q['type'] != 'single' else '单公司题（Top-10）'}", "", f"参考答案：{q.get('expectedAnswer', '')}", "", "预先指定的规范证据：", ""]

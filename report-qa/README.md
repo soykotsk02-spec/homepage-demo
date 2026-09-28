@@ -12,6 +12,22 @@
 
 原 PDF 不重复上传到代码仓库。读者可以点击回答旁的 `PDF 第 N 页` 访问官方原文；`#page=N` 是从 1 开始的物理页，不是印刷页码。原文件、页面文字和完整二维表格保存在执行机器的 `artifacts/` 或自行指定目录。公开检索数据只来自这些公开年报。
 
+只下载本次使用的财报，不重跑后续流程：
+
+```sh
+cd report-qa
+python scripts/download_reports.py --sources sources.json --workdir artifacts
+```
+
+脚本读取固定的官方来源清单，下载 12 份全文到已忽略的 `artifacts/`，记录文件大小和 SHA-256。仓库中的 `conclusion.pdf` 是一页作业结论，不是财报原文件。
+
+## 提交与复盘约定
+
+- 原样保留真实召回、人工判断和失败原因，不为了结论好看删题或调整评测标签。当前 7 题证据充分，Q07、Q09、Q10 为部分回答；跨公司题存在实质漏项和口径错误。证据充分不等于首条结果正确，自动数字覆盖也不等于准确率。
+- 当前财报问答不需要 API key、密码或个人登录账号。以后接入外部模型时，key 只放本机 `.env`，由后端进程读取；不得放入源码、前端资源、日志、截图或提交附件。根目录与本目录的 `.gitignore` 均忽略 `.env` 和 `.env.*`。
+- 截图只保留页面内容，避免包含浏览器账号区、邮箱、个人路径和登录凭据。复现示例使用相对路径；公开仓库及官方财报链接用于追溯来源。
+- 原始财报与中间抽取文件留在 `artifacts/`，不提交。结论 PDF、问答截图、下载脚本、公开检索索引与评测记录属于交付物。
+
 ## 如何运行网站
 
 根项目的 `npm run build` 会从仓库自带的 130 个分片恢复经过 SHA-256 校验的模型、浏览器运行文件、索引和评测记录，再把白名单文件复制到 `public/`。完整仓库可离线构建；已在禁止所有网络请求的干净副本中验证。部署时不重新抽取 PDF、不运行 Python、不重新编码一万多条向量。Node.js 20+ 可构建；现有 Vercel 项目使用 Node.js 22。
@@ -47,7 +63,7 @@ python scripts/package-index.py
 
 本次交付：[一页结论 PDF](reports/conclusion.pdf)、[逐题评测记录](reports/evaluation-record.md)、[人工复核说明](reports/manual-review.json)。默认混合检索的 10 题人工复核为 7 题证据充分、3 题部分回答；BM25 与纯向量基线仅报告自动指标。`scripts/record_review.py` 只记录本次冻结版本的人工判定，不是通用自动评分器；换语料或排序后必须重新审阅。
 
-页面截图：[工作台](reports/screenshots/workbench.jpg)、[混合检索与出处](reports/screenshots/answer.jpg)、[10题评测全页](reports/screenshots/evaluation.jpg)、[表格还原与页码](reports/screenshots/table.jpg)。截图来自与线上已核对版本一致的本地浏览器运行；线上自动化浏览器复测曾遇工具超时，部署/资源核验与交互核验的范围见[运行验证记录](reports/acceptance.md)。
+页面截图：[工作台](reports/screenshots/workbench.jpg)、[混合检索与出处](reports/screenshots/answer.jpg)、[两道全景题的失败案例](reports/screenshots/evaluation.jpg)、[表格还原与页码](reports/screenshots/table.jpg)。评测截图展示 Q09/Q10 的实际未完整回答与错误分析；完整十题见网页评测区及逐题记录。截图来自与线上已核对版本一致的本地浏览器运行；线上自动化浏览器复测曾遇工具超时，部署/资源核验与交互核验的范围见[运行验证记录](reports/acceptance.md)。
 
 ## 提取与切块
 

@@ -2,7 +2,7 @@
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <base href="/report-qa/"><title>一页结论 · 银行年报研究台</title><meta name="description" content="12份银行年报、10道真实问题的检索问答实验结论与边界。"><link rel="stylesheet" href="./conclusion.css"></head>
 <body><nav class="screen-nav" aria-label="页面导航"><a href="./">← 返回研究台</a><a href="./data/evaluation.json">完整评测数据</a></nav>
-<main class="sheet"><header><p class="eyebrow">2025 银行业年报 · 检索问答实验</p><p class="edition">RESEARCH NOTE / 01</p><h1>能找到原文证据，仍需核对口径</h1><p class="lead">默认混合检索经 10 题人工复核：7 题证据充分、3 题部分回答、0 题错误。判断基于完整摘录，非首条结果。明确公司与单项指标时较好；全景比较仍会漏项、混入其他期间或口径。</p><p class="corpus">12 份完整年报  /  3,265 页  /  17,474 个检索块  /  2,607 张提取表</p></header>
+<main class="sheet"><header><p class="eyebrow">2025 银行业年报 · 检索问答实验</p><p class="edition">RESEARCH NOTE / 01</p><h1>能找到原文证据，仍需核对口径</h1><p class="lead">默认混合检索经 10 题人工复核：7 题证据充分、3 题未完整答对（部分回答）。按完整摘录核验，不是首条准确率；全景题仍有缺失和集团/母行口径错误。</p><p class="corpus">12 份完整年报  /  3,265 页  /  17,474 个检索块  /  2,607 张提取表</p></header>
 <section class="metrics"><div class="section-title"><span>01</span><h2>三种检索方式的实际表现</h2></div><table><thead><tr><th scope="col">方法</th><th scope="col">规范页命中</th><th scope="col">MRR</th><th scope="col">自动数字覆盖</th></tr></thead><tbody><tr><td>BM25 关键词</td><td>74.2%</td><td>0.415</td><td>90.8%</td></tr>
 <tr><td>BGE 语义向量</td><td>50.0%</td><td>0.208</td><td>69.2%</td></tr>
 <tr><td>RRF 混合检索</td><td>60.0%</td><td>0.335</td><td>91.7%</td></tr></tbody></table><p class="fine-print">指标均为 10 题宏平均。“规范页命中”只检查指定来源页，不代表全部相关证据召回；MRR 衡量首次规范证据排名；“数字覆盖”是自动字符串检查，不是人工正确率。仅混合检索有人工作答核验；小样本不外推至所有财报问题。</p></section>
