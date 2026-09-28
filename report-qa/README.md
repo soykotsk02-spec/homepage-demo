@@ -4,6 +4,8 @@
 
 网站入口：[/report-qa/](https://homepage-demo1111.vercel.app/report-qa/)。该目录独立于现有科技简报 Agent，不读取本地私有学习资料、不调用邮件服务，也不使用其账号凭据。
 
+主页顶部的「财报问答」可直接进入研究台。页面「附件下载」区提供[一页结论 PDF](https://homepage-demo1111.vercel.app/report-qa/downloads/conclusion.pdf)、[问答与出处截图](https://homepage-demo1111.vercel.app/report-qa/downloads/answer.png)、[表格与页码截图](https://homepage-demo1111.vercel.app/report-qa/downloads/table.png)及[逐题评测记录](https://homepage-demo1111.vercel.app/report-qa/downloads/evaluation-record.md)。附件无需等待向量模型加载即可下载；公开构建仅复制 `public-files.json` 中的文件。
+
 ## 数据与出处
 
 报告清单为 `sources.json`：招商、平安、宁波、江苏、南京、杭州、成都、苏州、长沙、青岛、厦门、上海，共 **12 家，3,265 个物理 PDF 页**。所有来源均为 `static.cninfo.com.cn` 官方全文 PDF，排除摘要、业绩快报和英文版。下载脚本验证 PDF 文件头并记录 SHA-256；来源发现脚本可重新查询巨潮公告。
