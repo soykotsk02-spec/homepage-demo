@@ -4,7 +4,7 @@
 
 网站入口：[/report-qa/](https://homepage-demo1111.vercel.app/report-qa/)。该目录独立于现有科技简报 Agent，不读取本地私有学习资料、不调用邮件服务，也不使用其账号凭据。
 
-主页顶部的「财报问答」可直接进入研究台。页面「附件下载」区提供[一页结论 PDF](https://homepage-demo1111.vercel.app/report-qa/downloads/conclusion.pdf)、[问答与出处截图](https://homepage-demo1111.vercel.app/report-qa/downloads/answer.png)、[表格与页码截图](https://homepage-demo1111.vercel.app/report-qa/downloads/table.png)及[逐题评测记录](https://homepage-demo1111.vercel.app/report-qa/downloads/evaluation-record.md)。附件无需等待向量模型加载即可下载；公开构建仅复制 `public-files.json` 中的文件。
+主页顶部的「财报问答」可直接进入研究台。页面「附件下载」区提供[一页结论 PDF](https://homepage-demo1111.vercel.app/report-qa/downloads/conclusion.pdf)、[问答与出处截图](https://homepage-demo1111.vercel.app/report-qa/downloads/answer.jpg)、[表格与页码截图](https://homepage-demo1111.vercel.app/report-qa/downloads/table.jpg)及[逐题评测记录](https://homepage-demo1111.vercel.app/report-qa/downloads/evaluation-record.md)。附件无需等待向量模型加载即可下载；公开构建仅复制 `public-files.json` 中的文件。
 
 ## 数据与出处
 
@@ -47,7 +47,7 @@ python scripts/package-index.py
 
 本次交付：[一页结论 PDF](reports/conclusion.pdf)、[逐题评测记录](reports/evaluation-record.md)、[人工复核说明](reports/manual-review.json)。默认混合检索的 10 题人工复核为 7 题证据充分、3 题部分回答；BM25 与纯向量基线仅报告自动指标。`scripts/record_review.py` 只记录本次冻结版本的人工判定，不是通用自动评分器；换语料或排序后必须重新审阅。
 
-页面截图：[工作台](reports/screenshots/workbench.png)、[混合检索与出处](reports/screenshots/answer.png)、[10题评测全页](reports/screenshots/evaluation.png)、[表格还原与页码](reports/screenshots/table.png)。截图来自与线上已核对版本一致的本地浏览器运行；线上自动化浏览器复测曾遇工具超时，部署/资源核验与交互核验的范围见[运行验证记录](reports/acceptance.md)。
+页面截图：[工作台](reports/screenshots/workbench.jpg)、[混合检索与出处](reports/screenshots/answer.jpg)、[10题评测全页](reports/screenshots/evaluation.jpg)、[表格还原与页码](reports/screenshots/table.jpg)。截图来自与线上已核对版本一致的本地浏览器运行；线上自动化浏览器复测曾遇工具超时，部署/资源核验与交互核验的范围见[运行验证记录](reports/acceptance.md)。
 
 ## 提取与切块
 
