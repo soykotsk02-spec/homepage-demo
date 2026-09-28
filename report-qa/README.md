@@ -45,6 +45,8 @@ python scripts/package-index.py
 
 本次交付：[一页结论 PDF](reports/conclusion.pdf)、[逐题评测记录](reports/evaluation-record.md)、[人工复核说明](reports/manual-review.json)。默认混合检索的 10 题人工复核为 7 题证据充分、3 题部分回答；BM25 与纯向量基线仅报告自动指标。`scripts/record_review.py` 只记录本次冻结版本的人工判定，不是通用自动评分器；换语料或排序后必须重新审阅。
 
+页面截图：[工作台](reports/screenshots/workbench.png)、[混合检索与出处](reports/screenshots/answer.png)、[10题评测全页](reports/screenshots/evaluation.png)、[表格还原与页码](reports/screenshots/table.png)。截图来自与线上已核对版本一致的本地浏览器运行；线上自动化浏览器复测曾遇工具超时，部署/资源核验与交互核验的范围见[运行验证记录](reports/acceptance.md)。
+
 ## 提取与切块
 
 - `scripts/table_extract.py` 先保留原生网格；针对只画横线、灰色表头、仅突出本年列的表，利用真实 PDF 行列坐标恢复完整单元格。数字按完整词分配，避免把 `20,759,566` 切开。
