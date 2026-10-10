@@ -23,4 +23,10 @@ for (const name of files) {
   await mkdir(path.dirname(target), { recursive: true });
   await copyFile(path.join(researchRoot, name), target);
 }
-console.log(`Public website built: five existing frontend files and ${files.length} reviewed research assets.`);
+// The judgment project runs on the user's computer. Only these presentation
+// assets go to the website; no Python backend, data, key or runtime log does.
+await mkdir(path.join(output, 'judgment-api'), { recursive: true });
+for (const name of ['index.html', 'styles.css', 'app.js']) {
+  await copyFile(path.join(root, 'judgment-api', 'site', name), path.join(output, 'judgment-api', name));
+}
+console.log(`Public website built: five existing frontend files, ${files.length} reviewed research assets and three judgment project assets.`);

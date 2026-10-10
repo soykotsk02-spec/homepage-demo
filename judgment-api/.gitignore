@@ -1,0 +1,52 @@
+# Secrets: only the deliberately invalid example may be public.
+.env
+.env.*
+!.env.example
+*.local.json
+*credentials*
+*secret*.json
+submission*
+
+# Local dependencies, tunnel binary, process state, logs and private evaluations.
+.deps/
+.venv/
+venv/
+bin/
+runtime/
+artifacts/
+data/
+corpus/
+private/
+models/
+indexes/
+cache/
+tests/*.json
+tests/*.jsonl
+*.log
+
+# Authorized case data and derived text/index/model files never belong in Git.
+*.jsonl
+*.jsonl.gz
+*.ndjson
+judgments*.json
+*evaluation*.json
+*.joblib
+*.pkl
+*.pickle
+*.npy
+*.npz
+*.sqlite
+*.sqlite3
+*.db
+*.pdf
+*.doc
+*.docx
+*.zip
+*.7z
+
+# Python and editor files.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,7 @@
+# Versions verified on Windows / Python 3.12; installed only in .deps.
+scikit-learn==1.7.2
+numpy==2.5.3
+scipy==1.18.1
+joblib==1.6.0
+cloudpickle==3.1.2
+threadpoolctl==3.7.0
