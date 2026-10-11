@@ -1,9 +1,10 @@
 import { buildAnswer, citationHref } from './answer.mjs';
+import { renderAuditSummary, renderQuestionAudit } from './review.mjs';
 
 const $ = selector => document.querySelector(selector);
 const modes = { hybrid: '混合检索', bm25: 'BM25 关键词', dense: '语义向量' };
 const state = { worker: null, capabilities: { bm25: false, dense: false }, companies: [], manifest: null,
-  evaluation: null, activeRequest: null, busy: false, timer: null, started: 0, selected: new Set(), view: 'research',
+  evaluation: null, review: null, activeRequest: null, busy: false, timer: null, started: 0, selected: new Set(), view: 'research',
   initialMode: 'hybrid', modeChosenByUser: false, hasSearched: false, automaticModeFallback: false };
 const number = value => Number.isFinite(Number(value)) ? Number(value).toLocaleString('zh-CN') : '—';
 function element(tag, className, text) { const node = document.createElement(tag); if (className) node.className = className; if (text !== undefined && text !== null) node.textContent = String(text); return node; }
@@ -202,8 +203,8 @@ function runSearch(event) {
 
 function questionList(data) { return Array.isArray(data) ? data : Array.isArray(data?.questions) ? data.questions : []; }
 const metricLabels = {
-  evidenceRecall: '规范原页证据召回', meanReciprocalRank: '平均倒数排名（MRR）',
-  displayedFactCoverage: '关键事实覆盖', returnedCompanies: '返回公司数',
+  evidenceRecall: '规范页命中（自动）', meanReciprocalRank: '规范页倒数排名（MRR）',
+  displayedFactCoverage: '数字字符串覆盖（自动）', returnedCompanies: '返回公司数',
   expectedCompanies: '目标公司数', cutoff: '截取范围',
 };
 function shortMetric(value, key = '') {
@@ -248,6 +249,7 @@ function renderRecordedEvaluation(results, parent) {
       section.append(element('p', 'recorded-company', group.company));
       if (!group.hits?.length) section.append(element('p', '', '未找到可展示的证据。'));
       for (const hit of group.hits || []) {
+        for (const context of hit.contextLines || []) section.append(element('p', 'table-caption', context));
         const row = element('p', '', hit.excerpt || hit.text || '');
         const href = citationHref(hit.sourceUrl, hit.pdfPage);
         if (href) { const link = element('a', 'source-link', ` PDF 第 ${hit.pdfPage} 页 ↗`); link.href = href; link.target = '_blank'; link.rel = 'noopener noreferrer'; row.append(document.createTextNode(' '), link); }
@@ -270,8 +272,8 @@ function renderEvaluation(data) {
     ['评测方式', '3', 'BM25 / 向量 / 混合检索'],
   ];
   for (const [label, value, detail] of summaryCards) summary.append(append(element('div', 'eval-stat'), element('span', '', label), element('strong', '', value), element('small', '', detail)));
-  if (typeof data?.summary === 'string') { const note = element('p', 'result-notes', data.summary); list.append(note); }
-  else if (data?.summary?.note) list.append(element('p', 'result-notes', data.summary.note));
+  if (state.review) renderAuditSummary(state.review, list);
+  else list.append(element('p', 'result-notes', '补充复核未载入或与当前评测版本不匹配。这里只展示原始召回和自动指标，不沿用旧版“证据充分”的回答正确标签。'));
   questions.forEach((item, index) => {
     const question = item.question || item.query || '';
     const crossCompany = Boolean(item.crossCompany || /panoram|cross|全景|跨公司/i.test(item.type || ''));
@@ -285,15 +287,13 @@ function renderEvaluation(data) {
     if (Array.isArray(item.expectedTopics) && item.expectedTopics.length) body.append(element('p', 'eval-detail', `核验重点：${item.expectedTopics.join('、')}`));
     const methodMetrics = item.results ? Object.fromEntries(['hybrid', 'bm25', 'dense'].filter(mode => item.results[mode]?.metrics).map(mode => [mode, item.results[mode].metrics])) : null;
     renderMetrics(item.metrics || item.results?.metrics || methodMetrics, body);
-    if (typeof item.verdict === 'string') body.append(element('p', 'eval-detail', `人工核查：${item.verdict}`));
-    else if (item.verdict && typeof item.verdict === 'object') renderMetrics(item.verdict, body);
-    const errorAnalysis = typeof item.errorAnalysis === 'string' ? item.errorAnalysis : Array.isArray(item.errorAnalysis) ? item.errorAnalysis.filter(value => typeof value === 'string').join('；') : '';
-    if (errorAnalysis) body.append(element('p', 'eval-detail', `误差分析：${errorAnalysis}`));
+    const review = state.review?.questions.find(question => question.id === item.id);
+    if (review) renderQuestionAudit(review, body);
     renderRecordedEvaluation(item.results, body);
     if (typeof item.resultNote === 'string') body.append(element('p', 'eval-detail', item.resultNote));
     const referenceEvidence = item.evidence || item.goldEvidence;
     if (Array.isArray(referenceEvidence) && referenceEvidence.length) {
-      const details = element('details', 'eval-evidence'); details.append(element('summary', '', `人工核验参考出处 · ${referenceEvidence.length} 条`));
+      const details = element('details', 'eval-evidence'); details.append(element('summary', '', `复核参考出处 · ${referenceEvidence.length} 条`));
       for (const evidence of referenceEvidence) {
         const row = element('p', '', `${evidence.company || ''} · ${evidence.section || '原始年报'} · PDF 第 ${evidence.pdfPage || '?'} 页`);
         const href = citationHref(evidence.sourceUrl, evidence.pdfPage);
@@ -309,11 +309,22 @@ function renderEvaluation(data) {
 }
 
 async function loadJSON(path) { const response = await fetch(path, { cache: 'no-cache' }); if (!response.ok) throw new Error(`HTTP ${response.status}`); return response.json(); }
+async function loadHashed(path, json = true) {
+  const response = await fetch(path, { cache: 'no-cache' });
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  const bytes = await response.arrayBuffer();
+  const digest = await crypto.subtle.digest('SHA-256', bytes);
+  return { data: json ? JSON.parse(new TextDecoder().decode(bytes)) : null, sha256: [...new Uint8Array(digest)].map(byte => byte.toString(16).padStart(2, '0')).join('') };
+}
 async function loadMetadata() {
-  const results = await Promise.allSettled([loadJSON('./data/manifest.json'), loadJSON('./data/evaluation.json')]);
+  const results = await Promise.allSettled([loadJSON('./data/manifest.json'), loadHashed('./data/evaluation.json'), loadJSON('./data/source-answer-review.json'), loadHashed('./answer.mjs', false)]);
   if (results[0].status === 'fulfilled') { state.manifest = results[0].value; renderReports(state.manifest); }
   else $('#report-list').replaceChildren(element('div', 'empty-mini', '资料清单暂时未载入。实际检索能力请看上方状态。'));
-  if (results[1].status === 'fulfilled') { state.evaluation = results[1].value; renderEvaluation(state.evaluation); }
+  if (results[1].status === 'fulfilled') {
+    state.evaluation = results[1].value.data;
+    if (results[2].status === 'fulfilled' && results[3].status === 'fulfilled' && results[2].value.schemaVersion === 2 && results[2].value.evaluationSha256 === results[1].value.sha256 && results[2].value.answerModuleSha256 === results[3].value.sha256) state.review = results[2].value;
+    renderEvaluation(state.evaluation);
+  }
   else $('#evaluation-list').replaceChildren(element('div', 'panel empty-mini', '评测数据尚未就绪，暂不展示评测成绩。研究工作台仍可使用已就绪的检索方式。'));
 }
 function initWorker() {

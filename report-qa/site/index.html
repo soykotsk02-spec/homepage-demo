@@ -70,7 +70,7 @@
     <section id="evaluation-view" class="evaluation-view" hidden aria-labelledby="evaluation-heading">
       <div class="evaluation-intro"><div><p class="eyebrow">RETRIEVAL BENCHMARK</p><h2 id="evaluation-heading">同样的问题，检验不同的检索方式</h2><p>覆盖事实、表格与跨公司全景问题。点击任一题，可用当前索引重新运行检索。</p></div><a class="outline-button conclusion-link" href="./conclusion.html" target="_blank" rel="noopener">打开一页结论 ↗</a></div>
       <div id="evaluation-summary" class="evaluation-summary"></div><div id="evaluation-list" class="evaluation-list"><div class="panel empty-mini">评测数据载入中…</div></div>
-      <p class="result-notes">评测说明：证据召回衡量是否找到了人工标注的原页，关键事实覆盖衡量展示内容是否包含核验事实；这些比例均不等于答对率。MRR 衡量首个正确出处的排序位置。逐题结论来自人工核查，仍需检查单位、年份与统计口径。</p>
+      <p class="result-notes">评测说明：规范页命中和数字字符串覆盖是自动检查，不等于答对率。补充复核分别检查召回原文能否支持答案，以及实际展示是否完整、口径是否正确；全景题逐公司标注完整／部分／缺失。复核由 Agent 辅助核对原始 PDF，未经独立人工双评。</p>
     </section>
 
     <section id="downloads" class="downloads-section" aria-labelledby="downloads-heading">
@@ -80,7 +80,7 @@
         <a class="download-card panel" href="./downloads/conclusion.pdf" download="银行年报问答-一页结论.pdf"><span class="download-type">PDF · 1 页</span><strong>一页结论</strong><small>哪些题答得好、哪些题翻车，以及原因</small><span class="download-action">下载 PDF ↓</span></a>
         <a class="download-card panel" href="./downloads/answer.jpg" download="银行年报问答-回答与出处.jpg"><span class="download-type">JPG · 页面截图</span><strong>问答与出处</strong><small>混合检索、原文摘录与 PDF 页码引用</small><span class="download-action">下载截图 ↓</span></a>
         <a class="download-card panel" href="./downloads/table.jpg" download="银行年报问答-表格与页码.jpg"><span class="download-type">JPG · 页面截图</span><strong>表格与页码</strong><small>按行列还原财务数据，回到原始年报核验</small><span class="download-action">下载截图 ↓</span></a>
-        <a class="download-card panel" href="./downloads/evaluation-record.md" download="银行年报问答-逐题评测记录.md"><span class="download-type">MARKDOWN · 10 题</span><strong>逐题评测记录</strong><small>三路检索结果、召回块与人工复核结论</small><span class="download-action">下载记录 ↓</span></a>
+        <a class="download-card panel" href="./downloads/evaluation-record.md" download="银行年报问答-逐题评测记录.md"><span class="download-type">MARKDOWN · 30 组输出</span><strong>逐题评测记录</strong><small>实际答案快照、证据核验与逐公司完整度</small><span class="download-action">下载记录 ↓</span></a>
       </div>
     </section>
 

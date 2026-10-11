@@ -15,3 +15,4 @@
 @media(max-width:800px){.download-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.top-nav{gap:22px;flex-wrap:wrap}}
 @media(max-width:480px){.download-grid{grid-template-columns:1fr}.download-card{padding:20px}.top-nav{gap:18px}.downloads-section{padding-top:30px}}
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;scroll-behavior:auto!important;transition:none!important}}
+.audit-summary{padding:24px}.audit-summary h3{font-size:17px;font-weight:500}.audit-table th,.audit-table td{min-width:90px}.audit-method{padding:12px 0;border-bottom:1px solid var(--soft-line)}.audit-method summary{font-size:12px;color:var(--ink);cursor:pointer}.audit-record{padding:14px 0;border-bottom:1px dashed var(--soft-line)}.audit-record:last-child{border:0}.audit-record h5{font-size:13px;margin:8px 0}.question-audit{margin-top:18px}.audit-record .chunk-id{line-height:1.8}.audit-record .eval-detail{color:#607083}

@@ -23,7 +23,7 @@ python scripts/download_reports.py --sources sources.json --workdir artifacts
 
 ## 提交与复盘约定
 
-- 原样保留真实召回、人工判断和失败原因，不为了结论好看删题或调整评测标签。当前 7 题证据充分，Q07、Q09、Q10 为部分回答；跨公司题存在实质漏项和口径错误。证据充分不等于首条结果正确，自动数字覆盖也不等于准确率。
+- 2026-10-11 补充复核保留全部 30 组召回与实际答案，分别检查证据是否充分、展示答案是否完整正确。三种方法各 10 题；Q09/Q10 各逐家核对 12 家公司。完整协议见 [评价口径](reports/evaluation-protocol.md)，逐项结果见 [复核数据](reports/source-answer-review.json)。由 Agent 辅助核对原文，未经独立人工双评。
 - 当前财报问答不需要 API key、密码或个人登录账号。以后接入外部模型时，key 只放本机 `.env`，由后端进程读取；不得放入源码、前端资源、日志、截图或提交附件。根目录与本目录的 `.gitignore` 均忽略 `.env` 和 `.env.*`。
 - 截图只保留页面内容，避免包含浏览器账号区、邮箱、个人路径和登录凭据。复现示例使用相对路径；公开仓库及官方财报链接用于追溯来源。
 - 原始财报与中间抽取文件留在 `artifacts/`，不提交。结论 PDF、问答截图、下载脚本、公开检索索引与评测记录属于交付物。
@@ -54,16 +54,20 @@ node lib/download-model.mjs
 node scripts/embed.mjs
 node scripts/build-browser.mjs
 node scripts/evaluate.mjs
-# 重新人工核验，再生成报告及更新部署分片
+# 重新核对原 PDF 与各方法实际答案，更新 source-answer-review.json
+node scripts/check-recorded-answers.mjs
+python scripts/make_deliverables.py --validate-only
 python scripts/make_deliverables.py
 python scripts/package-index.py
 ```
 
 `questions.json` 是检索前固定的 10 问金标准；`scripts/make_questions.py` 记录标准答案和原页。该文件不传入检索器或答案生成函数。两道全景题逐家查询全部 12 家银行。重新评测将清除人工判定，必须再次核验；不能沿用另一版本索引的正确率。
 
-本次交付：[一页结论 PDF](reports/conclusion.pdf)、[逐题评测记录](reports/evaluation-record.md)、[人工复核说明](reports/manual-review.json)。默认混合检索的 10 题人工复核为 7 题证据充分、3 题部分回答；BM25 与纯向量基线仅报告自动指标。`scripts/record_review.py` 只记录本次冻结版本的人工判定，不是通用自动评分器；换语料或排序后必须重新审阅。
+本次交付：[一页结论 PDF](reports/conclusion.pdf)、[逐题评测记录与实际答案快照](reports/evaluation-record.md)、[证据/答案分评](reports/source-answer-review.json)。三种方法都已复核。旧 [manual-review.json](reports/manual-review.json) 保留为历史，其中“correct”表示候选证据充分，不能当作答案正确率。换语料、排序或回答模块后必须重新审阅。`make_deliverables.py` 验证冻结评测与回答模块的 SHA-256、公司/方法覆盖、实际块引用和官方来源；`record_review.py` 仅保留历史格式。
 
-页面截图：[工作台](reports/screenshots/workbench.jpg)、[混合检索与出处](reports/screenshots/answer.jpg)、[两道全景题的失败案例](reports/screenshots/evaluation.jpg)、[表格还原与页码](reports/screenshots/table.jpg)。评测截图展示 Q09/Q10 的实际未完整回答与错误分析；完整十题见网页评测区及逐题记录。截图来自与线上已核对版本一致的本地浏览器运行；线上自动化浏览器复测曾遇工具超时，部署/资源核验与交互核验的范围见[运行验证记录](reports/acceptance.md)。
+补交代码目录：[GitHub / report-qa](https://github.com/soykotsk02-spec/homepage-demo/tree/main/report-qa)。BM25 规范页命中 **74.2%** 高于融合 **60.0%** 的原结果保留。Q09/Q10 原题未明定集团口径，本次比较采用集团/整体口径；合法母行口径保留敏感性，不能直接当作编造。复核不把金标准填入实际回答。
+
+页面截图：[工作台](reports/screenshots/workbench.jpg)、[问答与出处](reports/screenshots/answer.jpg)、[三种方法分评](reports/screenshots/evaluation.jpg)、[全景逐公司核验](reports/screenshots/company-review.jpg)、[表格与页码](reports/screenshots/table.jpg)。交互和部署验证范围见 [运行验证记录](reports/acceptance.md)。
 
 ## 提取与切块
 
@@ -85,6 +89,6 @@ python scripts/package-index.py
 
 本项目采用**实时摘录式问答**，不调用生成式大语言模型。每段回答取自本次实际检索原文，表格保持行列，引用指回公司、章节和物理页。它能辅助查数、定位描述和对比，但不会自动核实集团/母公司差异，也不代替跨页表格计算或因果推断。
 
-`site/data/evaluation.json` 保存每问、每种方法的实际块 ID、分数、原文、回答和指标；其中规范原页证据召回、MRR 和关键事实覆盖分别统计。其他页重复披露可能使回答正确而规范原页召回失败；关键数字出现也不等同于口径正确。因此逐题结论须单独人工核验。详细结论见网页的一页结论及本次交付文档。
+`site/data/evaluation.json` 保存每问、每种方法的实际块 ID、分数、原文、回答和自动指标。旧字段 `evidenceRecall` 明确显示为“规范页命中”，`displayedFactCoverage` 显示为“数字字符串覆盖”，均不作答案准确率。其他原页的有效重复披露可以支持正确回答。`site/data/source-answer-review.json` 单独保存证据与答案复核，不作为检索输入；版本哈希不符时页面不显示旧标签。完整判定检查数值、年度、单位、主体、脚注及实际展示内容。
 
 模型与库的协议、许可、固定校验和见 `lib/README.md`、`lib/model-manifest.json` 及 `site/vendor/`。报告著作权归原披露主体，项目保留官方原文链接和数据来源。
